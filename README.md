@@ -23,3 +23,4 @@ The dashboard assumes the following are installed:
 
  1. SQLite 3.x
  2. SQLite Rubygem - 'sqlite3'
+ 3. OctoKit Rubygem - 'octokit'
