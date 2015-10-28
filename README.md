@@ -21,5 +21,5 @@ An HTML dashboard is generated from the SQLite Databases and the code analysis.
 
 The dashboard assumes the following are installed:
 
- # SQLite 3.x
- # SQLite Rubygem - 'sqlite3'
+ 1. SQLite 3.x
+ 2. SQLite Rubygem - 'sqlite3'
