@@ -1,7 +1,7 @@
 # osa-gitdash
 A dashboard for viewing many Git organizations at once.
 
-Generating the dashboard is intended to occurr in three phases.
+Generating the dashboard is intended to occur in three phases.
 
 ## Phase 1
 
