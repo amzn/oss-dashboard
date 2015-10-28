@@ -10,7 +10,7 @@ The subdirectories contain:
 
 The queries/ folder contains some example queries to review the data.
 
-Additionally, a github-login=>private-email mapping is maintained and loaded into each database.
+Via the user_mapping/ folder, a github-login=>private-email mapping is maintained and loaded into each database.
 
 The code relies on two configuration files in the parent directory:
 

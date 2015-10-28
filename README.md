@@ -16,3 +16,10 @@ The latest code is checked out, and review scripts run on the code. Analysis is 
 ## Phase 3
 
 An HTML dashboard is generated from the SQLite Databases and the code analysis.
+
+## Dependencies
+
+The dashboard assumes the following are installed:
+
+# SQLite 3.x
+# SQLite Rubygem - 'sqlite3'
