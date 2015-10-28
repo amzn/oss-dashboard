@@ -1,4 +1,4 @@
-# osa-gitdash
+# Amazon Open Source Program GitHub Dashboard (osa-gitdash)
 A dashboard for viewing many Git organizations at once.
 
 Generating the dashboard is intended to occur in three phases.
