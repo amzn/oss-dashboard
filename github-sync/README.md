@@ -2,10 +2,14 @@
 
 Each of the db_ subdirectories syncs a set of data from GitHub.
 
+The top level contains:
+
+* A script to initialize the databases.
+
 The subdirectories contain:
 
 * A schema file
-* A script to initialize the database.
+* A library for interacting with the database.
 * A ruby script to sync from GitHub.
 
 The queries/ folder contains some example queries to review the data.
