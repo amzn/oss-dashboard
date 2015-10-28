@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require './user_emails.rb'
+require_relative 'user_emails.rb'
 require "sqlite3"
 
   def loadUserTable(db, users)
@@ -20,15 +20,6 @@ require "sqlite3"
 
 #### MAIN CODE ####
 
-issue_db=SQLite3::Database.new '../db/gh-issues.db'
-loadUserTable(issue_db, USER_EMAILS)
-
-event_db=SQLite3::Database.new '../db/gh-events.db'
-loadUserTable(event_db, USER_EMAILS)
-
-release_db=SQLite3::Database.new '../db/gh-releases.db'
-loadUserTable(release_db, USER_EMAILS)
-
-commit_db=SQLite3::Database.new '../db/gh-commits.db'
+commit_db=SQLite3::Database.new '../db/gh-sync.db'
 loadUserTable(commit_db, USER_EMAILS)
 
