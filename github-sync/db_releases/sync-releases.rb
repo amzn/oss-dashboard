@@ -63,7 +63,7 @@ github_config = config['github']
 Octokit.auto_paginate = true
 client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
 
-release_db=SQLite3::Database.new '../db/gh-sync.db'
+release_db=SQLite3::Database.new(File.join(File.dirname(__FILE__), '../db/gh-sync.db'))
 
 organizations.each do |org|
   getAllReleasesForOrg(client, release_db, org)

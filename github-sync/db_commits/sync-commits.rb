@@ -46,7 +46,7 @@ github_config = config['github']
 Octokit.auto_paginate = true
 client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
 
-commit_db=db_open('../db/gh-sync.db');
+commit_db=db_open(File.join(File.dirname(__FILE__), '../db/gh-sync.db'));
 
 organizations.each do |org|
   getLatestForOrgRepos(client, commit_db, org)
