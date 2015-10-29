@@ -40,27 +40,32 @@ def getAllForOrg(client, event_db, org)
 end
 
 
-#### MAIN CODE ####
+def sync_events
+  # Dashboard configuration
+  config_file = File.join(File.dirname(__FILE__), "../../config-dashboard.yml")
+  config = YAML.load(File.read(config_file))
+  dashboard_config = config['dashboard']
+  
+  organizations = dashboard_config['organizations']
+  
+  # GitHub setup
+  config_file = File.join(File.dirname(__FILE__), "../../config-github.yml")
+  config = YAML.load(File.read(config_file))
+  github_config = config['github']
+  
+  Octokit.auto_paginate = true
+  client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
+  
+  event_db=db_open(File.join(File.dirname(__FILE__), '../db/gh-sync.db'));
+  
+  organizations.each do |org|
+    # TODO: Access db to see if any entries. If none, then use this call. Otherwise use latest.
+    #getAllForOrg(client, event_db, org)
+    getLatestForOrg(client, event_db, org)
+  end
+end
 
-# Dashboard configuration
-config_file = File.join(File.dirname(__FILE__), "../../config-dashboard.yml")
-config = YAML.load(File.read(config_file))
-dashboard_config = config['dashboard']
-
-organizations = dashboard_config['organizations']
-
-# GitHub setup
-config_file = File.join(File.dirname(__FILE__), "../../config-github.yml")
-config = YAML.load(File.read(config_file))
-github_config = config['github']
-
-Octokit.auto_paginate = true
-client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
-
-event_db=db_open(File.join(File.dirname(__FILE__), '../db/gh-sync.db'));
-
-organizations.each do |org|
-  # TODO: Access db to see if any entries. If none, then use this call. Otherwise use latest.
-  #getAllForOrg(client, event_db, org)
-  getLatestForOrg(client, event_db, org)
+# Invoke from command line
+if __FILE__ == $0
+  sync_events
 end
