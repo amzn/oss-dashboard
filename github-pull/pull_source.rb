@@ -61,7 +61,9 @@ organizations.each do |owner|
            Dir.chdir(repodir) do
 #             `git pull -q`
 # Hoping fetch and reset will work better than pulling
-             `git fetch -q && git reset -q --hard origin/master`
+             remote=`cat .git/config | grep 'remote = ' | sed 's/^.*remote = //'`.strip
+             branch=`cat .git/config | grep 'merge = ' | sed 's/^.*merge = refs\\\/heads\\\///'`.strip
+             `git fetch -q && git reset -q --hard #{remote}/#{branch}`
          end
       end
     end
