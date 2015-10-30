@@ -41,3 +41,5 @@ Example file:
 
   dashboard:
     organizations: ["amzn", "aws"]
+    data-directory: /full/path/to/directory/to/store/data
+    www-directory: /full/path/to/generate/html/to
