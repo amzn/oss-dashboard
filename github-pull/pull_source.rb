@@ -4,6 +4,9 @@ require 'rubygems'
 require 'octokit'
 require 'yaml'
 
+# TODO: Need to use the GitHub API to check the code out, or at the least the private code
+# WORKAROUND: Until then, pass in --private and enter credentials or setup SSH key
+
 # Dashboard configuration
 config_file = File.join(File.dirname(__FILE__), "../config-dashboard.yml")
 config = YAML.load(File.read(config_file))
@@ -24,6 +27,11 @@ github_config = config['github']
 Octokit.auto_paginate = true
 client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
 
+private=false
+if(ARGV)
+  privateMode = (ARGV[0] == '--private')
+end
+
 organizations.each do |owner|
 
     unless(File.exist?("#{DIR}/#{owner}"))
@@ -35,11 +43,16 @@ organizations.each do |owner|
       if repo.fork
         next
       end
+      if(privateMode == false and repo.private == true)
+        next
+      end
+      if(privateMode == true and repo.private == false)
+        next
+      end
       
       repodir="#{DIR}/#{owner}/#{repo.name}"
 
       # Checkout or update - use other script if repo.private
-      if not repo.private
         unless(File.exist?(repodir))
           `git clone -q --depth 1 https://github.com/#{owner}/#{repo.name}.git #{repodir}`
         else
@@ -49,8 +62,7 @@ organizations.each do |owner|
 #             `git pull -q`
 # Hoping fetch and reset will work better than pulling
              `git fetch -q && git reset -q --hard origin/master`
-           end
-        end
+         end
       end
     end
 
