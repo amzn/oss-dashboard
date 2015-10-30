@@ -24,3 +24,20 @@ The dashboard assumes the following are installed:
  1. SQLite 3.x
  2. SQLite Rubygem - 'sqlite3'
  3. OctoKit Rubygem - 'octokit'
+
+## Setup/Running
+
+* Install the dependencies listed above.
+* Create a file in the root named config-github.yml containing your GitHub access token. Set the permissions to 600. 
+
+Example file:
+
+ github:
+   access_token: "your github access token"
+
+* Create a file in the root of the directory named config-dashboard.yml containing the configuration for the dashboard.
+
+Example file:
+
+  dashboard:
+    organizations: ["amzn", "aws"]
