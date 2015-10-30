@@ -45,6 +45,7 @@ def sync_issues
   dashboard_config = config['dashboard']
   
   organizations = dashboard_config['organizations']
+  data_directory = dashboard_config['data-directory']
   
   # GitHub setup
   config_file = File.join(File.dirname(__FILE__), "../../config-github.yml")
@@ -54,7 +55,7 @@ def sync_issues
   Octokit.auto_paginate = true
   client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
   
-  issue_db=db_open(File.join(File.dirname(__FILE__),'../db/gh-sync.db'));
+  issue_db=db_open(File.join(data_directory, 'db/gh-sync.db'));
   
   organizations.each do |org|
     getLatestForOrgRepos(client, issue_db, org)

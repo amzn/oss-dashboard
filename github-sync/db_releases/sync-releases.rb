@@ -52,6 +52,7 @@ def sync_releases
   dashboard_config = config['dashboard']
   
   organizations = dashboard_config['organizations']
+  data_directory = dashboard_config['data-directory']
   
   
   # GitHub setup
@@ -62,7 +63,7 @@ def sync_releases
   Octokit.auto_paginate = true
   client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
   
-  release_db=SQLite3::Database.new(File.join(File.dirname(__FILE__), '../db/gh-sync.db'))
+  release_db=SQLite3::Database.new(File.join(data_directory, 'db/gh-sync.db'));
   
   organizations.each do |org|
     getAllReleasesForOrg(client, release_db, org)
