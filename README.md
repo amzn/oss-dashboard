@@ -42,4 +42,6 @@ Example file:
   dashboard:
     organizations: ["amzn", "aws"]
     data-directory: /full/path/to/directory/to/store/data
+    report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
+    reports: [ 'DocsReporter ']
     www-directory: /full/path/to/generate/html/to
