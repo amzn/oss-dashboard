@@ -44,10 +44,10 @@ end
 
 # TODO: This needs to go to file, not to stdout
 
-puts "<github-review>"
+report="<github-review>\n"
 
 organizations.each do |owner|
-  puts " <organization name='#{owner}'>"
+  report << " <organization name='#{owner}'>\n"
 
   repos = client.organization_repositories(owner)
   repos.each do |repo|
@@ -55,17 +55,19 @@ organizations.each do |owner|
       next
     end
 
-    puts "  <repo name='#{repo.name}'>"
+    report << "  <repo name='#{repo.name}'>\n"
 
     reports.each do |reportName|
       clazz = Object.const_get(reportName)
       instance=clazz.new
-      instance.report(repo, "#{scratch_dir}/#{repo.full_name}")
+      report << instance.report(repo, "#{scratch_dir}/#{repo.full_name}").to_s
     end
     
-    puts "  </repo>"
+    report << "  </repo>\n"
 
   end
-  puts " </organization>"
+  report << " </organization>\n"
 end
-puts "</github-review>"
+report << "</github-review>\n"
+
+puts report

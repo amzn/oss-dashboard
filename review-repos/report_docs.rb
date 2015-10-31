@@ -8,9 +8,10 @@ class DocsReporter < Reporter
 
   def report(repo, repodir)
     # Look for any text files
-    filename_check(repo, repodir, /\.txt$/, 'documentation', /(LICENSE.txt|NOTICE.txt)/);
+    txt  = filename_check(repo, repodir, /\.txt$/, 'documentation', /(LICENSE.txt|NOTICE.txt)/);
     # Look for any md files, this also picks up README.md
-    filename_check(repo, repodir, /\.md$/, 'documentation', /(LICENSE.md|NOTICE.md)/);
+    txt << filename_check(repo, repodir, /\.md$/, 'documentation', /(LICENSE.md|NOTICE.md)/);
+    return txt
   end
 
 end

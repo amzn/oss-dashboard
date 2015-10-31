@@ -7,6 +7,7 @@ class Reporter
 
   # exclude and pattern are regexps
   def filename_check(repo, dir, pattern, name, exclude=nil)
+      txt=""
       sliceIdx=dir.length + 1
       Dir.glob("#{dir}/**/*").grep(pattern).each do |file|
         if(exclude and file.match(exclude))
@@ -14,14 +15,15 @@ class Reporter
         end
   
         unless(File.directory?(file))
-          puts "      <warning type='#{name}'>#{file.to_s[sliceIdx..-1]}</warning>"
+          txt << "      <warning type='#{name}'>#{file.to_s[sliceIdx..-1]}</warning>\n"
         end
       end
+      return txt
   end
   
   
   def file_search(repo, dir, pattern, name)
-      warnings=[]
+      txt=""
       Dir.glob("#{dir}/**/*").each do |file|
         unless(File.directory?(file))
           if(File.exists?(file))
@@ -32,16 +34,18 @@ class Reporter
               if(pattern.match(line))
                 sliceIdx=dir.length + 1
                 escaped=line.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
-                puts "      <warning type='#{name}' lineno='#{num}' file='#{file.to_s[sliceIdx..-1]}'>#{escaped}</warning>"
+                txt << "      <warning type='#{name}' lineno='#{num}' file='#{file.to_s[sliceIdx..-1]}'>#{escaped}</warning>\n"
               end
             end
             fh.close
           end
         end
       end
+      return txt
   end
 
   # intended to be overridden
+  # returns strings in xml format
   def report(repo, dir)
     raise "No report(repo, dir) function defined by report subclass"
   end
