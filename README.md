@@ -50,3 +50,27 @@ Example file:
     reports: [ 'DocsReporter', 'CustomReporter' ]
     www-directory: /full/path/to/generate/html/to
 ```
+
+### organizations
+
+This lists the organizations that you wish to include in your dashboard. Currently only organization accounts are supported, not user accounts. 
+
+### private-access
+
+If your access token is configured so it can see the private side of an organization, adding to this list will enable those features. 
+
+### data-directory
+
+This is where the scripts will store the database and checked out code. 
+
+### report-path
+
+This is a list containing places to look for custom Reporters. 
+
+### reports
+
+Which reports you wish to be executed on the code.
+
+### www-directory
+
+Where you want the dashboard output to go
