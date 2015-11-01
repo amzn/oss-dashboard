@@ -4,3 +4,9 @@ echo "SELECT COUNT(*) as CommitData FROM commits;" | sqlite3 --header $1
 echo "SELECT COUNT(*) as IssueData FROM issues;" | sqlite3 --header $1
 echo "SELECT COUNT(*) as PullRequestData FROM pull_requests;" | sqlite3 --header $1
 echo "SELECT COUNT(*) as PullRequestFileData FROM pull_request_files;" | sqlite3 --header $1
+echo "SELECT COUNT(*) as OrganizationData FROM organization;" | sqlite3 --header $1
+echo "SELECT COUNT(*) as TeamData FROM team;" | sqlite3 --header $1
+echo "SELECT COUNT(*) as RepositoryData FROM repository;" | sqlite3 --header $1
+echo "SELECT COUNT(*) as MemberData FROM member;" | sqlite3 --header $1
+echo "SELECT COUNT(*) as Team2RepoData FROM team_to_repository;" | sqlite3 --header $1
+echo "SELECT COUNT(*) as Team2MemberData FROM team_to_member;" | sqlite3 --header $1
