@@ -34,7 +34,7 @@ Example file:
 
 ```
  github:
-   access_token: "your github access token"
+   access_token: 'your github access token'
 ```
 
 * Create a file in the root of the directory named config-dashboard.yml containing the configuration for the dashboard.
@@ -43,7 +43,8 @@ Example file:
 
 ```
   dashboard:
-    organizations: ["amzn", "aws"]
+    organizations: ['amzn', 'aws']
+    private-access: ['amzn']
     data-directory: /full/path/to/directory/to/store/data
     report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
     reports: [ 'DocsReporter ']
