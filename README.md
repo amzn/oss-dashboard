@@ -47,6 +47,6 @@ Example file:
     private-access: ['amzn']
     data-directory: /full/path/to/directory/to/store/data
     report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
-    reports: [ 'DocsReporter ']
+    reports: [ 'DocsReporter', 'CustomReporter' ]
     www-directory: /full/path/to/generate/html/to
 ```
