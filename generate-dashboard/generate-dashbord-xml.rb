@@ -16,6 +16,10 @@ dashboard_config = config['dashboard']
 organizations = dashboard_config['organizations']
 data_directory = dashboard_config['data-directory']
 private_access = dashboard_config['private-access']
+unless(private_access)
+  private_access = []
+end
+reports = dashboard_config['reports']
 
 sync_db=SQLite3::Database.new(File.join(data_directory, 'db/gh-sync.db'));
 
@@ -23,10 +27,29 @@ unless(File.exists?("#{data_directory}/dash-xml/"))
   Dir.mkdir("#{data_directory}/dash-xml/")
 end
 
+# First, generate the metadata needed to build navigation
+# Which other orgs form a part of this site?
+metadata = " <metadata>\n"
+metadata << "  <navigation>\n"
+organizations.each do |org|
+  metadata << "    <organization>#{org}</organization>\n"
+end
+metadata << "  </navigation>\n"
+
+# Which Source Reports are configured?
+metadata << "  <reports>\n"
+reports.each do |report|
+  metadata << "    <report>#{report}</report>\n"
+end
+metadata << "  </reports>\n"
+
+metadata << " </metadata>\n"
+
 organizations.each do |org|
   dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
 
   dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}'>"
+  dashboard_file.puts metadata
   dashboard_file.puts " <organization name='#{org}'>"
 
   # Generate XML for Team data if available
@@ -68,8 +91,9 @@ organizations.each do |org|
     # TODO: Add open ones
  # BUG? Might need to be org/repo for repo and not repo[1]
     closedIssueCount=sync_db.execute( "SELECT COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'" )[0][0]
+    hasWiki=(repoRow[5]==1)
     closedPullRequestCount=sync_db.execute( "SELECT COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'" )[0][0]
-    dashboard_file.puts "  <repo name='#{repoRow[1]}' homepage='#{repoRow[2]}' private='#{repoRow[3]}' fork='#{repoRow[4]}' closed_issue_count='#{closedIssueCount}' closed_pr_count='#{closedPullRequestCount}' open_issue_count='???' has_wiki='#{repoRow[5]}' language='#{repoRow[6]}' stars='#{repoRow[7]}' watchers='#{repoRow[8]}' forks='#{repoRow[9]}' created_at='#{repoRow[10]}' updated_at='#{repoRow[11]}' pushed_at='#{repoRow[12]}' size='#{repoRow[13]}'>"
+    dashboard_file.puts "  <repo name='#{repoRow[1]}' homepage='#{repoRow[2]}' private='#{repoRow[3]}' fork='#{repoRow[4]}' closed_issue_count='#{closedIssueCount}' closed_pr_count='#{closedPullRequestCount}' open_issue_count='???' has_wiki='#{hasWiki}' language='#{repoRow[6]}' stars='#{repoRow[7]}' watchers='#{repoRow[8]}' forks='#{repoRow[9]}' created_at='#{repoRow[10]}' updated_at='#{repoRow[11]}' pushed_at='#{repoRow[12]}' size='#{repoRow[13]}'>"
     desc=repoRow[14].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
     dashboard_file.puts "    <description>#{desc}</description>"
 
@@ -194,6 +218,11 @@ organizations.each do |org|
     # TODO: Include whether the individual is in ldap
     dashboard_file.puts "  <member name='#{memberRow[0]}' employee_email='#{memberRow[2]}' disabled_2fa='#{memberRow[1]}'/>"
   end
+
+  # Copy the review xml into the dashboard xml
+  # TODO: This is clunky, but simpler than having xslt talk to more than one file at a time. Replace this, possibly along with XSLT.
+  #       Quite possible that there's no need for the review xml file to be separate in the first place.
+  dashboard_file.puts File.open("#{data_directory}/review-xml/#{org}.xml").read
 
   dashboard_file.puts " </organization>"
   dashboard_file.puts "</github-dashdata>"
