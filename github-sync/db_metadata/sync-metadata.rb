@@ -102,6 +102,9 @@ def sync_metadata
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
   private_access = dashboard_config['private-access']
+  unless(private_access)
+    private_access = []
+  end
 
   # GitHub setup
   config_file = File.join(File.dirname(__FILE__), "../../config-github.yml")
