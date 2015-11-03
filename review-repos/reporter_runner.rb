@@ -31,6 +31,7 @@ require_relative 'report_docs.rb'
 if(report_path)
   # TODO: List files matching review_* and automatically require all of them.
   #       Create scopes so they don't affect each other?
+  # TODO: Alternatively, at least add a filter so it is only loading the requested reporters
   report_path.each do |report_dir|
     if(Dir.exists?(report_dir))
       Dir.glob(File.join(report_dir, 'report_*')).each do |reportFile|
@@ -40,13 +41,14 @@ if(report_path)
   end
 end
 
-###
-
-# TODO: This needs to go to file, not to stdout
-
-report="<github-review>\n"
+unless(File.exists?("#{data_directory}/review-xml/"))
+  Dir.mkdir("#{data_directory}/review-xml/")
+end
 
 organizations.each do |owner|
+  review_file=File.open("#{data_directory}/review-xml/#{owner}.xml", 'w')
+
+  report="<github-review>\n"
   report << " <organization name='#{owner}'>\n"
 
   repos = client.organization_repositories(owner)
@@ -67,7 +69,7 @@ organizations.each do |owner|
 
   end
   report << " </organization>\n"
+  report << "</github-review>\n"
+  review_file.puts report
 end
-report << "</github-review>\n"
 
-puts report
