@@ -15,6 +15,10 @@ config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
 
+unless(File.exists?(data_directory))
+  Dir.mkdir(data_directory)
+end
+
 # GitHub setup
 config_file = ARGV[1]    # File.join(File.dirname(__FILE__), "config-github.yml")
 config = YAML.load(File.read(config_file))
@@ -31,18 +35,23 @@ if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
   end
 else
   if(not(run_one) or run_one=='init-database')
+puts "Initializing database"
     init_database(dashboard_config)
   end
 end
 if(not(run_one) or run_one.start_with?('github-sync'))
+  puts "Syncing GitHub"
   github_sync(dashboard_config, client, run_one=='github-sync' ? nil : run_one)
 end
 if(not(run_one) or run_one=='pull-source')
+  puts "Git Pulling"
   pull_source(dashboard_config, client)
 end
 if(not(run_one) or run_one=='review-source')
+  puts "Reviewing source"
   review_source(dashboard_config, client)
 end
 if(not(run_one) or run_one=='generate-dashboard')
+  puts "Generating dashboard xml"
   generate_dashboard_xml(dashboard_config, client)
 end
