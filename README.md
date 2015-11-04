@@ -82,9 +82,9 @@ With the configuration file created, you should execute the following:
 
 TODO: This needs to be simplified, too many steps. Also need to consider moving 1 and 6 to Ruby.
 
- 1. init-database.sh <db url>
+ 1. init-database.sh {path-to-data-directory}/db/gh-sync.db
  2. github-sync/sync.rb
  3. github-pull/pull_source.rb
  4. review-repos/reporter_runner.rb
  5. generate-dashboard/generate-dashboard-xml.rb
- 6. xsltproc generate-dashboard/style/dashboardToHtml.xslt <dashboard xml> > html-file.html
+ 6. xsltproc generate-dashboard/style/dashboardToHtml.xslt {path-to-data-directory}/dash-xml/{org}.xml > html-file.html
