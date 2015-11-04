@@ -38,31 +38,12 @@ def getLatestForOrgRepos(client, issue_db, org)
   end
 end
 
-def sync_issues
-  # Dashboard configuration
-  config_file = File.join(File.dirname(__FILE__), "../../config-dashboard.yml")
-  config = YAML.load(File.read(config_file))
-  dashboard_config = config['dashboard']
+def sync_issues(dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
-  
-  # GitHub setup
-  config_file = File.join(File.dirname(__FILE__), "../../config-github.yml")
-  config = YAML.load(File.read(config_file))
-  github_config = config['github']
-  
-  Octokit.auto_paginate = true
-  client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
-  
-  issue_db=db_open(File.join(data_directory, 'db/gh-sync.db'));
   
   organizations.each do |org|
-    getLatestForOrgRepos(client, issue_db, org)
+    getLatestForOrgRepos(client, sync_db, org)
   end
-end
 
-# Invoke from command line
-if __FILE__ == $0
-  sync_issues
 end

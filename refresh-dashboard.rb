@@ -3,10 +3,11 @@
 require 'rubygems'
 require 'octokit'
 require 'yaml'
+require_relative 'github-sync/init-database'
+require_relative 'github-sync/sync'
 require_relative 'github-pull/pull_source'
 require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
-require_relative 'github-sync/init-database'
 
 # Dashboard configuration
 config_file = ARGV[0]    # File.join(File.dirname(__FILE__), "config-dashboard.yml")
@@ -33,8 +34,8 @@ else
     init_database(dashboard_config)
   end
 end
-if(not(run_one) or run_one=='generate-dashboard')
-  generate_dashboard_xml(dashboard_config, client)
+if(not(run_one) or run_one.start_with?('github-sync'))
+  github_sync(dashboard_config, client, run_one=='github-sync' ? nil : run_one)
 end
 if(not(run_one) or run_one=='pull-source')
   pull_source(dashboard_config, client)
