@@ -102,7 +102,7 @@
             <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member)"/>)</a></li>
             <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#2fa" data-toggle="tab">No 2-factor Authentication (<xsl:value-of select="count(organization/member[@disabled_2fa])"/>)</a></li>
+                <li><a href="#2fa" data-toggle="tab">No 2-factor Authentication (<xsl:value-of select="count(organization/member[@disabled_2fa='true'])"/>)</a></li>
                 <li><a href="#unknownMember" data-toggle="tab">Unknown Members (<xsl:value-of select="count(organization/member[not(@internal)])"/>)</a></li>
                 <li><a href="#empty" data-toggle="tab">Empty Repo (<xsl:value-of select="count(organization/repo[@size=0])"/>)</a></li>
                 <li><a href="#wiki" data-toggle="tab">Wiki Turned On (<xsl:value-of select="count(organization/repo[@has_wiki='true'])"/>)</a></li>
@@ -405,10 +405,10 @@
                         <xsl:variable name="mail" select="@mail"/>
                         <a href="https://phonetool.amazon.com/users/{$internal}"><xsl:value-of select="@internal"/></a> <sup><a href="mailto:{$mail}"><span class="octicon octicon-mail"></span></a></sup>
                       </xsl:if><xsl:if test="not(@internal)"><span class="octicon octicon-question"></span></xsl:if></td>
-                      <td><xsl:if test="not(@disabled_2fa)">
+                      <td><xsl:if test="@disabled_2fa='false'">
                         <span style="display:none">1</span><span class="octicon octicon-check"></span>
                       </xsl:if>
-                      <xsl:if test="@disabled_2fa">
+                      <xsl:if test="@disabled_2fa='true'">
                         <span style="display:none">0</span>
                       </xsl:if></td>
                   </tr>
@@ -422,11 +422,11 @@
             <div class="tab-pane" id="2fa">
               <table id='2faReportTable' class='data-grid'>
                 <thead>
-                <tr><th>Needs to turn on Two Factor Authentication (2FA) (<xsl:value-of select="count(organization/member[@disabled_2fa])"/>)</th><th>Send email</th></tr>
+                <tr><th>Needs to turn on Two Factor Authentication (2FA) (<xsl:value-of select="count(organization/member[@disabled_2fa='true'])"/>)</th><th>Send email</th></tr>
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/member">
-                  <xsl:if test="@disabled_2fa">
+                  <xsl:if test="@disabled_2fa='true'">
                   <xsl:variable name="orgname2" select="../@name"/>
                   <xsl:variable name="membername" select="@name"/>
                   <tr><td><a href="https://github.com/{$membername}"><xsl:value-of select="@name"/></a>
