@@ -26,6 +26,7 @@ client = Octokit::Client.new :access_token => github_config['access_token'], :ac
 
 # Standard reporters
 require_relative 'report_docs.rb'
+require_relative 'report_license.rb'
 
 # Use the report.path to add others
 if(report_path)
