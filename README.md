@@ -82,7 +82,6 @@ With the configuration file created, you should execute the following:
 
 TODO: This needs to be simplified, too many steps. 
 
- 1. init-database.sh {path-to-data-directory}/db/gh-sync.db
- 2. github-sync/sync.rb
- 3. ruby refresh-dashboard.rb {config-dashboard.yml} {config-github.yml}
- 4. xsltproc generate-dashboard/style/dashboardToHtml.xslt {path-to-data-directory}/dash-xml/{org}.xml > html-file.html
+ 1. github-sync/sync.rb
+ 2. ruby refresh-dashboard.rb {config-dashboard.yml} {config-github.yml}
+ 3. xsltproc generate-dashboard/style/dashboardToHtml.xslt {path-to-data-directory}/dash-xml/{org}.xml > html-file.html
