@@ -24,6 +24,7 @@ The dashboard assumes the following are installed:
  1. SQLite 3.x
  2. SQLite Rubygem - 'sqlite3'
  3. OctoKit Rubygem - 'octokit'
+ 4. Licensee Rubygem - 'licensee'; though this should go away when the data is provided by OctoKit
 
 ## Setup/Running
 
@@ -44,10 +45,10 @@ Example file:
 ```
   dashboard:
     organizations: ['amzn', 'aws']
-    private-access: ['amzn']
+    private-access: ['amzn']     # Optional
     data-directory: /full/path/to/directory/to/store/data
     report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
-    reports: [ 'DocsReporter', 'CustomReporter' ]
+    reports: [ 'DocsReporter', 'LicenseReporter' ]
     www-directory: /full/path/to/generate/html/to
 ```
 
@@ -69,8 +70,21 @@ This is a list containing places to look for custom Reporters.
 
 ### reports
 
-Which reports you wish to be executed on the code.
+Which reports you wish to be executed on the code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file. 
 
 ### www-directory
 
-Where you want the dashboard output to go
+Where you want the dashboard output to go.
+
+## More Setup/Running
+
+With the configuration file created, you should execute the following:
+
+TODO: This needs to be simplified, too many steps. Also need to consider moving 1 and 6 to Ruby.
+
+ 1) init-database.sh <db url>
+ 2) github-sync/sync.rb
+ 3) github-pull/pull_source.rb
+ 4) review-repos/reporter_runner.rb
+ 5) generate-dashboard/generate-dashboard-xml.rb
+ 6) xsltproc generate-dashboard/style/dashboardToHtml.xslt <dashboard xml> > html-file.html
