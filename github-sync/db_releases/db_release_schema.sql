@@ -2,6 +2,7 @@
 
 DROP TABLE IF EXISTS releases;
 
+-- TODO: Include each file and its download count?
 CREATE TABLE releases (
     org VARCHAR,
     repo VARCHAR,
@@ -16,5 +17,3 @@ CREATE TABLE releases (
     published_at TIMESTAMP,
     author VARCHAR
 );
-
--- TODO: Include each file and its download count?
