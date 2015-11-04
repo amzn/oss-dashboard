@@ -56,6 +56,9 @@ organizations.each do |owner|
     if repo.fork
       next
     end
+    unless File.exists?("#{scratch_dir}/#{repo.full_name}")
+      next
+    end
 
     report << "  <repo name='#{repo.name}'>\n"
 
