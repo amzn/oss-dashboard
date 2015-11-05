@@ -224,6 +224,8 @@ def generate_dashboard_xml(dashboard_config, client)
   
     dashboard_file.puts " </organization>"
     dashboard_file.puts "</github-dashdata>"
+    
+    dashboard_file.close
   end
 
 end
