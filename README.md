@@ -102,12 +102,18 @@ To run only part of the system, you can add an additional argument for the phase
   generate-dashboard
 ```
 
-## Helper Tool
+## Helper Tools
 
 You only get 5000 requests an hour to GitHub, so keeping an eye on your current request count can be important. 
 
 ```
   ruby github-sync/util/get_rate_limit.rb {path to config-github.yml}
+```
+
+The following query shows you the size of each of your tables. It needs porting to Ruby so it can take advantage of the config.
+
+```
+  sh github-sync/queries/db-summary.sh {path to database file}
 ```
 
 ## Large Organizations
