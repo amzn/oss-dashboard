@@ -31,7 +31,7 @@ The dashboard assumes the following are installed:
 ## Setup
 
 * Install the dependencies listed above.
-* Create a file in the root named config-github.yml containing your GitHub access token. Set the permissions to 600. 
+* Create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600. 
 
 Example file:
 
@@ -40,7 +40,7 @@ Example file:
    access_token: 'your github access token'
 ```
 
-* Create a file in the root of the directory named config-dashboard.yml containing the configuration for the dashboard.
+* Create a dashboard configuration file (outside of the git clone).
 
 Example file:
 
