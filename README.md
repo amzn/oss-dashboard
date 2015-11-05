@@ -25,6 +25,8 @@ The dashboard assumes the following are installed:
  2. SQLite Rubygem - 'sqlite3'
  3. OctoKit Rubygem - 'octokit'
  4. Licensee Rubygem - 'licensee'; though this should go away when the data is provided by OctoKit
+ 5. XSLT Rubygem - 'xslt'
+ 6. XML Rubygem - 'xml'
 
 ## Setup/Running
 

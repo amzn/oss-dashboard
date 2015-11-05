@@ -3,6 +3,8 @@
 require 'rubygems'
 require 'octokit'
 require 'yaml'
+require 'xml'
+require 'xslt'
 require_relative 'github-sync/init-database'
 require_relative 'github-sync/sync'
 require_relative 'github-pull/pull_source'
@@ -14,6 +16,8 @@ config_file = ARGV[0]    # File.join(File.dirname(__FILE__), "config-dashboard.y
 config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
+www_directory = dashboard_config['www-directory']
+organizations = dashboard_config['organizations']
 
 unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
@@ -54,4 +58,15 @@ end
 if(not(run_one) or run_one=='generate-dashboard')
   puts "Generating dashboard xml"
   generate_dashboard_xml(dashboard_config, client)
+  organizations.each do |org|
+    puts "Generating: #{www_directory}/#{org}.html"
+
+    stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
+    xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/#{org}.xml")
+    html = stylesheet.apply(xml_doc)
+
+    htmlFile = File.new("#{www_directory}/#{org}.html", 'w')
+    htmlFile.write(html)
+    htmlFile.close
+  end
 end
