@@ -12,7 +12,7 @@ require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
 
 # Dashboard configuration
-config_file = ARGV[0]    # File.join(File.dirname(__FILE__), "config-dashboard.yml")
+config_file = ARGV[0]
 config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
@@ -24,7 +24,7 @@ unless(File.exists?(data_directory))
 end
 
 # GitHub setup
-config_file = ARGV[1]    # File.join(File.dirname(__FILE__), "config-github.yml")
+config_file = ARGV[1]
 config = YAML.load(File.read(config_file))
 github_config = config['github']
 
@@ -58,6 +58,11 @@ end
 if(not(run_one) or run_one=='generate-dashboard')
   puts "Generating dashboard xml"
   generate_dashboard_xml(dashboard_config, client)
+
+  unless(File.exists?(www_directory))
+    Dir.mkdir(www_directory)
+  end
+
   organizations.each do |org|
     puts "Generating: #{www_directory}/#{org}.html"
 
