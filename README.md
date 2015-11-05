@@ -109,3 +109,7 @@ You only get 5000 requests an hour to GitHub, so keeping an eye on your current 
 ```
   ruby github-sync/util/get_rate_limit.rb {path to config-github.yml}
 ```
+
+## Large Organizations
+
+Because of that 5000 request limit, loading the data for large organizations can be difficult. While in principle you should be able to repeat run the dashboard until your database is full (at least until you hit a repository that would take greater than 5000 requests), this hasn't been tested and the dashboard does not yet fail gracefully. 
