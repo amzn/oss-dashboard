@@ -15,7 +15,7 @@ class Reporter
         end
   
         unless(File.directory?(file))
-          txt << "      <reporting type='#{name}'>#{file.to_s[sliceIdx..-1]}</reporting>\n"
+          txt << "      <reporting type='#{name}' file='#{file.to_s[sliceIdx..-1]}'></reporting>\n"
         end
       end
       return txt
