@@ -46,8 +46,8 @@ Example file:
 
 ```
   dashboard:
-    organizations: ['amzn', 'aws']
-    private-access: ['amzn']     # Optional
+    organizations: ['amzn', 'amznlabs']
+    private-access: ['amznlabs']     # Optional
     data-directory: /full/path/to/directory/to/store/data
     report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
     reports: [ 'DocsReporter', 'LicenseReporter' ]
