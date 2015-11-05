@@ -6,7 +6,7 @@ require 'date'
 require 'yaml'
 
 # GitHub setup
-config_file = File.join(File.dirname(__FILE__), "../../config-github.yml")
+config_file = ARGV[0]
 config = YAML.load(File.read(config_file))
 github_config = config['github']
 
