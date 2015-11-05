@@ -28,7 +28,7 @@ The dashboard assumes the following are installed:
  5. XSLT Rubygem - 'xslt'
  6. XML Rubygem - 'xml'
 
-## Setup/Running
+## Setup
 
 * Install the dependencies listed above.
 * Create a file in the root named config-github.yml containing your GitHub access token. Set the permissions to 600. 
@@ -78,12 +78,26 @@ Which reports you wish to be executed on the code. Note that LicenseReporter bot
 
 Where you want the dashboard output to go.
 
-## More Setup/Running
+## Running
 
 With the configuration file created, you should execute the following:
 
-TODO: This needs to be simplified, too many steps. 
+```
+  ruby refresh-dashboard.rb {config-dashboard.yml} {config-github.yml}
+```
 
- 1. github-sync/sync.rb
- 2. ruby refresh-dashboard.rb {config-dashboard.yml} {config-github.yml}
- 3. xsltproc generate-dashboard/style/dashboardToHtml.xslt {path-to-data-directory}/dash-xml/{org}.xml > html-file.html
+To run only part of the system, you can add an additional argument for the phase desired. Available phases are:
+
+```
+  init-database
+  github-sync
+  github-sync/metadata
+  github-sync/commits
+  github-sync/events
+  github-sync/issues
+  github-sync/releases
+  github-sync/user-mapping
+  pull-source
+  review-source
+  generate-dashboard
+```
