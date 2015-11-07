@@ -33,30 +33,37 @@ client = Octokit::Client.new :access_token => github_config['access_token'], :ac
 
 run_one=ARGV[2]
 
+# Quiet mode or verbose
+quiet=false   # TODO: Move to a command line option
+feedback=$stdout
+if(quiet)
+  quiet_stream=File.open(File::NULL, "w")
+end
+
 if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
   if(run_one=='init-database')
-    puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
+    feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
   end
 else
   if(not(run_one) or run_one=='init-database')
-puts "Initializing database"
+    feedback.puts "Initializing database"
     init_database(dashboard_config)
   end
 end
 if(not(run_one) or run_one.start_with?('github-sync'))
-  puts "Syncing GitHub"
+  feedback.puts "Syncing GitHub"
   github_sync(dashboard_config, client, run_one=='github-sync' ? nil : run_one)
 end
 if(not(run_one) or run_one=='pull-source')
-  puts "Git Pulling"
+  feedback.puts "Git Pulling"
   pull_source(dashboard_config, client)
 end
 if(not(run_one) or run_one=='review-source')
-  puts "Reviewing source"
+  feedback.puts "Reviewing source"
   review_source(dashboard_config, client)
 end
 if(not(run_one) or run_one=='generate-dashboard')
-  puts "Generating dashboard xml"
+  feedback.puts "Generating dashboard xml"
   generate_dashboard_xml(dashboard_config, client)
 
   unless(File.exists?(www_directory))
@@ -64,7 +71,7 @@ if(not(run_one) or run_one=='generate-dashboard')
   end
 
   organizations.each do |org|
-    puts "Generating: #{www_directory}/#{org}.html"
+    feedback.puts "Generating: #{www_directory}/#{org}.html"
 
     stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
     xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/#{org}.xml")
