@@ -6,7 +6,7 @@ require 'date'
 require 'yaml'
 require_relative 'commitStoreLibrary.rb'
 
-def getLatestForOrgRepos(client, commit_db, org)
+def getLatestCommitsForOrgRepos(client, commit_db, org)
   client.organization_repositories(org).each do |repo_obj|
     if(repo_obj.size==0)
       # if no commits, octokit errors. Size of zero is close enough to no commits 
@@ -16,7 +16,7 @@ def getLatestForOrgRepos(client, commit_db, org)
     end
     repo_name=repo_obj.name
     repo_full_name=repo_obj.full_name
-    maxTimestamp=db_getMaxTimestampForRepo(commit_db, org, repo_name)               # Get the current max timestamp in the db
+    maxTimestamp=db_commit_max_timestamp_by_repo(commit_db, org, repo_name)               # Get the current max timestamp in the db
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
       ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
@@ -33,7 +33,7 @@ def sync_commits(dashboard_config, client, sync_db)
   organizations = dashboard_config['organizations']
 
   organizations.each do |org|
-    getLatestForOrgRepos(client, sync_db, org)
+    getLatestCommitsForOrgRepos(client, sync_db, org)
   end
 
 end

@@ -56,7 +56,7 @@ require "date"
     end
   end
 
-  def db_getMaxTimestampForRepo(db, org, repo)
+  def db_commit_max_timestamp_by_repo(db, org, repo)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db.execute( "select max(committed_at) from commits where org='#{org}' and repo='#{repo}'" ) do |row|
@@ -69,7 +69,7 @@ require "date"
     end
   end
 
-  def db_getMaxTimestampForOrg(db, org)
+  def db_commit_max_timestamp_by_org(db, org)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db.execute( "select max(committed_at) from commits where org='#{org}'" ) do |row|
