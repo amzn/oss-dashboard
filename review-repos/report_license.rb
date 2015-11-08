@@ -8,9 +8,9 @@ class LicenseReporter < Reporter
   def license_identify(repo, dir)
       begin
         license=Licensee::GitProject.new(dir).license
-      rescue Licensee::GitProject::InvalidRepository
-        # This should be unnecessary, they are all GitHub projects
-        license=Licensee::FSProject.new(dir).license
+      rescue ArgumentError
+        puts "Error getting license for #{dir}"
+        return "      <reporting type='LicenseFilesReporter'>License causes error</reporting>\n"
       end
 
       if(license)
