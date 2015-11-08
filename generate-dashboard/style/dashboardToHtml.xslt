@@ -334,10 +334,6 @@
                       <td><xsl:value-of select='@age'/>d</td>
                       <td><xsl:value-of select='substring(@updated_at,1,10)'/></td>
                       <td>
-                      <xsl:if test="@internal">
-                        <xsl:variable name="internal" select="@internal"/>
-                        <span style="margin-right: 2px;"><sup><a href="https://phonetool.amazon.com/users/{$internal}"><img src="amzn-icons/amazonicon.gif" width="8" height="8"/></a></sup></span>
-                      </xsl:if>
                       <a href="https://github.com/{$membername}"><xsl:value-of select="@user"/></a>
                       </td>
                       <td><xsl:value-of select='@comments'/></td>
@@ -375,10 +371,6 @@
                   <xsl:for-each select="members/member">
                     <xsl:variable name="membername" select="."/>
                     <li>
-                      <xsl:if test="../../../member[@name=$membername]/@internal">
-                        <xsl:variable name="internal" select="../../../member[@name=$membername]/@internal"/>
-                        <span style="margin-right: 2px;"><sup><a href="https://phonetool.amazon.com/users/{$internal}"><img src="amzn-icons/amazonicon.gif" width="8" height="8"/></a></sup></span>
-                      </xsl:if>
                       <a href="https://github.com/{$membername}"><xsl:value-of select="."/></a></li>
                   </xsl:for-each>
                   </ul>
@@ -400,11 +392,10 @@
                 <xsl:for-each select="organization/member">
                   <xsl:variable name="membername" select="@name"/>
                   <tr><td><a href="https://github.com/{$membername}"><xsl:value-of select="@name"/></a></td>
-                     <td><xsl:if test="@internal">
-                        <xsl:variable name="internal" select="@internal"/>
-                        <xsl:variable name="mail" select="@mail"/>
-                        <a href="https://phonetool.amazon.com/users/{$internal}"><xsl:value-of select="@internal"/></a> <sup><a href="mailto:{$mail}"><span class="octicon octicon-mail"></span></a></sup>
-                      </xsl:if><xsl:if test="not(@internal)"><span class="octicon octicon-question"></span></xsl:if></td>
+                      <td>
+                        <xsl:if test="not(@internal)"><span class="octicon octicon-question"></span></xsl:if>
+                        <xsl:if test="@internal"><xsl:value-of select="@employee_email"/></xsl:if>
+                      </td>
                       <td><xsl:if test="@disabled_2fa='false'">
                         <span style="display:none">1</span><span class="octicon octicon-check"></span>
                       </xsl:if>
@@ -433,7 +424,6 @@
                     <xsl:if test="@internal">
                       <xsl:variable name="internal" select="@internal"/>
                       <xsl:variable name="mail" select="@mail"/>
-                      <sup><a href="https://phonetool.amazon.com/users/{$internal}">phone</a>, <a href="mailto:{$mail}">mail</a></sup>
                   <td><a href="mailto:{$mail}?subject=GitHub.com 2-Factor-Authentication&amp;body=Reviewing GitHub user records for https://github.com/{$orgname2}, we notice you do not have 2 factor authentication turned on.%0A%0APlease do so by visiting https://github.com/settings/security%0A%0ALet us know at osa-pm@ if you have any questions.">Email Notice</a></td>
                     </xsl:if>
                   </td></tr>
@@ -453,7 +443,6 @@
                     <xsl:variable name="membername" select="@name"/>
                      <tr>
                        <td><a href="https://github.com/{$membername}"><xsl:value-of select="@name"/></a></td>
-                       <td><a href="https://phonetool.amazon.com/search?query={$membername}&amp;use_fuzzy_search=true">Search Phone Tool</a></td>
                      </tr>
                   </xsl:if>
                 </xsl:for-each>

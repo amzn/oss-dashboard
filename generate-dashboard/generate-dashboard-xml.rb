@@ -211,10 +211,15 @@ def generate_dashboard_xml(dashboard_config, client)
   
     # Generate XML for Member data
     # TODO: This is available for non-private too, just not stored in the DB
-    members=sync_db.execute("SELECT DISTINCT(login), two_factor_disabled, employee_email FROM member m, repository r, team_to_member ttm, team_to_repository ttr WHERE m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
+    members=sync_db.execute("SELECT DISTINCT(m.login), m.two_factor_disabled, u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr LEFT OUTER JOIN users u ON m.login=u.login WHERE m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     members.each do |memberRow|  
       # TODO: Include whether the individual is in ldap
-      dashboard_file.puts "  <member name='#{memberRow[0]}' employee_email='#{memberRow[2]}' disabled_2fa='#{memberRow[1]}'/>"
+      internalLogin=""
+      if(memberRow[2])
+        internalLogin=memberRow[2].split('@')[0]
+        internalText=" internal='#{internalLogin}' employee_email='#{memberRow[2]}'"
+      end
+      dashboard_file.puts "  <member name='#{memberRow[0]}' disabled_2fa='#{memberRow[1]}'#{internalText}/>"
     end
   
     # Copy the review xml into the dashboard xml
