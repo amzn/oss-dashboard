@@ -11,6 +11,7 @@ require_relative 'db_events/sync-events.rb'
 require_relative 'db_issues/sync-issues.rb'
 require_relative 'db_releases/sync-releases.rb'
 require_relative 'user_mapping/sync-users.rb'
+require_relative 'reporting/db_reporter_runner.rb'
 
 def github_sync(dashboard_config, client, run_one)
 
@@ -35,6 +36,9 @@ def github_sync(dashboard_config, client, run_one)
   end
   if(not(run_one) or run_one=='github-sync/user-mapping')
     sync_user_mapping(dashboard_config, client, sync_db)
+  end
+  if(not(run_one) or run_one=='github-sync/reporting')
+    run_db_reports(dashboard_config, client, sync_db)
   end
 
   sync_db.close
