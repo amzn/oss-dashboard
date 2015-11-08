@@ -49,10 +49,12 @@ Example file:
     organizations: ['amzn', 'amznlabs']
     data-directory: /full/path/to/directory/to/store/data
     reports: [ 'DocsReporter', 'LicenseReporter' ]
+    db-reports: [ 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter' ]
     www-directory: /full/path/to/generate/html/to
 
     private-access: ['amznlabs']     # Optional
     report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
+    db-report-path: ['/full/path/to/directory/of/custom/db-reports']  # Optional
     map-user-script: /full/path/to/script   # Optional
 ```
 
@@ -68,6 +70,10 @@ This is where the scripts will store the database and checked out code.
 
 Which reports you wish to be executed on the code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file. 
 
+### db-reports
+
+Which reports you wish to be executed on the database. 
+
 ### www-directory
 
 Where you want the dashboard output to go.
@@ -79,6 +85,10 @@ If your access token is configured so it can see the private side of an organiza
 ### Optional: report-path
 
 This is a list of paths to look for custom Reporters. 
+
+### Optional: db-report-path
+
+This is a list of paths to look for custom Database Reporters. 
 
 ### Optional: map-user-script
 
