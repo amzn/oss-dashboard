@@ -7,7 +7,7 @@ Generating the dashboard is intended to occur in three phases.
 
 Sync data from GitHub. 
 
-Ruby is used to connect to GitHub, pull down the latest data, and update a set of SQLite Databases.
+Ruby is used to connect to GitHub, pull down the latest data, and update a SQLite Database.
 
 ## Phase 2
 
