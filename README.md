@@ -107,6 +107,8 @@ To run only part of the system, you can add an additional argument for the phase
   pull-source
   review-source
   generate-dashboard
+  generate-dashboard/xml
+  generate-dashboard/xslt
 ```
 
 ## Helper Tools

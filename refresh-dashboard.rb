@@ -62,23 +62,28 @@ if(not(run_one) or run_one=='review-source')
   feedback.puts "Reviewing source"
   review_source(dashboard_config, client)
 end
-if(not(run_one) or run_one=='generate-dashboard')
-  feedback.puts "Generating dashboard xml"
-  generate_dashboard_xml(dashboard_config, client)
+if(not(run_one) or run_one.start_with?('generate-dashboard'))
 
-  unless(File.exists?(www_directory))
-    Dir.mkdir(www_directory)
+  unless(run_one=='generate-dashboard/xslt')
+    feedback.puts "Generating dashboard xml"
+    generate_dashboard_xml(dashboard_config, client)
   end
 
-  organizations.each do |org|
-    feedback.puts "Generating: #{www_directory}/#{org}.html"
+  unless(run_one=='generate-dashboard/xml')
+    unless(File.exists?(www_directory))
+      Dir.mkdir(www_directory)
+    end
 
-    stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
-    xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/#{org}.xml")
-    html = stylesheet.apply(xml_doc)
+    organizations.each do |org|
+      feedback.puts "Generating: #{www_directory}/#{org}.html"
+  
+      stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
+      xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/#{org}.xml")
+      html = stylesheet.apply(xml_doc)
 
-    htmlFile = File.new("#{www_directory}/#{org}.html", 'w')
-    htmlFile.write(html)
-    htmlFile.close
+      htmlFile = File.new("#{www_directory}/#{org}.html", 'w')
+      htmlFile.write(html)
+      htmlFile.close
+    end
   end
 end
