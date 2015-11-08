@@ -82,7 +82,7 @@ def store_organization_members(db, client, org, private)
     end
 
     db.execute("INSERT INTO member (id, login, two_factor_disabled)
-                VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa] )
+                VALUES(?, ?, ?)", [member_obj.id, member_obj.login, d_2fa] )
   end
 end
 
