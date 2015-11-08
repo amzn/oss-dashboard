@@ -6,9 +6,6 @@ require 'sqlite3'
 require 'date'
 require 'yaml'
 
-# TODO: Move this out of a hard coded file and into something the dashboard config provides
-require_relative '../user_mapping/user_emails.rb'
-
 def db_open(filename)
   db = SQLite3::Database.new filename
   return db
@@ -76,8 +73,6 @@ def store_organization_members(db, client, org, private)
   client.organization_members(org).each do |member_obj|
     db.execute("DELETE FROM member WHERE id=?", [member_obj.id])
 
-    employee_email=USER_EMAILS[member_obj.login]
-    # in_ldap=invoke ldap plugin...
     if(private == false)
       d_2fa='unknown'
     elsif(disabled_2fa[member_obj.login])
@@ -86,8 +81,8 @@ def store_organization_members(db, client, org, private)
       d_2fa='false'
     end
 
-    db.execute("INSERT INTO member (id, login, two_factor_disabled, employee_email)
-                VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa, employee_email] )
+    db.execute("INSERT INTO member (id, login, two_factor_disabled)
+                VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa] )
   end
 end
 

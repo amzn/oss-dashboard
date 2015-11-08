@@ -52,6 +52,7 @@ Example file:
     report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
     reports: [ 'DocsReporter', 'LicenseReporter' ]
     www-directory: /full/path/to/generate/html/to
+    map-user-script: /full/path/to/script   # Optional
 ```
 
 ### organizations
@@ -77,6 +78,12 @@ Which reports you wish to be executed on the code. Note that LicenseReporter bot
 ### www-directory
 
 Where you want the dashboard output to go.
+
+### map-user-script
+
+Interaction between GitHub's user schema and your own user schema is a common use case for a dashboard. This script is executed to load in your customized data. 
+
+The user schema contains an email address field, to represent your internal login, and an is_employee field, to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase. 
 
 ## Running
 
