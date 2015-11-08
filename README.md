@@ -47,11 +47,12 @@ Example file:
 ```
   dashboard:
     organizations: ['amzn', 'amznlabs']
-    private-access: ['amznlabs']     # Optional
     data-directory: /full/path/to/directory/to/store/data
-    report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
     reports: [ 'DocsReporter', 'LicenseReporter' ]
     www-directory: /full/path/to/generate/html/to
+
+    private-access: ['amznlabs']     # Optional
+    report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
     map-user-script: /full/path/to/script   # Optional
 ```
 
@@ -59,17 +60,9 @@ Example file:
 
 This lists the organizations that you wish to include in your dashboard. Currently only organization accounts are supported, not user accounts. 
 
-### private-access
-
-If your access token is configured so it can see the private side of an organization, adding to this list will enable those features. 
-
 ### data-directory
 
 This is where the scripts will store the database and checked out code. 
-
-### report-path
-
-This is a list containing places to look for custom Reporters. 
 
 ### reports
 
@@ -79,7 +72,15 @@ Which reports you wish to be executed on the code. Note that LicenseReporter bot
 
 Where you want the dashboard output to go.
 
-### map-user-script
+### Optional: private-access
+
+If your access token is configured so it can see the private side of an organization, adding to this list will enable those features. 
+
+### Optional: report-path
+
+This is a list of paths to look for custom Reporters. 
+
+### Optional: map-user-script
 
 Interaction between GitHub's user schema and your own user schema is a common use case for a dashboard. This script is executed to load in your customized data. 
 
