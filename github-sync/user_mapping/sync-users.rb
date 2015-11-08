@@ -5,7 +5,6 @@ require "sqlite3"
 def loadUserTable(db, users)
   db.execute("BEGIN TRANSACTION");
   db.execute("DELETE FROM users")
-  # 'git-login'  => 'amazon-login@amazon.com',
   users.each do |login, email|
       db.execute(
        "INSERT INTO users (
