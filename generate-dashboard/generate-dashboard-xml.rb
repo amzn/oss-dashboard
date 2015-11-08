@@ -16,6 +16,7 @@ def generate_dashboard_xml(dashboard_config, client)
     private_access = []
   end
   reports = dashboard_config['reports']
+  db_reports = dashboard_config['db-reports']
   
   sync_db=SQLite3::Database.new(File.join(data_directory, 'db/gh-sync.db'));
   
@@ -38,6 +39,13 @@ def generate_dashboard_xml(dashboard_config, client)
     metadata << "    <report>#{report}</report>\n"
   end
   metadata << "  </reports>\n"
+  
+  # Which DB Reports are configured?
+  metadata << "  <db-reports>\n"
+  db_reports.each do |report|
+    metadata << "    <db-report>#{report}</db-report>\n"
+  end
+  metadata << "  </db-reports>\n"
   
   metadata << " </metadata>\n"
   
@@ -226,6 +234,7 @@ def generate_dashboard_xml(dashboard_config, client)
     # TODO: This is clunky, but simpler than having xslt talk to more than one file at a time. Replace this, possibly along with XSLT.
     #       Quite possible that there's no need for the review xml file to be separate in the first place.
     dashboard_file.puts File.open("#{data_directory}/review-xml/#{org}.xml").read
+    dashboard_file.puts File.open("#{data_directory}/db-report-xml/#{org}.xml").read
   
     dashboard_file.puts " </organization>"
     dashboard_file.puts "</github-dashdata>"

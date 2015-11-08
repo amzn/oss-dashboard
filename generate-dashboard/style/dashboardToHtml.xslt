@@ -12,6 +12,10 @@
     <report>DocsReporter</report>
     <report>CustomReporter</report>
   </reports>
+  <db-reports>
+    <db-report>DocsReporter</db-report>
+    <db-report>CustomReporter</db-report>
+  </db-reports>
  </metadata>
  <organization name='ORG'>
   <team name='NAME'>
@@ -100,15 +104,12 @@
             <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)-1"/>)</a></li>
             </xsl:if>
             <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member)"/>)</a></li>
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
+            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">GitHub Reports <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#2fa" data-toggle="tab">No 2-factor Authentication (<xsl:value-of select="count(organization/member[@disabled_2fa='true'])"/>)</a></li>
-                <li><a href="#unknownMember" data-toggle="tab">Unknown Members (<xsl:value-of select="count(organization/member[not(@internal)])"/>)</a></li>
-                <li><a href="#empty" data-toggle="tab">Empty Repo (<xsl:value-of select="count(organization/repo[@size=0])"/>)</a></li>
-                <li><a href="#wiki" data-toggle="tab">Wiki Turned On (<xsl:value-of select="count(organization/repo[@has_wiki='true'])"/>)</a></li>
-                <xsl:if test="not(@team) and @includes_private!='false'">
-                <li><a href="#unowned" data-toggle="tab">No Team Other Than Owner (<xsl:value-of select="count(organization/repo[@unowned='true'])"/>)</a></li>
-                </xsl:if>
+                <xsl:for-each select="metadata/db-reports/db-report">
+                  <xsl:variable name="report" select="."/>
+                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="."/>(<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report])"/>)</a></li> 
+                </xsl:for-each>
               </ul>
             </li>
             <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Source Reports <span class="caret"></span></a>
@@ -409,114 +410,28 @@
              </div>
             </div>
 
-            <!-- START OF REPORT TABS -->
-            <div class="tab-pane" id="2fa">
-              <table id='2faReportTable' class='data-grid'>
+            <!-- DB REPORTS -->
+            <xsl:for-each select="metadata/db-reports/db-report">
+              <xsl:variable name="report" select="."/>
+            <div class="tab-pane" id="{$report}">
+              <table id='{$report}Table' class='data-grid'>
                 <thead>
-                <tr><th>Needs to turn on Two Factor Authentication (2FA) (<xsl:value-of select="count(organization/member[@disabled_2fa='true'])"/>)</th><th>Send email</th></tr>
+<!-- TODO: Pull this from the metadata after it starts showing there -->
+                <tr><th>First Column (<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report])"/>)</th></tr> <!-- bug: unable to show summary count within a team mode -->
                 </thead>
                 <tbody>
-                <xsl:for-each select="organization/member">
-                  <xsl:if test="@disabled_2fa='true'">
-                  <xsl:variable name="orgname2" select="../@name"/>
-                  <xsl:variable name="membername" select="@name"/>
-                  <tr><td><a href="https://github.com/{$membername}"><xsl:value-of select="@name"/></a>
-                    <xsl:if test="@internal">
-                      <xsl:variable name="internal" select="@internal"/>
-                      <xsl:variable name="mail" select="@mail"/>
-                  <td><a href="mailto:{$mail}?subject=GitHub.com 2-Factor-Authentication&amp;body=Reviewing GitHub user records for https://github.com/{$orgname2}, we notice you do not have 2 factor authentication turned on.%0A%0APlease do so by visiting https://github.com/settings/security%0A%0ALet us know at osa-pm@ if you have any questions.">Email Notice</a></td>
-                    </xsl:if>
-                  </td></tr>
-                  </xsl:if>
+                <xsl:for-each select="/github-dashdata/organization">
+                  <xsl:variable name="orgname2" select="@name"/>
+                  <xsl:for-each select="/github-dashdata/organization/github-db-report/organization[@name=$orgname2]/db-reporting[@type=$report]">
+                      <tr>
+                        <td><xsl:value-of select="."/></td>
+                      </tr>
+                  </xsl:for-each>
                 </xsl:for-each>
                 </tbody>
               </table>
             </div>
-            <div class="tab-pane" id="unknownMember">
-              <table id='unknownMemberReportTable' class='data-grid'>
-                <thead>
-                <tr><th>Need to identify individual (<xsl:value-of select="count(organization/member[not(@internal)])"/>)</th></tr>
-                </thead>
-                <tbody>
-                <xsl:for-each select="organization/member">
-                  <xsl:if test="not(@internal)">
-                    <xsl:variable name="membername" select="@name"/>
-                     <tr>
-                       <td><a href="https://github.com/{$membername}"><xsl:value-of select="@name"/></a></td>
-                     </tr>
-                  </xsl:if>
-                </xsl:for-each>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane" id="wiki">
-              <table id='wikiOnReportTable' class='data-grid'>
-                <thead>
-                <tr><th>Wiki Turned On (<xsl:value-of select="count(organization/repo[@has_wiki='true'])"/>)</th><th>Wiki</th></tr>
-                </thead>
-                <tbody>
-                <xsl:for-each select="organization/repo[@has_wiki='true']">
-                  <xsl:variable name="orgname2" select="../@name"/>
-                  <xsl:variable name="reponame" select="@name"/>
-                  <tr>
-                    <td><a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
-                      <xsl:if test="@private='true'">
-                         <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
-                      </xsl:if>
-                    </td>
-                    <td><a href="https://github.com/{$orgname2}/{$reponame}/wiki">link</a></td>
-                  </tr>
-                </xsl:for-each>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane" id="empty">
-              <div class="pull-right"><a href="#" rel="tooltip" title="This is intended to show repositories that are empty. What it actually shows is repositories with a GitHub size of &lt;500KB, which works better as we often create repositories with a file or two."><span class="octicon octicon-info"></span></a></div>
-              <table id='emptyReportTable' class='data-grid'>
-                <thead>
-                <tr><th>Repository Empty (<xsl:value-of select="count(organization/repo[@size=0])"/>)</th>
-                  <th>Created</th>
-                  <th>Pushed</th>
-                  <th>Updated</th>
-                </tr>
-                </thead>
-                <tbody>
-                <xsl:for-each select="organization/repo[@size=0]">
-                  <xsl:variable name="orgname2" select="../@name"/>
-                  <xsl:variable name="reponame" select="@name"/>
-                  <tr>
-                    <td><a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
-                      <xsl:if test="@private='true'">
-                         <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
-                      </xsl:if>
-                    </td>
-                    <td><xsl:value-of select='substring(@created_at,1,10)'/></td>
-                    <td><xsl:value-of select='substring(@pushed_at,1,10)'/></td>
-                    <td><xsl:value-of select='substring(@updated_at,1,10)'/></td>
-                  </tr>
-                </xsl:for-each>
-                </tbody>
-              </table>
-            </div>
-            <xsl:if test="not(@team) and @includes_private!='false'">
-            <div class="tab-pane" id="unowned">
-              <div class="pull-right"><a href="#" rel="tooltip" title="This shows repositories that don't have a team with access, other than the Owner. For some organizations that is a problem, but for smaller ones it may be that they are running things through the Owners group."><span class="octicon octicon-info"></span></a></div>
-              <table id='unownedReportTable' class='data-grid'>
-                <thead>
-                <tr><th>Repo Lacks Owner (<xsl:value-of select="count(organization/repo[@unowned='true'])"/>)</th></tr>
-                </thead>
-                <tbody>
-                <xsl:for-each select="organization/repo[@unowned='true']">
-                  <xsl:variable name="orgname2" select="../@name"/>
-                  <xsl:variable name="reponame" select="@name"/>
-                  <tr>
-                    <td><a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a></td>
-                  </tr>
-                </xsl:for-each>
-                </tbody>
-              </table>
-            </div>
-            </xsl:if>
+            </xsl:for-each>
 
             <!-- SOURCE REPORTS -->
             <xsl:for-each select="metadata/reports/report">
@@ -562,7 +477,6 @@
               </table>
             </div>
             </xsl:for-each>
-
 
           </div>
         </div>
