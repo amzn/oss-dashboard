@@ -138,7 +138,7 @@
                   <xsl:sort select="@published_at" order="descending"/>
                   <xsl:variable name='release_url' select="@url"/>
                   <xsl:if test="position() &lt;= 5">
-                    <tr><td><a href="{$release_url}"><xsl:value-of select='substring(@published_at,1,10)'/></a> - <xsl:value-of select='../../@name'/>: <xsl:value-of select='@name'/></td></tr>
+                    <tr><td><a href="{$release_url}"><xsl:value-of select='substring(@published_at,1,10)'/></a> - <xsl:value-of select='../../@name'/>: <xsl:value-of select='.'/></td></tr>
                   </xsl:if>
                 </xsl:for-each>
               </table>

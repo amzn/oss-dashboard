@@ -224,7 +224,7 @@ def generate_dashboard_xml(dashboard_config, client)
         dashboard_file.puts "  <release-data>"
         releases=sync_db.execute( "SELECT DISTINCT(id), html_url, name, published_at, author FROM releases WHERE org='#{org}' AND repo='#{repoRow[1]}' ORDER BY published_at DESC" )
         releases.each do |release|
-          dashboard_file.puts "    <release id='#{release[0]}' url='#{release[1]}' name='#{release[2]}' published_at='#{release[3]}' author='#{release[4]}'/>"
+          dashboard_file.puts "    <release id='#{release[0]}' url='#{release[1]}' published_at='#{release[3]}' author='#{release[4]}'>#{release[2]}</release>"
         end
         dashboard_file.puts "  </release-data>"
     
