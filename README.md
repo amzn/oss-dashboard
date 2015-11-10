@@ -115,6 +115,7 @@ To run only part of the system, you can add an additional argument for the phase
   github-sync/issues
   github-sync/releases
   github-sync/user-mapping
+  github-sync/reporting
   pull-source
   review-source
   generate-dashboard
