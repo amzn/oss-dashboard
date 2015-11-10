@@ -55,6 +55,7 @@
         <!-- Lots of CDN usage here - you should replace this if you want to control the source of the JS/CSS -->
         <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.1.0/octicons.css" />
         <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="dashboard.css" />
         <!-- xsl comment needed in JS to avoid an empty tag -->
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"><xsl:comment/></script>
