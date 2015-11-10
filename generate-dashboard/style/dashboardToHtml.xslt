@@ -55,7 +55,6 @@
         <!-- Lots of CDN usage here - you should replace this if you want to control the source of the JS/CSS -->
         <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.1.0/octicons.css" />
         <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
-        <link type="text/css" rel="stylesheet" href="dashboard.css" />
         <!-- xsl comment needed in JS to avoid an empty tag -->
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"><xsl:comment/></script>
@@ -63,6 +62,64 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.stack.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.24.2/js/jquery.tablesorter.js"><xsl:comment/></script>
 
+        <!-- This is inline to make for a simpler deliverable -->
+        <style>
+            html{font-size:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+            body{margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:12px;line-height:17px;color:#222222;background-color:#e8e8e8;}
+
+            h1,h2,h3,h4,h5{margin:0;font-family:inherit;font-weight:700;line-height:1;color:#333333;text-rendering:optimizelegibility;}
+            h1{font-size:30px;line-height:36px;}
+            h2{font-size:24px;line-height:36px;}
+            h3{font-size:18px;line-height:27px;}
+            h4{font-size:14px;line-height:18px;}
+            h5{font-size:12px;line-height:18px;}
+
+            .caret{display:inline-block;width:0;height:0;vertical-align:top;border-top:4px solid #000000;border-right:4px solid transparent;border-left:4px solid transparent;content:"";}
+
+            .well{min-height:20px;margin-bottom:20px;background-color:#ffffff;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;padding:8px 12px;border:1px solid #eeeeee;-webkit-box-shadow:0 1px 2px #888888;-moz-box-shadow:0 1px 2px #888888;box-shadow:0 1px 2px #888888;}
+
+            .data-grid{width:100%;}
+            .data-grid thead{color:#999999;font-size:10px;border-bottom:1px solid #aaaaaa;text-align:left;}
+            .data-grid thead th{font-weight:normal;}
+            .data-grid td{vertical-align:top;font-size:10px;}
+            .data-grid tbody tr{border-bottom:1px solid #e8e8e8;}
+            .data-grid tbody tr:last-child{border-bottom:0px none #e8e8e8;}
+            .data-grid a{font-weight:bold;}
+            .data-grid thead th{text-transform:uppercase;color:#888;font-size:10px;font-weight:bold;}
+            .data-grid td{line-height:14px;padding:5px 2px;}
+            .data-grid-sortable{width:100%;}
+
+            .tablesorter-header{cursor:pointer;white-space:nowrap;}
+            .tablesorter-header.tablesorter-headerAsc .tablesorter-header-inner,.tablesorter-header.tablesorter-headerDesc .tablesorter-header-inner{color:#ff5522;}
+            .tablesorter-header:hover{color:#ff5522;background-color:#f2f8fa;}
+
+            .nav{margin-left:0;margin-bottom:17px;list-style:none;}
+            .nav>li>a{display:block;}
+            .nav>li>a:hover,.nav>li>a:focus{text-decoration:none;background-color:#aaaaaa;}
+            .nav>li>a>img{max-width:none;}
+            .nav>.pull-right{float:right;}
+            .nav li+.nav-header{margin-top:9px;}
+            .nav-list>li>a{margin-left:-15px;margin-right:-15px;text-shadow:0 1px 0 rgba(255, 255, 255, 0.5);}
+            .nav-list>li>a{padding:3px 15px;}
+            .nav-list>.active>a,.nav-list>.active>a:hover,.nav-list>.active>a:focus{color:#ffffff;text-shadow:0 -1px 0 rgba(0, 0, 0, 0.2);background-color:#0088cc;}
+            .nav-tabs{*zoom:1;}
+            .nav-tabs:before,.nav-tabs:after{display:table;content:"";line-height:0;}
+            .nav-tabs:after{clear:both;}
+            .nav-tabs>li{float:left;}
+            .nav-tabs>li>a{padding-right:12px;padding-left:12px;margin-right:2px;line-height:14px;}
+            .nav-tabs{border-bottom:1px solid #ddd;}
+            .nav-tabs>li{margin-bottom:-1px;}
+            .nav-tabs>li>a{padding-top:8px;padding-bottom:8px;line-height:17px;border:1px solid transparent;-webkit-border-radius:4px 4px 0 0;-moz-border-radius:4px 4px 0 0;border-radius:4px 4px 0 0;}
+            .nav-tabs>li>a:hover,.nav-tabs>li>a:focus{border-color:#aaaaaa #aaaaaa #dddddd;}
+            .nav-tabs>.active>a,.nav-tabs>.active>a:hover,.nav-tabs>.active>a:focus{color:#555555;background-color:#e8e8e8;border:1px solid #ddd;border-bottom-color:transparent;cursor:default;}
+
+            .nav .dropdown-toggle .caret{border-top-color:#0088cc;border-bottom-color:#0088cc;margin-top:6px;}
+            .nav .dropdown-toggle:hover .caret,.nav .dropdown-toggle:focus .caret{border-top-color:#ff5522;border-bottom-color:#ff5522;}
+            .nav-tabs .dropdown-toggle .caret{margin-top:8px;}
+        </style>
+
+        <!-- This will fail - but if you drop a theme.css file in you can add your own Bootstrap Theme :) -->
+        <link type="text/css" rel="stylesheet" href="bootstrap-theme.css" />
       </head>
       <body class="inverse">
         <ul class="nav nav-tabs pull-right" role="tablist">
@@ -95,7 +152,7 @@
 
         <div class="well">
           <xsl:variable name="logo" select="@logo"/>
-          <h2>GitHub Dashboard: <img width="35" height="35" src="{$logo}&amp;s=35"/><xsl:value-of select='@dashboard'/><xsl:if test='@team'>/<xsl:value-of select='@team'/></xsl:if></h2>
+          <h2>GitHub Dashboard: <a href="https://github.com/{$orgname}"><img width="35" height="35" src="{$logo}&amp;s=35"/></a><xsl:value-of select='@dashboard'/><xsl:if test='@team'>/<xsl:value-of select='@team'/></xsl:if></h2>
           <ul id="tabs" class="nav nav-tabs">
             <li class="active"><a href="#overview" data-toggle="tab">Overview</a></li>
             <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(organization/repo)"/>)</a></li>
