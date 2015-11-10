@@ -66,17 +66,6 @@
       </head>
       <body class="inverse">
         <ul class="nav nav-tabs pull-right" role="tablist">
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-              Organization <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu" role="menu">
-              <xsl:for-each select="metadata/navigation/organization">
-                <xsl:variable name="org" select="."/>
-                <li><a href="{$org}.html"><xsl:value-of select="."/></a></li>
-              </xsl:for-each>
-            </ul>
-          </li>
           <xsl:if test="@team or @includes_private!='false'">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -91,6 +80,17 @@
             </ul>
           </li>
           </xsl:if>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              Organization <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <xsl:for-each select="metadata/navigation/organization">
+                <xsl:variable name="org" select="."/>
+                <li><a href="{$org}.html"><xsl:value-of select="."/></a></li>
+              </xsl:for-each>
+            </ul>
+          </li>
         </ul>
 
         <div class="well">
