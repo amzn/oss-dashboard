@@ -94,7 +94,8 @@
         </ul>
 
         <div class="well">
-          <h2>GitHub Dashboard: <xsl:value-of select='@dashboard'/><xsl:if test='@team'>/<xsl:value-of select='@team'/></xsl:if></h2>
+          <xsl:variable name="logo" select="@logo"/>
+          <h2>GitHub Dashboard: <img width="35" height="35" src="{$logo}&amp;s=35"/><xsl:value-of select='@dashboard'/><xsl:if test='@team'>/<xsl:value-of select='@team'/></xsl:if></h2>
           <ul id="tabs" class="nav nav-tabs">
             <li class="active"><a href="#overview" data-toggle="tab">Overview</a></li>
             <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(organization/repo)"/>)</a></li>
