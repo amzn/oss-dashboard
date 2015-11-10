@@ -150,7 +150,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoTable' class='data-grid'>
               <thead>
-              <tr><th>Repo <i class="ocon-sort"></i></th><th>Description</th><th>Teams</th>
+              <tr><th>Repo</th><th>Description</th><th>Teams</th>
               </tr>
               </thead>
               <tbody>
@@ -184,16 +184,16 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoMetricsTable' class='data-grid'>
               <thead>
-              <tr><th>Repo <i class="ocon-sort"></i></th><th>License <i class="ocon-sort"></i></th><th>Language <i class="ocon-sort"></i></th>
+              <tr><th>Repo</th><th>License</th><th>Language</th>
                   <th>Created</th>
                   <th>Pushed</th>
                   <th>Updated</th>
                   <th><a href="#" rel="tooltip" title="Git Size in MB">Size</a></th>
-                  <th><a href="#" rel="tooltip" title="# of Stars"><span class="octicon octicon-star"></span></a> <i class="ocon-sort"></i></th>
-                  <th><a href="#" rel="tooltip" title="# of Watchers"><span class="octicon octicon-eye"></span></a> <i class="ocon-sort"></i></th>
-                  <th><a href="#" rel="tooltip" title="# of Forks"><span class="octicon octicon-repo-forked"></span></a> <i class="ocon-sort"></i></th>
-                  <th><a href="#" rel="tooltip" title="Issue Resolution %age"><span class="octicon octicon-issue-opened"></span></a> <i class="ocon-sort"></i></th>
-                  <th><a href="#" rel="tooltip" title="Pull Request Resolution %age"><span class="octicon octicon-git-pull-request"></span></a> <i class="ocon-sort"></i></th>
+                  <th><a href="#" rel="tooltip" title="# of Stars"><span class="octicon octicon-star"></span></a></th>
+                  <th><a href="#" rel="tooltip" title="# of Watchers"><span class="octicon octicon-eye"></span></a></th>
+                  <th><a href="#" rel="tooltip" title="# of Forks"><span class="octicon octicon-repo-forked"></span></a></th>
+                  <th><a href="#" rel="tooltip" title="Issue Resolution %age"><span class="octicon octicon-issue-opened"></span></a></th>
+                  <th><a href="#" rel="tooltip" title="Pull Request Resolution %age"><span class="octicon octicon-git-pull-request"></span></a></th>
               </tr>
               </thead>
               <tbody>
