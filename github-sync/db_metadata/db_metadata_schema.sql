@@ -65,6 +65,8 @@ CREATE TABLE member (
   login VARCHAR,
 -- name VARCHAR,
 -- avatar_url VARCHAR,
+-- company VARCHAR,
+-- email VARCHAR,
   two_factor_disabled BOOLEAN,
 -- remove_access BOOLEAN,
   employee_email VARCHAR
