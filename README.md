@@ -120,6 +120,8 @@ To run only part of the system, you can add an additional argument for the phase
   review-source
   generate-dashboard
   generate-dashboard/xml
+  generate-dashboard/merge
+  generate-dashboard/teams-xml
   generate-dashboard/xslt
 ```
 
