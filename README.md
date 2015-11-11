@@ -106,24 +106,24 @@ With the configuration file created, you should execute the following:
 
 To run only part of the system, you can add an additional argument for the phase desired. Available phases are:
 
-```
-  init-database
-  github-sync
-  github-sync/metadata
-  github-sync/commits
-  github-sync/events
-  github-sync/issues
-  github-sync/releases
-  github-sync/user-mapping
-  github-sync/reporting
-  pull-source
-  review-source
-  generate-dashboard
-  generate-dashboard/xml
-  generate-dashboard/merge
-  generate-dashboard/teams-xml
-  generate-dashboard/xslt
-```
+| Phase | Description |
+| ----- | -------- |
+|  init-database | Initializes the database file |
+|  github-sync | Syncs all the data down from GitHub (runs all of the github-sync/ phases below) |
+|  github-sync/metadata | Syncs only the metadata (org, repo, teams, org-members etc) |
+|  github-sync/commits | Syncs only the commit data |
+|  github-sync/events | Syncs only the event stream |
+|  github-sync/issues | Syncs the issue data - note that this is typically the heaviest initial load |
+|  github-sync/releases | Syncs the release data |
+|  github-sync/user-mapping | Loads your user-mapping file into the database |
+|  github-sync/reporting | Runs the configured DB Reports |
+|  pull-source | Pulls down the source code from GitHub |
+|  review-source | Runs your source Reports on the pulled source code |
+|  generate-dashboard | Generates a dashboard (runs all of the generate-edashboard/ phases below)|
+|  generate-dashboard/xml | Outputs the XML for organizations |
+|  generate-dashboard/merge | Merges the organization XML into a single XML file |
+|  generate-dashboard/teams-xml | Splits the organizations up into separate Team XML files |
+|  generate-dashboard/xslt | Turns the XML files into HTML |
 
 ## Helper Tools
 
