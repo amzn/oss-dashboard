@@ -17,6 +17,9 @@ require 'sqlite3'
 require 'date'
 require 'yaml'
 
+require 'rexml/document'
+include REXML
+
 def generate_metadata_header(dashboard_config)
   organizations = dashboard_config['organizations']
   reports = dashboard_config['reports']
@@ -277,9 +280,6 @@ def generate_dashboard_xml(dashboard_config, client)
   end
 
 end
-
-require 'rexml/document'
-include REXML
 
 def merge_dashboard_xml(dashboard_config)
 
