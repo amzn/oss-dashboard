@@ -242,7 +242,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoMetricsTable' class='data-grid'>
               <thead>
-              <tr><th>Repo</th><th>License</th><th>Language</th>
+              <tr><th>Repo</th><th><a href="#" rel="tooltip" title="As Reported by GitHub/Licensee">Apparent License</a></th><th>Language</th>
                   <th>Created</th>
                   <th>Pushed</th>
                   <th>Updated</th>
