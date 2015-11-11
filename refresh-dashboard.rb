@@ -98,11 +98,10 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       Dir.mkdir(www_directory)
     end
 
+    feedback.puts "Generating HTML in #{www_directory}/"
     Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
       outputFile=File.basename(inputFile, ".xml")
 
-      feedback.puts "Generating HTML in #{www_directory}/"
-  
       stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
       xml_doc = LibXML::XML::Document.file(inputFile)
       html = stylesheet.apply(xml_doc)
