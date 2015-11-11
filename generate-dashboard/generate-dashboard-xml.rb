@@ -260,8 +260,12 @@ def generate_dashboard_xml(dashboard_config, client)
     # Copy the review xml into the dashboard xml
     # TODO: This is clunky, but simpler than having xslt talk to more than one file at a time. Replace this, possibly along with XSLT.
     #       Quite possible that there's no need for the review xml file to be separate in the first place.
-    dashboard_file.puts File.open("#{data_directory}/review-xml/#{org}.xml").read
-    dashboard_file.puts File.open("#{data_directory}/db-report-xml/#{org}.xml").read
+    if(File.exists?("#{data_directory}/review-xml/#{org}.xml"))
+      dashboard_file.puts File.open("#{data_directory}/review-xml/#{org}.xml").read
+    end
+    if(File.exists?("#{data_directory}/db-report-xml/#{org}.xml"))
+      dashboard_file.puts File.open("#{data_directory}/db-report-xml/#{org}.xml").read
+    end
   
     dashboard_file.puts " </organization>"
     dashboard_file.puts "</github-dashdata>"
