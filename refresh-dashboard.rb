@@ -78,12 +78,17 @@ if(not(run_one) or run_one=='review-source')
 end
 if(not(run_one) or run_one.start_with?('generate-dashboard'))
 
-  unless(run_one=='generate-dashboard/xslt')
+  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xml')
     feedback.puts "Generating dashboard xml"
     generate_dashboard_xml(dashboard_config, client)
   end
 
-  unless(run_one=='generate-dashboard/xml')
+  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/merge')
+    feedback.puts "Merging dashboard xml"
+    merge_dashboard_xml(dashboard_config)
+  end
+
+  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xslt')
     unless(File.exists?(www_directory))
       Dir.mkdir(www_directory)
     end
@@ -99,5 +104,16 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       htmlFile.write(html)
       htmlFile.close
     end
+
+    feedback.puts "Generating: #{www_directory}/AllOrgs.html"
+  
+    stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
+    xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
+    html = stylesheet.apply(xml_doc)
+
+    htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
+    htmlFile.write(html)
+    htmlFile.close
+
   end
 end

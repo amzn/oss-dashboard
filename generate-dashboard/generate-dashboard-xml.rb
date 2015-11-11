@@ -17,6 +17,37 @@ require 'sqlite3'
 require 'date'
 require 'yaml'
 
+def generate_metadata_header(dashboard_config)
+  organizations = dashboard_config['organizations']
+  reports = dashboard_config['reports']
+  db_reports = dashboard_config['db-reports']
+  
+  metadata = " <metadata>\n"
+  metadata << "  <navigation>\n"
+  metadata << "    <organization>AllOrgs</organization>\n"
+  organizations.each do |org|
+    metadata << "    <organization>#{org}</organization>\n"
+  end
+  metadata << "  </navigation>\n"
+  
+  # Which Source Reports are configured?
+  metadata << "  <reports>\n"
+  reports.each do |report|
+    metadata << "    <report>#{report}</report>\n"
+  end
+  metadata << "  </reports>\n"
+  
+  # Which DB Reports are configured?
+  metadata << "  <db-reports>\n"
+  db_reports.each do |report|
+    metadata << "    <db-report>#{report}</db-report>\n"
+  end
+  metadata << "  </db-reports>\n"
+  
+  metadata << " </metadata>\n"
+  return metadata
+end
+
 # Generate a data file for a GitHub organizations.
 # It contains the metadata for the organization, and the metrics.
 def generate_dashboard_xml(dashboard_config, client)
@@ -38,28 +69,7 @@ def generate_dashboard_xml(dashboard_config, client)
   
   # First, generate the metadata needed to build navigation
   # Which other orgs form a part of this site?
-  metadata = " <metadata>\n"
-  metadata << "  <navigation>\n"
-  organizations.each do |org|
-    metadata << "    <organization>#{org}</organization>\n"
-  end
-  metadata << "  </navigation>\n"
-  
-  # Which Source Reports are configured?
-  metadata << "  <reports>\n"
-  reports.each do |report|
-    metadata << "    <report>#{report}</report>\n"
-  end
-  metadata << "  </reports>\n"
-  
-  # Which DB Reports are configured?
-  metadata << "  <db-reports>\n"
-  db_reports.each do |report|
-    metadata << "    <db-report>#{report}</db-report>\n"
-  end
-  metadata << "  </db-reports>\n"
-  
-  metadata << " </metadata>\n"
+  metadata=generate_metadata_header(dashboard_config)
   
   organizations.each do |org|
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
@@ -258,3 +268,38 @@ def generate_dashboard_xml(dashboard_config, client)
   end
 
 end
+
+require 'rexml/document'
+include REXML
+
+def merge_dashboard_xml(dashboard_config)
+  
+  organizations = dashboard_config['organizations']
+  data_directory = dashboard_config['data-directory']
+
+  dashboard_file=File.open("#{data_directory}/dash-xml/AllOrgs.xml", 'w')
+  # TODO: Don't hard code includes_private
+  dashboard_file.puts "<github-dashdata dashboard='All Organizations' includes_private='true'>"
+
+  dashboard_file.puts(generate_metadata_header(dashboard_config))
+
+  organizations.each do |org|
+
+    xmlfile=File.new("#{data_directory}/dash-xml/#{org}.xml")
+    begin
+      dashboardXml = Document.new(xmlfile)
+    end
+
+    dashboardXml.root.each_element("organization") do |child|
+      dashboard_file.puts " #{child}"
+    end
+
+    xmlfile.close
+  end
+
+  dashboard_file.puts "</github-dashdata>"
+
+  dashboard_file.close
+
+end
+
