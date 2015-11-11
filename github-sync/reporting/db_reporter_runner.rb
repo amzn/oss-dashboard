@@ -35,6 +35,7 @@ def run_db_reports(dashboard_config, client, sync_db)
   require_relative 'db_report_no_2fa.rb'
   require_relative 'db_report_wiki_on.rb'
   require_relative 'db_report_empty.rb'
+  require_relative 'db_report_unchanged.rb'
  
   # Use the db_report_path to add others
   if(db_report_path)
