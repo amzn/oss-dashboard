@@ -62,6 +62,7 @@ DROP TABLE IF EXISTS member;
 
 -- TODO: Add name
 -- TODO: Add avatar_url
+-- TODO: Add ex_employee
 CREATE TABLE member (
   id INTEGER,
   login VARCHAR,
