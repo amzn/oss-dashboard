@@ -44,6 +44,7 @@ CREATE TABLE repository (
 
 DROP TABLE IF EXISTS team;
 
+-- TODO: Add org
 CREATE TABLE team (
   id INTEGER,
   name VARCHAR,
@@ -59,6 +60,8 @@ CREATE TABLE team_to_repository (
 
 DROP TABLE IF EXISTS member;
 
+-- TODO: Add name
+-- TODO: Add avatar_url
 CREATE TABLE member (
   id INTEGER,
   login VARCHAR,

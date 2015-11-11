@@ -17,21 +17,22 @@
 require "sqlite3"
 
 queries = [
-  "SELECT COUNT(*) as EventData FROM events",
-  "SELECT COUNT(*) as ReleaseData FROM releases",
-  "SELECT COUNT(*) as CommitData FROM commits",
-  "SELECT COUNT(*) as IssueData FROM issues",
-  "SELECT COUNT(*) as PullRequestData FROM pull_requests",
-  "SELECT COUNT(*) as PullRequestFileData FROM pull_request_files",
-  "SELECT COUNT(*) as OrganizationData FROM organization",
-  "SELECT COUNT(*) as TeamData FROM team",
-  "SELECT COUNT(*) as RepositoryData FROM repository",
-  "SELECT COUNT(*) as MemberData FROM member",
-  "SELECT COUNT(*) as Team2RepoData FROM team_to_repository",
-  "SELECT COUNT(*) as Team2MemberData FROM team_to_member"
+  ["SELECT COUNT(*) as EventData FROM events", " WHERE org=?"],
+  ["SELECT COUNT(*) as ReleaseData FROM releases", " WHERE org=?"],
+  ["SELECT COUNT(*) as CommitData FROM commits", " WHERE org=?"],
+  ["SELECT COUNT(*) as IssueData FROM issues", " WHERE org=?"],
+  ["SELECT COUNT(*) as PullRequestData FROM pull_requests", " WHERE org=?"],
+  ["SELECT COUNT(*) as PullRequestFileData FROM pull_request_files pf", ", pull_requests pr WHERE pr.id=pf.pull_request_id AND pr.org=?"],
+  ["SELECT COUNT(*) as OrganizationData FROM organization", " WHERE login=?"],
+  ["SELECT COUNT(DISTINCT(t.id)) as TeamData FROM team t", ", team_to_repository ttr, repository r WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
+  ["SELECT COUNT(*) as RepositoryData FROM repository", " WHERE org=?"],
+  ["SELECT COUNT(DISTINCT(m.id)) as MemberData FROM member m", ", team_to_member ttm, team_to_repository ttr, repository r WHERE m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
+  ["SELECT COUNT(*) as Team2RepoData FROM team_to_repository ttr", ", repository r WHERE ttr.repository_id=r.id AND r.org=?"],
+  ["SELECT COUNT(DISTINCT(ttm.member_id || ttm.team_id)) as Team2MemberData FROM team_to_member ttm", ", team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"]
 ]
 
 db_filename = ARGV[0]
+org = ARGV[1]
 
 unless(File.exists?(db_filename))
   puts "Database does not exist: #{db_filename}"
@@ -40,8 +41,20 @@ end
 
 sync_db=SQLite3::Database.new db_filename
 
-queries.each do |query|
-  result=sync_db.query(query)
+if(org)
+  puts "#{org} Table Size"
+  puts "=" * org.length + "==========="
+else
+  puts "Database Table Size"
+  puts "==================="
+end
+
+queries.each do |query, clause|
+  if(org)
+    result=sync_db.query(query+clause, [org])
+  else
+    result=sync_db.query(query)
+  end
   puts "#{result.columns[0]}: #{result.next[0]}"
   result.close
 end
