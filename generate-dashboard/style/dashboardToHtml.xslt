@@ -473,6 +473,7 @@
             <xsl:for-each select="metadata/db-reports/db-report">
               <xsl:variable name="report" select="."/>
             <div class="tab-pane" id="{$report}">
+             <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
                 <thead>
 <!-- TODO: Pull this from the metadata after it starts showing there -->
@@ -489,6 +490,7 @@
                 </xsl:for-each>
                 </tbody>
               </table>
+             </div>
             </div>
             </xsl:for-each>
 
@@ -496,6 +498,7 @@
             <xsl:for-each select="metadata/reports/report">
               <xsl:variable name="report" select="."/>
             <div class="tab-pane" id="{$report}">
+             <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
                 <thead>
                 <tr><th>Issue Found In (<xsl:value-of select="count(/github-dashdata/organization/github-review/organization/repo/reporting[@type=$report])"/>)</th><th>Details</th></tr> <!-- bug: unable to show summary count within a team mode -->
@@ -534,6 +537,7 @@
                 </xsl:for-each>
                 </tbody>
               </table>
+             </div>
             </div>
             </xsl:for-each>
 
@@ -748,6 +752,16 @@ $.plot($("#timeToCloseChart"), [ { data: issueResolveTimes, label: 'Issues'}, { 
                 $("#memberTable").tablesorter({
                     sortList: [[0,0]],
                 });
+            <xsl:for-each select="metadata/reports/report">
+                $("#<xsl:value-of select="."/>Table").tablesorter({
+                    sortList: [[0,0]],
+                });
+            </xsl:for-each>
+            <xsl:for-each select="metadata/db-reports/db-report">
+                $("#<xsl:value-of select="."/>Table").tablesorter({
+                    sortList: [[0,0]],
+                });
+            </xsl:for-each>
             });
         </script>
 
