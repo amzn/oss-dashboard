@@ -16,15 +16,6 @@ require "yaml"
 require "sqlite3"
 require "date"
 
-  def db_open(filename)
-    db = SQLite3::Database.new filename
-    return db
-  end
-
-  def db_delete_all(db)
-    db.execute("DELETE FROM commits")
-  end
-
   def gh_to_db_timestamp(timestamp)
     # Convert format '2014-10-31 23:21:44 UTC' to '2006-03-10T23:33:03+00:00'
     if(timestamp)

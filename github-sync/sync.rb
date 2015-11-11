@@ -29,7 +29,7 @@ def github_sync(dashboard_config, client, run_one)
 
   db_filename=File.join(dashboard_config['data-directory'], 'db', 'gh-sync.db');
 
-  sync_db=db_open(db_filename)
+  sync_db=SQLite3::Database.new db_filename
 
   if(not(run_one) or run_one=='github-sync/metadata')
     sync_metadata(dashboard_config, client, sync_db)

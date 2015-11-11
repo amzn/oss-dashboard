@@ -16,15 +16,6 @@ require "yaml"
 require "sqlite3"
 require "date"
 
-  def db_open(filename)
-    db = SQLite3::Database.new filename
-    return db
-  end
-
-  def db_delete_all(db)
-    db.execute("DELETE FROM events")
-  end
-
   # Need to double-check that the hash YAML is simple enough to also be legal JSON. 
   def flatten_event_payload(event)
     case event.type

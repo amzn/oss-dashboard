@@ -18,11 +18,6 @@ require 'sqlite3'
 require 'date'
 require 'yaml'
 
-def db_open(filename)
-  db = SQLite3::Database.new filename
-  return db
-end
-
 def store_organization(db, client, org_login)
   org=client.organization(org_login)
   
