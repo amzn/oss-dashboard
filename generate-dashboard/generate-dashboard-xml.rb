@@ -76,12 +76,15 @@ def generate_dashboard_xml(dashboard_config, client)
   organizations.each do |org|
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
   
-    org_data=sync_db.execute("SELECT avatar_url FROM organization WHERE login=?", [org])
+    org_data=sync_db.execute("SELECT avatar_url, description FROM organization WHERE login=?", [org])
 
     dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{org_data[0][0]}'>"
     dashboard_file.puts metadata
 
     dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}'>"
+    unless(org_data[0][1]=="")
+      dashboard_file.puts "   <description>#{org_data[0][1]}</description>"
+    end
   
     # Generate XML for Team data if available
     teams=sync_db.execute("SELECT DISTINCT(t.id), t.name, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
