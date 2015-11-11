@@ -77,6 +77,7 @@ def review_source(dashboard_config, client)
     report << " </organization>\n"
     report << "</github-review>\n"
     review_file.puts report
+    review_file.close
   end
   
 end

@@ -70,6 +70,7 @@ def run_db_reports(dashboard_config, client, sync_db)
     report << " </organization>\n"
     report << "</github-db-report>\n"
     review_file.puts report
+    review_file.close
   end
   
 end
