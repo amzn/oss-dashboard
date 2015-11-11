@@ -140,7 +140,7 @@ You only get 5000 requests an hour to GitHub, so keeping an eye on your current 
 The following query shows you the size of each of your tables. It needs porting to Ruby so it can take advantage of the config.
 
 ```
-  sh github-sync/queries/db-summary.rb {path to database file}
+  ruby github-sync/queries/db-summary.rb {path to database file}
 ```
 
 ## Large Organizations
