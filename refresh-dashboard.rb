@@ -83,9 +83,11 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
     generate_dashboard_xml(dashboard_config, client)
   end
 
-  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/merge')
-    feedback.puts "Merging dashboard xml"
-    merge_dashboard_xml(dashboard_config)
+  if(organizations.length > 1)
+    if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/merge')
+      feedback.puts "Merging dashboard xml"
+      merge_dashboard_xml(dashboard_config)
+    end
   end
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/teams-xml')
@@ -111,15 +113,16 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       htmlFile.close
     end
 
-    feedback.puts "Generating #{www_directory}/AllOrgs.html"
-  
-    stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
-    xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
-    html = stylesheet.apply(xml_doc)
+    if(organizations.length > 1)
+      feedback.puts "Generating #{www_directory}/AllOrgs.html"
 
-    htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
-    htmlFile.write(html)
-    htmlFile.close
+      stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
+      xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
+      html = stylesheet.apply(xml_doc)
 
+      htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
+      htmlFile.write(html)
+      htmlFile.close
+    end
   end
 end

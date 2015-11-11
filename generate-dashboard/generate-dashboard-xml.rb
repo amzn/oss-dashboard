@@ -24,7 +24,9 @@ def generate_metadata_header(dashboard_config)
   
   metadata = " <metadata>\n"
   metadata << "  <navigation>\n"
-  metadata << "    <organization>AllOrgs</organization>\n"
+  if(organizations.length > 1)
+    metadata << "    <organization>AllOrgs</organization>\n"
+  end
   organizations.each do |org|
     metadata << "    <organization>#{org}</organization>\n"
   end
