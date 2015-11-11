@@ -1,4 +1,4 @@
-# Amazon Open Source Program GitHub Dashboard (osa-gitdash)
+# Amazon Open Source Program GitHub Dashboard
 A dashboard for viewing many GitHub organizations at once. This dashboard is an internal prototype, please try it out, but note it's being published primarily for the purposes of sharing with the TodoGroup. It's hoped that said group will produce a tool that far surpasses this tools limited features. 
 
 Generating the dashboard is intended to occur in three phases.
