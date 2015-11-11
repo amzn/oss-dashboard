@@ -130,7 +130,7 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select='organization/team'>
-                <xsl:variable name="teamlink" select="@id"/>
+                <xsl:variable name="teamlink" select="@escaped_name"/>
                 <xsl:variable name="orgname2" select="../@name"/>
                 <li><a href="{$orgname2}-team-{$teamlink}.html"><xsl:value-of select="../@name"/>::<xsl:value-of select="@name"/></a></li>
               </xsl:for-each>

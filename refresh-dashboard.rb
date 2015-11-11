@@ -88,24 +88,31 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
     merge_dashboard_xml(dashboard_config)
   end
 
+  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/teams-xml')
+    feedback.puts "Generating team dashboard xml files"
+    generate_team_xml(dashboard_config)
+  end
+
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xslt')
     unless(File.exists?(www_directory))
       Dir.mkdir(www_directory)
     end
 
-    organizations.each do |org|
-      feedback.puts "Generating: #{www_directory}/#{org}.html"
+    Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
+      outputFile=File.basename(inputFile, ".xml")
+
+      feedback.puts "Generating HTML in #{www_directory}/"
   
       stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
-      xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/#{org}.xml")
+      xml_doc = LibXML::XML::Document.file(inputFile)
       html = stylesheet.apply(xml_doc)
 
-      htmlFile = File.new("#{www_directory}/#{org}.html", 'w')
+      htmlFile = File.new("#{www_directory}/#{outputFile}.html", 'w')
       htmlFile.write(html)
       htmlFile.close
     end
 
-    feedback.puts "Generating: #{www_directory}/AllOrgs.html"
+    feedback.puts "Generating #{www_directory}/AllOrgs.html"
   
     stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
     xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")

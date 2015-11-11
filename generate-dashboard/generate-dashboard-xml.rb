@@ -273,7 +273,7 @@ require 'rexml/document'
 include REXML
 
 def merge_dashboard_xml(dashboard_config)
-  
+
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
 
@@ -303,3 +303,52 @@ def merge_dashboard_xml(dashboard_config)
 
 end
 
+def generate_team_xml(dashboard_config)
+
+  organizations = dashboard_config['organizations']
+  data_directory = dashboard_config['data-directory']
+
+  organizations.each do |org|
+    xmlfile=File.new("#{data_directory}/dash-xml/#{org}.xml")
+    begin
+      dashboardXml = Document.new(xmlfile)
+    end
+    header=generate_metadata_header(dashboard_config)
+
+    teamMenu=''
+    # TODO: There's more creation of XML here than need be
+    dashboardXml.root.elements['organization'].elements.each("team") do |team|
+      name=team.attributes["name"]
+      escaped=name.gsub(/[ \/&:]/, '_')
+      teamMenu << "<team escaped_name='#{escaped}' name='#{name}'/>"
+    end
+
+    dashboardXml.root.elements['organization'].elements.each("team") do |team|
+      name=team.attributes["name"]
+      escaped=name.gsub(/[ \/&:]/, '_')
+      path="#{data_directory}/dash-xml/#{org}-team-#{escaped}.xml"
+      open(path, 'w') do |f|
+        f.puts "<github-dashdata dashboard='#{org}' team='#{name}'>"
+        f.puts header
+        f.puts " <organization name='#{org}'>"
+        f.puts teamMenu
+        team.elements.each("repos/repo") do |teamrepo|
+          id=teamrepo.text
+          # We want to output the repo section for this id
+          repoNode=XPath.first(dashboardXml.root, "organization/repo[@name='#{id}']")
+          f.puts "  #{repoNode}"
+        end
+        team.elements.each("members/member") do |teammember|
+          login=teammember.text
+          # We want to output the member section for this login
+          memberNode=XPath.first(dashboardXml.root, "organization/member[@name='#{login}']")
+          f.puts "  #{memberNode}"
+        end
+        f.puts " #{XPath.first(dashboardXml.root, 'organization/metric')}"
+        f.puts " </organization>"
+        f.puts "</github-dashdata>"
+      end
+    end
+    xmlfile.close
+  end
+end
