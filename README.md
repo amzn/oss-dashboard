@@ -22,11 +22,13 @@ An HTML dashboard is generated from the SQLite Databases and the code analysis.
 The dashboard assumes the following are installed:
 
  1. SQLite 3.x
- 2. SQLite Rubygem - 'sqlite3'
- 3. OctoKit Rubygem - 'octokit'
- 4. Licensee Rubygem - 'licensee'; though this should go away when the data is provided by OctoKit
- 5. XSLT Rubygem - 'xslt'
- 6. XML Rubygem - 'xml'
+ 2. git
+ 3. Ruby (tested on version 2.0.0 and 2.2.1).
+ 4. SQLite Rubygem - 'sqlite3'
+ 5. OctoKit Rubygem - 'octokit'
+ 6. Licensee Rubygem - 'licensee'; though this should go away when the data is provided by OctoKit
+ 7. XSLT Rubygem - 'xslt'
+ 8. XML Rubygem - 'xml'
 
 ## Setup
 
@@ -37,8 +39,10 @@ Example file:
 
 ```
  github:
-   access_token: 'your github access token'
+   access_token: 'your github personal access token'
 ```
+
+For general use, no specific scopes are required. If you wish to see private organization data (such as Teams, all Members and private Repositories), you will need to enable the 'repo' scope.
 
 * Create a dashboard configuration file (outside of the git clone).
 
@@ -136,7 +140,7 @@ You only get 5000 requests an hour to GitHub, so keeping an eye on your current 
 The following query shows you the size of each of your tables. It needs porting to Ruby so it can take advantage of the config.
 
 ```
-  sh github-sync/queries/db-summary.sh {path to database file}
+  sh github-sync/queries/db-summary.rb {path to database file}
 ```
 
 ## Large Organizations
