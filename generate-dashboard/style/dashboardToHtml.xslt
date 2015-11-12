@@ -393,7 +393,16 @@
                       <td><xsl:value-of select='@age'/>d</td>
                       <td><xsl:value-of select='substring(@updated_at,1,10)'/></td>
                       <td>
-                      <a href="https://github.com/{$membername}"><xsl:value-of select="@user"/></a>
+                      <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@name=$membername]">
+                       <!-- TODO: How to allow users to pass in a url and member@internal to their internal directories? -->
+                       <xsl:if test="$logo">
+                        <span style="margin-right: 2px;"><sup><img src="{$logo}" width="8" height="8"/></sup></span>
+                       </xsl:if>
+                       <xsl:if test="not($logo)">
+                        <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
+                       </xsl:if>
+                      </xsl:if>
+                        <a href="https://github.com/{$membername}"><xsl:value-of select="@user"/></a>
                       </td>
                       <td><xsl:value-of select='@comments'/></td>
                     </tr>
