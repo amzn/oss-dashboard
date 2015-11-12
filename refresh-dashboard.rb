@@ -25,8 +25,16 @@ require_relative 'github-pull/pull_source'
 require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
 
-# Dashboard configuration
+# GitHub setup
 config_file = ARGV[0]
+config = YAML.load(File.read(config_file))
+github_config = config['github']
+
+Octokit.auto_paginate = true
+client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
+
+# Dashboard configuration
+config_file = ARGV[1]
 config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
@@ -36,14 +44,6 @@ organizations = dashboard_config['organizations']
 unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
 end
-
-# GitHub setup
-config_file = ARGV[1]
-config = YAML.load(File.read(config_file))
-github_config = config['github']
-
-Octokit.auto_paginate = true
-client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
 
 run_one=ARGV[2]
 

@@ -105,7 +105,7 @@ The user schema contains an email address field, to represent your internal logi
 With the configuration file created, you should execute the following:
 
 ```
-  ruby refresh-dashboard.rb {path to config-dashboard.yml} {path to config-github.yml}
+  ruby refresh-dashboard.rb {path to config-github.yml} {path to config-dashboard.yml} 
 ```
 
 To run only part of the system, you can add an additional argument for the phase desired. Available phases are:
