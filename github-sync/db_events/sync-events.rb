@@ -55,11 +55,14 @@ end
 def sync_events(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
+  feedback.puts " events"
   
   organizations.each do |org|
     # TODO: Access db to see if any entries. If none, then use this call. Otherwise use latest.
     #getAllForOrg(client, sync_db, org)
+    feedback.print "  #{org} "
     getLatestForOrg(client, sync_db, org)
+    feedback.print "\n"
   end
 
 end
