@@ -34,42 +34,42 @@ def pull_source(feedback, dashboard_config, client)
   
   organizations.each do |owner|
 
-      feedback.print "  #{owner} "
+    feedback.print "  #{owner} "
   
-      unless(File.exist?("#{scratch_directory}/#{owner}"))
-          Dir.mkdir("#{scratch_directory}/#{owner}")
-      end
+    unless(File.exist?("#{scratch_directory}/#{owner}"))
+      Dir.mkdir("#{scratch_directory}/#{owner}")
+    end
       
-      repos = client.organization_repositories(owner)
-      repos.each do |repo|
-        if repo.fork
-          next
-        end
-        if(privateMode == false and repo.private == true)
-          next
-        end
-        if(privateMode == true and repo.private == false)
-          next
-        end
-        
-        repodir="#{scratch_directory}/#{owner}/#{repo.name}"
-  
-        # Checkout or update - use other script if repo.private
-          unless(File.exist?(repodir))
-            `git clone -q --depth 1 https://github.com/#{owner}/#{repo.name}.git #{repodir}`
-          else
-             # Git 1.8.5 solution
-             #   `git -C #{repodir} pull -q`
-             Dir.chdir(repodir) do
-  #             `git pull -q`
-  # Hoping fetch and reset will work better than pulling
-               remote=`cat .git/config | grep 'remote = ' | sed 's/^.*remote = //'`.strip
-               branch=`cat .git/config | grep 'merge = ' | sed 's/^.*merge = refs\\\/heads\\\///'`.strip
-               `git fetch -q && git reset -q --hard #{remote}/#{branch}`
-           end
-        end
-          feedback.print "."
+    repos = client.organization_repositories(owner)
+    repos.each do |repo|
+      if repo.fork
+        next
       end
-      feedback.print "\n"
+      if(privateMode == false and repo.private == true)
+        next
+      end
+      if(privateMode == true and repo.private == false)
+        next
+      end
+        
+      repodir="#{scratch_directory}/#{owner}/#{repo.name}"
+  
+      # Checkout or update - use other script if repo.private
+      unless(File.exist?(repodir))
+        `git clone -q --depth 1 https://github.com/#{owner}/#{repo.name}.git #{repodir}`
+      else
+        # Git 1.8.5 solution
+        # `git -C #{repodir} pull -q`
+        Dir.chdir(repodir) do
+          # `git pull -q`
+          # Hoping fetch and reset will work better than pulling
+          remote=`cat .git/config | grep 'remote = ' | sed 's/^.*remote = //'`.strip
+          branch=`cat .git/config | grep 'merge = ' | sed 's/^.*merge = refs\\\/heads\\\///'`.strip
+          `git fetch -q && git reset -q --hard #{remote}/#{branch}`
+         end
+      end
+      feedback.print "."
+    end
+    feedback.print "\n"
   end
 end
