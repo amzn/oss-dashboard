@@ -57,7 +57,7 @@ def getAllReleasesForOrg(client, release_db, org)
   end
 end
 
-def sync_releases(dashboard_config, client, sync_db)
+def sync_releases(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
   

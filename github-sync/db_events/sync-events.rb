@@ -52,7 +52,7 @@ def getAllForOrg(client, event_db, org)
 end
 
 
-def sync_events(dashboard_config, client, sync_db)
+def sync_events(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
   

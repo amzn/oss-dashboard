@@ -94,7 +94,7 @@ def store_organization_members(db, client, org, private)
 end
 
 
-def sync_metadata(dashboard_config, client, sync_db)
+def sync_metadata(feedback, dashboard_config, client, sync_db)
 
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']

@@ -148,3 +148,9 @@ The following query shows you the size of each of your tables. It needs porting 
 Because of that 5000 request limit, loading the data for large organizations can be difficult. While in principle you should be able to repeat run the dashboard until your database is full (at least until you hit a repository that would take greater than 5000 requests), this hasn't been tested and the dashboard does not yet fail gracefully. 
 
 Running each phase at a time is advised; chances are you will need to run github-sync/issues repeatedly until full. You can edit the configuration so it only runs on the org you are adding during that manual import, then put the full list back again. 
+
+## Notes on Output Warnings
+
+By default the refresh_dashboard.rb script outputs '.' characters to show it's taken care of a repository (or whatever the 'atom' being operated on is in that phase). Sometimes it outputs a '!'. Here's why:
+
+* github-sync/commits - An '!' here means it skipped an empty repository to avoid an Octokit error. 

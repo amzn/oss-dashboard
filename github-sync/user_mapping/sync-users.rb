@@ -28,7 +28,7 @@ def loadUserTable(db, users)
   db.execute("END TRANSACTION");
 end
 
-def sync_user_mapping(dashboard_config, client, sync_db)
+def sync_user_mapping(feedback, dashboard_config, client, sync_db)
 
   # both should be executed and provides USER_EMAILS
   # TODO: It should be executed _after_ the user emails are loaded, ie) there should be a function to call

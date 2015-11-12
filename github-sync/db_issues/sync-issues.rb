@@ -50,7 +50,7 @@ def getLatestForOrgRepos(client, issue_db, org)
   end
 end
 
-def sync_issues(dashboard_config, client, sync_db)
+def sync_issues(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
   
