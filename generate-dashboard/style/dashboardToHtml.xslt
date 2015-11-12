@@ -382,11 +382,9 @@
                     <xsl:variable name="title" select="."/>
                     <xsl:variable name="membername" select="@user"/>
                     <tr>
-                    <!-- https://github.com/aws/aws-cli/pull/1260 -->
                     <xsl:if test='@pull_request="true"'>
                       <td><span class="octicon octicon-git-pull-request"></span> <a href="https://github.com/{$orgname2}/{$reponame}/pull/{$issuekey}"><xsl:value-of select="$reponame"/>-<xsl:value-of select='@number'/></a></td>
                     </xsl:if>
-                    <!-- https://github.com/aws/aws-cli/issues/1256 -->
                     <xsl:if test='@pull_request="false"'>
                       <td><span class="octicon octicon-issue-opened"></span> <a href="https://github.com/{$orgname2}/{$reponame}/issues/{$issuekey}"><xsl:value-of select="$reponame"/>-<xsl:value-of select='@number'/></a></td>
                     </xsl:if>
