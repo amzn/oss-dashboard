@@ -18,7 +18,7 @@ require 'yaml'
 
 require_relative 'reporter.rb'
 
-def review_source(dashboard_config, client)
+def review_source(feedback, dashboard_config, client)
   
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
@@ -49,6 +49,7 @@ def review_source(dashboard_config, client)
   end
   
   organizations.each do |owner|
+    feedback.print "  #{owner} "
     review_file=File.open("#{data_directory}/review-xml/#{owner}.xml", 'w')
   
     report="<github-review>\n"
@@ -72,12 +73,13 @@ def review_source(dashboard_config, client)
       end
       
       report << "  </repo>\n"
-  
+      feedback.print '.'
     end
     report << " </organization>\n"
     report << "</github-review>\n"
     review_file.puts report
     review_file.close
+    feedback.print "\n"
   end
   
 end
