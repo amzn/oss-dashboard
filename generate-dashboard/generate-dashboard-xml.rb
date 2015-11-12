@@ -55,7 +55,7 @@ end
 
 # Generate a data file for a GitHub organizations.
 # It contains the metadata for the organization, and the metrics.
-def generate_dashboard_xml(dashboard_config, client)
+def generate_dashboard_xml(feedback, dashboard_config, client)
   
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
@@ -77,6 +77,7 @@ def generate_dashboard_xml(dashboard_config, client)
   metadata=generate_metadata_header(dashboard_config)
   
   organizations.each do |org|
+    feedback.print "  #{org} "
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
   
     org_data=sync_db.execute("SELECT avatar_url, description FROM organization WHERE login=?", [org])
@@ -277,11 +278,12 @@ def generate_dashboard_xml(dashboard_config, client)
     dashboard_file.puts "</github-dashdata>"
     
     dashboard_file.close
+    feedback.print "\n"
   end
 
 end
 
-def merge_dashboard_xml(dashboard_config)
+def merge_dashboard_xml(feedback, dashboard_config)
 
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
@@ -304,6 +306,7 @@ def merge_dashboard_xml(dashboard_config)
     end
 
     xmlfile.close
+    feedback.puts "  #{org}"
   end
 
   dashboard_file.puts "</github-dashdata>"
@@ -312,12 +315,13 @@ def merge_dashboard_xml(dashboard_config)
 
 end
 
-def generate_team_xml(dashboard_config)
+def generate_team_xml(feedback, dashboard_config)
 
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
 
   organizations.each do |org|
+    feedback.print "  #{org} "
     xmlfile=File.new("#{data_directory}/dash-xml/#{org}.xml")
     begin
       dashboardXml = Document.new(xmlfile)
@@ -357,7 +361,9 @@ def generate_team_xml(dashboard_config)
         f.puts " </organization>"
         f.puts "</github-dashdata>"
       end
+      feedback.print '.'
     end
     xmlfile.close
+    feedback.print "\n"
   end
 end

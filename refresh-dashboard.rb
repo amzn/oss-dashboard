@@ -83,19 +83,19 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xml')
     feedback.puts "Generating dashboard xml"
-    generate_dashboard_xml(dashboard_config, client)
+    generate_dashboard_xml(feedback, dashboard_config, client)
   end
 
   if(organizations.length > 1)
     if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/merge')
       feedback.puts "Merging dashboard xml"
-      merge_dashboard_xml(dashboard_config)
+      merge_dashboard_xml(feedback, dashboard_config)
     end
   end
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/teams-xml')
     feedback.puts "Generating team dashboard xml files"
-    generate_team_xml(dashboard_config)
+    generate_team_xml(feedback, dashboard_config)
   end
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xslt')
