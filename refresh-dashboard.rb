@@ -71,8 +71,8 @@ if(not(run_one) or run_one.start_with?('github-sync'))
   github_sync(dashboard_config, client, run_one=='github-sync' ? nil : run_one)
 end
 if(not(run_one) or run_one=='pull-source')
-  feedback.puts "Git Pulling"
-  pull_source(dashboard_config, client)
+  feedback.puts "Pulling Latest Source Repositories"
+  pull_source(feedback, dashboard_config, client)
 end
 if(not(run_one) or run_one=='review-source')
   feedback.puts "Reviewing source"

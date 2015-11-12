@@ -18,7 +18,7 @@ require 'yaml'
 
 # TODO: Need to use the GitHub API to check the code out, or at the least the private code
 # WORKAROUND: Until then, pass in --private and enter credentials or setup SSH key
-def pull_source(dashboard_config, client)
+def pull_source(feedback, dashboard_config, client)
   
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
@@ -33,6 +33,8 @@ def pull_source(dashboard_config, client)
   end
   
   organizations.each do |owner|
+
+      feedback.print "  #{owner} "
   
       unless(File.exist?("#{scratch_directory}/#{owner}"))
           Dir.mkdir("#{scratch_directory}/#{owner}")
@@ -66,7 +68,8 @@ def pull_source(dashboard_config, client)
                `git fetch -q && git reset -q --hard #{remote}/#{branch}`
            end
         end
+          feedback.print "."
       end
-  
+      feedback.print "\n"
   end
 end
