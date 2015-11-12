@@ -105,7 +105,7 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       Dir.mkdir(www_directory)
     end
 
-    feedback.print "Generating HTML in #{www_directory}/ "
+    feedback.print "Generating HTML in #{www_directory}/ \n  "
     Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
       outputFile=File.basename(inputFile, ".xml")
 
