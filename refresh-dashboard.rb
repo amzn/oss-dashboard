@@ -76,8 +76,8 @@ if(not(run_one) or run_one=='pull-source')
   pull_source(feedback, dashboard_config, client)
 end
 if(not(run_one) or run_one=='review-source')
-  feedback.puts "Reviewing source"
-  review_source(dashboard_config, client)
+  feedback.puts "Reviewing Source Repositories"
+  review_source(feedback, dashboard_config, client)
 end
 if(not(run_one) or run_one.start_with?('generate-dashboard'))
 
