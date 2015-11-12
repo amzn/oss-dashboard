@@ -154,3 +154,7 @@ Running each phase at a time is advised; chances are you will need to run github
 By default the refresh_dashboard.rb script outputs '.' characters to show it's taken care of a repository (or whatever the 'atom' being operated on is in that phase). Sometimes it outputs a '!'. Here's why:
 
 * github-sync/commits - An '!' here means it skipped an empty repository to avoid an Octokit error. 
+
+## Bootstrap Themes
+
+The HTML generated relies, amongst other libraries, on Bootstrap. The HTML files look for a file named bootstrap-theme.css in the same directory, allowing you to customize the look and feel of the dashboard (typically by finding a theme you like and using that). 
