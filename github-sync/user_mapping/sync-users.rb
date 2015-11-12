@@ -30,15 +30,22 @@ end
 
 def sync_user_mapping(feedback, dashboard_config, client, sync_db)
 
-  # both should be executed and provides USER_EMAILS
-  # TODO: It should be executed _after_ the user emails are loaded, ie) there should be a function to call
+  feedback.puts " user-mapping"
+
   map_user_script=dashboard_config['map-user-script']
   if(map_user_script)
     if(File.exist?(map_user_script))
       require(map_user_script)
-      loadUserTable(sync_db, USER_EMAILS)
+      # TODO: Also test for it being the right data structure?
+      if(USER_EMAILS)
+        loadUserTable(sync_db, USER_EMAILS)
+      else
+        puts "ERROR: USER_EMAILS mapping required in #{map_user_script}"
+        exit   # Throw error?
+      end
     else
-      puts "User mapping script not found: #{map_user_script}"
+      puts "ERROR: User mapping script not found: #{map_user_script}"
+      exit   # Throw error?
     end
   end
 end

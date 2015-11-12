@@ -31,7 +31,7 @@ require_relative 'issueStoreLibrary.rb'
 #  db_insert_issues(issue_db, issues, org, repo)                   # Insert any new items
 #end
 
-def getLatestForOrgRepos(client, issue_db, org)
+def getLatestForOrgRepos(feedback, client, issue_db, org)
   client.organization_repositories(org).each do |repo_obj|
     repo=repo_obj.full_name
     maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo)               # Get the current max timestamp in the db
@@ -47,15 +47,19 @@ def getLatestForOrgRepos(client, issue_db, org)
     db_fix_merged_at(issue_db, client, issues, org, repo_obj.name)      # Put in PR specific data - namely merged_at
     db_add_pull_request_files(issue_db, client, issues, org, repo_obj.name)      # Put in PR specific data - namely the files + their metrics
     issue_db.execute("END TRANSACTION");
+    feedback.print '.'
   end
 end
 
 def sync_issues(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
+  feedback.puts " issues"
   
   organizations.each do |org|
-    getLatestForOrgRepos(client, sync_db, org)
+    feedback.print "  #{org} "
+    getLatestForOrgRepos(feedback, client, sync_db, org)
+    feedback.print "\n"
   end
 
 end

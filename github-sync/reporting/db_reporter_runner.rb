@@ -18,7 +18,7 @@ require 'yaml'
 
 require_relative 'db_reporter.rb'
 
-def run_db_reports(dashboard_config, client, sync_db)
+def run_db_reports(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
@@ -56,6 +56,7 @@ def run_db_reports(dashboard_config, client, sync_db)
   end
   
   organizations.each do |org|
+    feedback.print "  #{org} "
     review_file=File.open("#{data_directory}/db-report-xml/#{org}.xml", 'w')
   
     report="<github-db-report>\n"
@@ -65,12 +66,14 @@ def run_db_reports(dashboard_config, client, sync_db)
       clazz = Object.const_get(reportName)
       instance=clazz.new
       report << instance.db_report(org, sync_db).to_s
+      feedback.print '.'
     end
 
     report << " </organization>\n"
     report << "</github-db-report>\n"
     review_file.puts report
     review_file.close
+    feedback.print "\n"
   end
   
 end

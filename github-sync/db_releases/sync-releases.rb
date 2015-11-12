@@ -49,20 +49,23 @@ require "sqlite3"
     db.execute("END TRANSACTION");
   end
 
-# Expectation is that this is for loading old data; the event stream can be used to update the release db
-def getAllReleasesForOrg(client, release_db, org)
-  client.organization_repositories(org).each do |repo_obj|
-    releases=client.releases(repo_obj.full_name)
-    db_insert_releases(release_db, org, repo_obj.name, releases)   # Replace existing with these
-  end
-end
-
 def sync_releases(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
+  feedback.puts " releases"
   
   organizations.each do |org|
-    getAllReleasesForOrg(client, sync_db, org)
+    feedback.print "  #{org} "
+
+    # There's no @since here, so it's removing current data and replacing with all release info from GitHub
+    # Could use this for initial load and use the event data stream for updates
+    client.organization_repositories(org).each do |repo_obj|
+      releases=client.releases(repo_obj.full_name)
+      db_insert_releases(sync_db, org, repo_obj.name, releases)   # Replaces existing with these
+      feedback.print '.'
+    end
+
+    feedback.print "\n"
   end
 
 end

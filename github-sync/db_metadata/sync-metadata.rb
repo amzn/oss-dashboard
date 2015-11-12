@@ -102,14 +102,17 @@ def sync_metadata(feedback, dashboard_config, client, sync_db)
   unless(private_access)
     private_access = []
   end
+  feedback.puts " metadata"
 
   organizations.each do |org_login|
+    feedback.print "  #{org_login} "
     store_organization(sync_db, client, org_login)
     store_organization_repositories(sync_db, client, org_login)
     store_organization_members(sync_db, client, org_login, private_access.include?(org_login))
     if(private_access.include?(org_login))
       store_organization_teams(sync_db, client, org_login)
     end
+    feedback.print "\n"
   end
 
 end
