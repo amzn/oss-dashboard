@@ -1,7 +1,7 @@
 # Amazon Open Source Program GitHub Dashboard
 A dashboard for viewing many GitHub organizations at once. This dashboard is an internal prototype, please try it out, but note it's being published primarily for the purposes of sharing with the TodoGroup. It's hoped that said group will produce a tool that far surpasses this tools limited features. 
 
-Generating the dashboard is intended to occur in three phases.
+There are three phases to generating the dashboard.
 
 ## Phase 1
 
@@ -15,7 +15,7 @@ The latest code is checked out, and review scripts run on the code. Analysis is 
 
 ## Phase 3
 
-An HTML dashboard is generated from the SQLite Databases and the code analysis.
+An HTML dashboard is generated from the SQLite Databases (phase 1) and the analysis of the code (phase 2). 
 
 ## Dependencies
 
