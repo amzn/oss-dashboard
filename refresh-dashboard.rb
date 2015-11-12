@@ -51,7 +51,9 @@ run_one=ARGV[2]
 quiet=false   # TODO: Move to a command line option
 feedback=$stdout
 if(quiet)
-  quiet_stream=File.open(File::NULL, "w")
+  feedback=File.open(File::NULL, "w")
+else
+  $stdout.sync = true
 end
 
 if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
@@ -100,7 +102,7 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       Dir.mkdir(www_directory)
     end
 
-    feedback.puts "Generating HTML in #{www_directory}/"
+    feedback.print "Generating HTML in #{www_directory}/ "
     Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
       outputFile=File.basename(inputFile, ".xml")
 
@@ -111,7 +113,9 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       htmlFile = File.new("#{www_directory}/#{outputFile}.html", 'w')
       htmlFile.write(html)
       htmlFile.close
+      feedback.print "."
     end
+    feedback.print "\n"
 
     if(organizations.length > 1)
       feedback.puts "Generating #{www_directory}/AllOrgs.html"
