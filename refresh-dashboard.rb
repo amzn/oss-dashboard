@@ -65,38 +65,39 @@ if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
   end
 else
   if(not(run_one) or run_one=='init-database')
-    feedback.puts "Initializing database"
+    feedback.puts "init-database"
     init_database(dashboard_config)
   end
 end
 if(not(run_one) or run_one.start_with?('github-sync'))
-  feedback.puts "Syncing GitHub"
+  feedback.puts "github-sync"
   github_sync(feedback, dashboard_config, client, run_one=='github-sync' ? nil : run_one)
 end
 if(not(run_one) or run_one=='pull-source')
-  feedback.puts "Pulling Latest Source Repositories"
+  feedback.puts "pull-source"
   pull_source(feedback, dashboard_config, client)
 end
 if(not(run_one) or run_one=='review-source')
-  feedback.puts "Reviewing Source Repositories"
+  feedback.puts "review-source"
   review_source(feedback, dashboard_config, client)
 end
 if(not(run_one) or run_one.start_with?('generate-dashboard'))
+  feedback.puts "generate-dashboard"
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xml')
-    feedback.puts "Generating dashboard xml"
+    feedback.puts " xml"
     generate_dashboard_xml(feedback, dashboard_config, client)
   end
 
   if(organizations.length > 1)
     if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/merge')
-      feedback.puts "Merging dashboard xml"
+      feedback.puts " merge"
       merge_dashboard_xml(feedback, dashboard_config)
     end
   end
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/teams-xml')
-    feedback.puts "Generating team dashboard xml files"
+    feedback.puts " teams-xml"
     generate_team_xml(feedback, dashboard_config)
   end
 
@@ -105,7 +106,7 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       Dir.mkdir(www_directory)
     end
 
-    feedback.print "Generating HTML in #{www_directory}/ \n  "
+    feedback.print " xslt\n  "
     Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
       outputFile=File.basename(inputFile, ".xml")
 
@@ -121,7 +122,7 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
     feedback.print "\n"
 
     if(organizations.length > 1)
-      feedback.puts "Generating #{www_directory}/AllOrgs.html"
+      feedback.puts " AllOrgs"
 
       stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file("generate-dashboard/style/dashboardToHtml.xslt") )
       xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
@@ -131,6 +132,8 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       htmlFile.write(html)
       htmlFile.close
     end
+
+    feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
   end
 end
 

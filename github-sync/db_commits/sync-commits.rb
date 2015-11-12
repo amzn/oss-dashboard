@@ -22,7 +22,7 @@ def sync_commits(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
 
-  feedback.puts " Syncing Commits"
+  feedback.puts " commits"
   organizations.each do |org|
     feedback.print "  #{org} "
 
