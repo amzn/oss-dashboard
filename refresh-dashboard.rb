@@ -56,6 +56,8 @@ else
   $stdout.sync = true
 end
 
+feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+
 if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
   if(run_one=='init-database')
     feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
@@ -131,3 +133,5 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
     end
   end
 end
+
+feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
