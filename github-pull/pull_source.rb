@@ -27,10 +27,11 @@ def pull_source(feedback, dashboard_config, client)
     Dir.mkdir(scratch_directory)
   end
   
-  private=false
-  if(ARGV)
-    privateMode = (ARGV[0] == '--private')
-  end
+  # TODO: 
+#  private=false
+#  if(ARGV)
+#    privateMode = (ARGV[0] == '--private')
+#  end
   
   organizations.each do |owner|
 
@@ -45,12 +46,15 @@ def pull_source(feedback, dashboard_config, client)
       if repo.fork
         next
       end
-      if(privateMode == false and repo.private == true)
+      if repo.private
         next
       end
-      if(privateMode == true and repo.private == false)
-        next
-      end
+#      if(privateMode == false and repo.private == true)
+#        next
+#      end
+#      if(privateMode == true and repo.private == false)
+#        next
+#      end
         
       repodir="#{scratch_directory}/#{owner}/#{repo.name}"
   
