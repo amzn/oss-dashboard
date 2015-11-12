@@ -21,8 +21,7 @@ class LicenseReporter < Reporter
       begin
         license=Licensee::GitProject.new(dir).license
       rescue ArgumentError
-        puts "Error getting license for #{dir}"
-        return "      <reporting type='LicenseFilesReporter'>License causes error</reporting>\n"
+        return "      <reporting type='LicenseReporter'>License causes error</reporting>\n"
       end
 
       if(license)
