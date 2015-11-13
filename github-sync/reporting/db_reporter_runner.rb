@@ -18,39 +18,47 @@ require 'yaml'
 
 require_relative 'db_reporter.rb'
 
+# Standard reporters
+require_relative 'db_report_unknown_members.rb'
+require_relative 'db_report_no_2fa.rb'
+require_relative 'db_report_wiki_on.rb'
+require_relative 'db_report_empty.rb'
+require_relative 'db_report_unchanged.rb'
+ 
+# TODO: Consider merging this code with the similar review-source function
+def get_db_reporter_instances(dashboard_config)
+  reports = dashboard_config['db-reports']
+  report_path = dashboard_config['db-report-path']
+
+  # Use the report.path to add others
+  if(report_path)
+    # TODO: List files matching review_* and automatically require all of them.
+    #       Create scopes so they don't affect each other?
+    # TODO: Alternatively, at least add a filter so it is only loading the requested reporters
+    report_path.each do |report_dir|
+      if(Dir.exists?(report_dir))
+        Dir.glob(File.join(report_dir, 'db_report_*')).each do |reportFile|
+          require "#{reportFile}"
+        end
+      end
+    end
+  end
+
+  report_instances=[]
+  reports.each do |reportName|
+    clazz = Object.const_get(reportName)
+    report_instances<<clazz.new
+  end
+  return report_instances
+end
+
 def run_db_reports(feedback, dashboard_config, client, sync_db)
   
   organizations = dashboard_config['organizations']
   data_directory = dashboard_config['data-directory']
 
-  db_reports = dashboard_config['db-reports']
-  db_report_path = dashboard_config['db-report-path']
+  report_instances=get_db_reporter_instances(dashboard_config)
 
-  unless(db_reports)
-    return
-  end
-  
-  # Standard reporters
-  require_relative 'db_report_unknown_members.rb'
-  require_relative 'db_report_no_2fa.rb'
-  require_relative 'db_report_wiki_on.rb'
-  require_relative 'db_report_empty.rb'
-  require_relative 'db_report_unchanged.rb'
- 
-  # Use the db_report_path to add others
-  if(db_report_path)
-    # TODO: List files matching review_* and automatically require all of them.
-    #       Create scopes so they don't affect each other?
-    # TODO: Alternatively, at least add a filter so it is only loading the requested reporters
-    db_report_path.each do |db_report_dir|
-      if(Dir.exists?(db_report_dir))
-        Dir.glob(File.join(db_report_dir, 'db_report_*')).each do |db_reportFile|
-          require "#{db_reportFile}"
-        end
-      end
-    end
-  end
-  
   unless(File.exists?("#{data_directory}/db-report-xml/"))
     Dir.mkdir("#{data_directory}/db-report-xml/")
   end
@@ -62,10 +70,8 @@ def run_db_reports(feedback, dashboard_config, client, sync_db)
     report="<github-db-report>\n"
     report << " <organization name='#{org}'>\n"
   
-    db_reports.each do |reportName|
-      clazz = Object.const_get(reportName)
-      instance=clazz.new
-      report << instance.db_report(org, sync_db).to_s
+    report_instances.each do |report_obj|
+      report << report_obj.db_report(org, sync_db).to_s
       feedback.print '.'
     end
 
