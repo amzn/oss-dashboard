@@ -27,7 +27,8 @@ class UnchangedDbReporter < DbReporter
   end
 
   def db_columns()
-    return ['repository', 'date']
+#    return ['repository', 'date']
+    return ['repository - date']
   end
 
   def db_report(org, sync_db)
