@@ -160,7 +160,12 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
             internalText=" internal='#{amznLogin}'"
           end
           # TODO: Add labels as a child of issue.
-          dashboard_file.puts "      <issue id='#{issueRow[0]}' number='#{issueRow[1]}' user='#{issueRow[3]}' state='#{issueRow[4]}' created_at='#{issueRow[9]}' age='#{age}' updated_at='#{issueRow[10]}' pull_request='#{isPR}' comments='#{issueRow[11]}'#{internalText}>#{title}</issue>"
+          dashboard_file.puts "      <issue id='#{issueRow[0]}' number='#{issueRow[1]}' user='#{issueRow[3]}' state='#{issueRow[4]}' created_at='#{issueRow[9]}' age='#{age}' updated_at='#{issueRow[10]}' pull_request='#{isPR}' comments='#{issueRow[11]}'#{internalText}><title>#{title}</title>"
+          labels=sync_db.execute("SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?", [issueRow[0]])
+          labels.each do |label|
+            dashboard_file.puts "        <label url='#{label[0]}' name='#{label[1]}' color='#{label[2]}'/>"
+          end
+          dashboard_file.puts "      </issue>"
         end
         dashboard_file.puts "    </issues>"
     

@@ -371,7 +371,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='triageTable' class='data-grid'>
                 <thead>
-                <tr><th>Issue</th><th>Title</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
+                <tr><th>Issue</th><th>Title</th><th>Labels</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/repo">
@@ -379,7 +379,7 @@
                   <xsl:variable name="reponame" select="@name"/>
                   <xsl:for-each select="issues/issue">
                     <xsl:variable name="issuekey" select="@number"/>
-                    <xsl:variable name="title" select="."/>
+                    <xsl:variable name="title" select="title"/>
                     <xsl:variable name="membername" select="@user"/>
                     <tr>
                     <xsl:if test='@pull_request="true"'>
@@ -388,7 +388,13 @@
                     <xsl:if test='@pull_request="false"'>
                       <td><span class="octicon octicon-issue-opened"></span> <a href="https://github.com/{$orgname2}/{$reponame}/issues/{$issuekey}"><xsl:value-of select="$reponame"/>-<xsl:value-of select='@number'/></a></td>
                     </xsl:if>
-                      <td>"<xsl:value-of select='substring(.,1,144)'/>"</td>
+                      <td>"<xsl:value-of select='substring(title,1,144)'/>"</td>
+                      <td>
+                       <xsl:for-each select='label'>
+                        <xsl:variable name='labelColor' select='@color'/>
+                        <span style='background-color: #{$labelColor}'><xsl:value-of select='@name'/></span>
+                       </xsl:for-each>
+                      </td>
                       <td><xsl:value-of select='substring(@created_at,1,10)'/></td>
                       <td><xsl:value-of select='@age'/>d</td>
                       <td><xsl:value-of select='substring(@updated_at,1,10)'/></td>
@@ -761,7 +767,7 @@ $.plot($("#timeToCloseChart"), [ { data: issueResolveTimes, label: 'Issues'}, { 
                     sortList: [[0,0]],
                 });
                 $("#triageTable").tablesorter({
-                    sortList: [[2,1]],
+                    sortList: [[3,1]],
                 });
                 $("#memberTable").tablesorter({
                     sortList: [[0,0]],
