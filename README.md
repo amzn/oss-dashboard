@@ -32,8 +32,8 @@ The dashboard assumes the following are installed:
 
 * Install the dependencies listed above.
 * Decide how to manage your GitHub personal access token.
-** You can store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit.
-** Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600. 
+  * You can store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit.
+  * Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600. 
 
 Example file:
 
