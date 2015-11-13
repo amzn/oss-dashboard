@@ -144,7 +144,8 @@ Available phases are:
 You only get 5000 requests an hour to GitHub, so keeping an eye on your current request count can be important. 
 
 ```
-  # Instead of providing the file, you can set the GH_ACCESS_TOKEN environment variable with your access token.
+  # Instead of providing the file, you can set the 
+  # GH_ACCESS_TOKEN environment variable with your access token.
   ruby github-sync/util/get_rate_limit.rb --ghconfig {path to config-github.yml}
 ```
 
