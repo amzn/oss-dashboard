@@ -24,17 +24,36 @@ require_relative 'github-sync/sync'
 require_relative 'github-pull/pull_source'
 require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
+require 'optparse'
+
+options = {}
+
+optparse = OptionParser.new do |opts|
+  options[:ghconfig] = nil
+  opts.on( '-g', '--ghconfig FILE', 'Provide GitHub Access Token Configuation File' ) do |file|
+    options[:ghconfig] = file
+  end
+end
+optparse.parse!
 
 # GitHub setup
-config_file = ARGV[0]
-config = YAML.load(File.read(config_file))
-github_config = config['github']
+if(ENV['GH_ACCESS_TOKEN'])
+  access_token=ENV['GH_ACCESS_TOKEN']
+elsif(options[:ghconfig])
+  config_file = options[:ghconfig]
+  config = YAML.load(File.read(config_file))
+  access_token = config['github']['access_token']
+else
+  puts "ERROR: Need a GitHub access token, either via environment variable (GH_ACCESS_TOKEN) or configuration file. "
+  puts "Usages: \n    GH_ACCESS_TOKEN=... #{$0} <dashboard-config> [optional-phase]\n    #{$0} --ghconfig <file> <dashboard-config> [optional-phase]"
+  exit
+end
 
 Octokit.auto_paginate = true
-client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
+client = Octokit::Client.new :access_token => access_token, :accept => 'application/vnd.github.moondragon+json' 
 
 # Dashboard configuration
-config_file = ARGV[1]
+config_file = ARGV[0]
 config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
@@ -45,7 +64,7 @@ unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
 end
 
-run_one=ARGV[2]
+run_one=ARGV[1]
 
 # Quiet mode or verbose
 quiet=false   # TODO: Move to a command line option

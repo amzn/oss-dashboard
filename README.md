@@ -31,7 +31,9 @@ The dashboard assumes the following are installed:
 ## Setup
 
 * Install the dependencies listed above.
-* Create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600. 
+* Decide how to manage your GitHub personal access token.
+** You can store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit.
+** Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600. 
 
 Example file:
 
@@ -103,10 +105,18 @@ The user schema contains an email address field, to represent your internal logi
 With the configuration file created, you should execute the following:
 
 ```
-  ruby refresh-dashboard.rb {path to config-github.yml} {path to config-dashboard.yml} 
+  # Instead of providing the --ghconfig file, you can set the GH_ACCESS_TOKEN environment variable with your access token.
+  ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml} 
 ```
 
-To run only part of the system, you can add an additional argument for the phase desired. Available phases are:
+To run only part of the system, you can add an additional argument for the phase desired. 
+
+```
+  # Instead of providing the --ghconfig file, you can set the GH_ACCESS_TOKEN environment variable with your access token.
+  ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml} {phase}
+```
+
+Available phases are:
 
 | Phase | Description |
 | ----- | -------- |
@@ -132,7 +142,8 @@ To run only part of the system, you can add an additional argument for the phase
 You only get 5000 requests an hour to GitHub, so keeping an eye on your current request count can be important. 
 
 ```
-  ruby github-sync/util/get_rate_limit.rb {path to config-github.yml}
+  # Instead of providing the file, you can set the GH_ACCESS_TOKEN environment variable with your access token.
+  ruby github-sync/util/get_rate_limit.rb --ghconfig {path to config-github.yml}
 ```
 
 The following query shows you the size of each of your tables. It needs porting to Ruby so it can take advantage of the config.
