@@ -23,6 +23,10 @@ include REXML
 require_relative '../review-repos/reporter_runner'
 require_relative '../github-sync/reporting/db_reporter_runner'
 
+def escape_for_xml(text)
+  return text ? text.gsub(/&/, '&amp;') : text
+end
+
 def generate_metadata_header(dashboard_config)
   organizations = dashboard_config['organizations']
   reports = dashboard_config['reports']
@@ -258,7 +262,7 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
         dashboard_file.puts "  <release-data>"
         releases=sync_db.execute( "SELECT DISTINCT(id), html_url, name, published_at, author FROM releases WHERE org='#{org}' AND repo='#{repoRow[1]}' ORDER BY published_at DESC" )
         releases.each do |release|
-          dashboard_file.puts "    <release id='#{release[0]}' url='#{release[1]}' published_at='#{release[3]}' author='#{release[4]}'>#{release[2]}</release>"
+          dashboard_file.puts "    <release id='#{release[0]}' url='#{release[1]}' published_at='#{release[3]}' author='#{release[4]}'>#{escape_for_xml(release[2])}</release>"
         end
         dashboard_file.puts "  </release-data>"
     
