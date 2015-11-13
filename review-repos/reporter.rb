@@ -27,7 +27,7 @@ class Reporter
         end
   
         unless(File.directory?(file))
-          txt << "      <reporting type='#{name}' file='#{file.to_s[sliceIdx..-1]}'></reporting>\n"
+          txt << "      <reporting type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
         end
       end
       return txt
@@ -46,7 +46,7 @@ class Reporter
               if(pattern.match(line))
                 sliceIdx=dir.length + 1
                 escaped=line.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
-                txt << "      <reporting type='#{name}' lineno='#{num}' file='#{file.to_s[sliceIdx..-1]}'>#{escaped}</reporting>\n"
+                txt << "      <reporting type='#{name}'><file lineno='#{num}'>#{file.to_s[sliceIdx..-1]}</file><match>#{escaped}</match></reporting>\n"
               end
             end
             fh.close

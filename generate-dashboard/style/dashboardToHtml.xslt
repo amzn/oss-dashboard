@@ -539,18 +539,19 @@
                       </td>
                       <td><ul style='list-style-type: none;'>
                       <xsl:for-each select="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/reporting[@type=$report]">
-                        <xsl:variable name="file" select="@file"/>
-                        <xsl:variable name="lineno">#L<xsl:value-of select="@lineno"/></xsl:variable>
-                        <xsl:if test="@file and @lineno">
-                          <li><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}{$lineno}"><xsl:value-of select="@file"/>#L<xsl:value-of select="@lineno"/></a><xsl:if test="string-length(.)>0"> - <xsl:value-of select="."/></xsl:if></li>
+                        <xsl:variable name="file" select="file"/>
+                        <xsl:variable name="lineno"><xsl:value-of select="file/@lineno"/></xsl:variable>
+                        <xsl:variable name="linetxt">#L<xsl:value-of select="$lineno"/></xsl:variable>
+                        <xsl:if test="file and file/@lineno">
+                          <li><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}{$linetxt}"><xsl:value-of select="$file"/><xsl:value-of select="$linetxt"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
-                        <xsl:if test="@file and not(@lineno)">
-                          <li><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}"><xsl:value-of select="@file"/></a><xsl:if test="string-length(.)>0"> - <xsl:value-of select="."/></xsl:if></li>
+                        <xsl:if test="file and not(file/@lineno)">
+                          <li><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}"><xsl:value-of select="$file"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
-                        <xsl:if test="not(@file) and @lineno">
-                          <li>ERROR: Line number an no file. </li>
+                        <xsl:if test="not(file) and file/@lineno">
+                          <li>ERROR: Line number and no file. </li>
                         </xsl:if>
-                        <xsl:if test="not(@file) and not(@lineno)">
+                        <xsl:if test="not(file) and not(file/@lineno)">
                           <li><xsl:value-of select="."/></li>
                         </xsl:if>
                       </xsl:for-each>
