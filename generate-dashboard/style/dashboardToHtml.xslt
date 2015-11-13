@@ -116,6 +116,9 @@
             .nav .dropdown-toggle .caret{border-top-color:#0088cc;border-bottom-color:#0088cc;margin-top:6px;}
             .nav .dropdown-toggle:hover .caret,.nav .dropdown-toggle:focus .caret{border-top-color:#ff5522;border-bottom-color:#ff5522;}
             .nav-tabs .dropdown-toggle .caret{margin-top:8px;}
+
+            /* Dashboard specific */
+            .labelColor {padding: 3px;-webkit-box-shadow:0 1px 2px #888888;-moz-box-shadow:0 1px 2px #888888;box-shadow:0 1px 2px #888888;}
         </style>
 
         <!-- This will fail - but if you drop a theme.css file in you can add your own Bootstrap Theme :) -->
@@ -392,7 +395,7 @@
                       <td>
                        <xsl:for-each select='label'>
                         <xsl:variable name='labelColor' select='@color'/>
-                        <span style='background-color: #{$labelColor}'><xsl:value-of select='@name'/></span>
+                        <span class='labelColor' style='background-color: #{$labelColor}'><xsl:value-of select='@name'/></span>
                        </xsl:for-each>
                       </td>
                       <td><xsl:value-of select='substring(@created_at,1,10)'/></td>
