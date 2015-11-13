@@ -18,6 +18,14 @@ require_relative 'db_reporter'
 
 class UnknownMembersDbReporter < DbReporter
 
+  def name()
+    return "Unknown Members"
+  end
+
+  def describe()
+    return "This report shows which of the organization members are not in your user_mapping of GitHub login to Internal Employee login. "
+  end
+
   def db_columns()
     return ['login']
   end

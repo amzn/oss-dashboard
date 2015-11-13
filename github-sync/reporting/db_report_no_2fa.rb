@@ -18,6 +18,14 @@ require_relative 'db_reporter'
 
 class No2faDbReporter < DbReporter
 
+  def name()
+    return "Members Without 2FA"
+  end
+
+  def describe()
+    return "This report shows which of your organization members have not configured two-factor authentication for their account. "
+  end
+
   def db_columns()
     return ['login']
   end

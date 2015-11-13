@@ -18,6 +18,14 @@ require_relative 'db_reporter'
 
 class UnchangedDbReporter < DbReporter
 
+  def name()
+    return "Unchanged Repositories"
+  end
+
+  def describe()
+    return "This report shows repositories that have not had any changes since the day they were created. "
+  end
+
   def db_columns()
     return ['repository', 'date']
   end

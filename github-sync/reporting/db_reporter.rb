@@ -22,5 +22,25 @@ class DbReporter
   def db_report(repo, db)
     raise "No db_report(repo, db) function defined by report subclass"
   end
+
+  # intended to be overriden
+  # returns string
+  def name()
+    raise "No name() function defined by report subclass"
+  end
   
+  # intended to be overriden
+  # returns string
+  def describe()
+    raise "No describe() function defined by report subclass"
+  end
+  
+  # intended to be overriden
+  # returns array of text or array of array [name, {type}, {type-specific-data, ...} ]
+  # Supported types are
+  #  text, repository, url
+  def db_columns()
+    raise "No db_columns() function defined by report subclass"
+  end
+
 end

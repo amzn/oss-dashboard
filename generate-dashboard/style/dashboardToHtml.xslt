@@ -167,8 +167,8 @@
             <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">GitHub Reports <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
                 <xsl:for-each select="metadata/db-reports/db-report">
-                  <xsl:variable name="report" select="."/>
-                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="."/>(<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report])"/>)</a></li> 
+                  <xsl:variable name="report" select="@key"/>
+                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report])"/>)</a></li> 
                 </xsl:for-each>
               </ul>
             </li>
@@ -479,8 +479,9 @@
 
             <!-- DB REPORTS -->
             <xsl:for-each select="metadata/db-reports/db-report">
-              <xsl:variable name="report" select="."/>
+              <xsl:variable name="report" select="@key"/>
             <div class="tab-pane" id="{$report}">
+             <p><xsl:value-of select="."/></p>
              <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
                 <thead>

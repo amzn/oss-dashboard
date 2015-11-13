@@ -18,6 +18,14 @@ require_relative 'db_reporter'
 
 class EmptyDbReporter < DbReporter
 
+  def name()
+    return "Empty Repositories"
+  end
+
+  def describe()
+    return "This report shows repositories that GitHub is reporting as zero-sized. "
+  end
+
   def db_columns()
     return ['repository']
   end

@@ -18,6 +18,14 @@ require_relative 'db_reporter'
 
 class WikiOnDbReporter < DbReporter
 
+  def name()
+    return "Wiki-Enabled Repositories"
+  end
+
+  def describe()
+    return "This report shows repositories that have their wikis turned on. "
+  end
+
   def db_columns()
     return ['repository']
   end

@@ -21,6 +21,7 @@ require 'rexml/document'
 include REXML
 
 require_relative '../review-repos/reporter_runner'
+require_relative '../github-sync/reporting/db_reporter_runner'
 
 def generate_metadata_header(dashboard_config)
   organizations = dashboard_config['organizations']
@@ -47,8 +48,9 @@ def generate_metadata_header(dashboard_config)
   
   # Which DB Reports are configured?
   metadata << "  <db-reports>\n"
-  db_reports.each do |report|
-    metadata << "    <db-report>#{report}</db-report>\n"
+  db_report_instances=get_db_reporter_instances(dashboard_config)
+  db_report_instances.each do |report_obj|
+    metadata << "    <db-report key='#{report_obj.class.name}' name='#{report_obj.name}'>#{report_obj.describe}</db-report>\n"
   end
   metadata << "  </db-reports>\n"
   
