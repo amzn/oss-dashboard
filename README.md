@@ -105,14 +105,16 @@ The user schema contains an email address field, to represent your internal logi
 With the configuration file created, you should execute the following:
 
 ```
-  # Instead of providing the --ghconfig file, you can set the GH_ACCESS_TOKEN environment variable with your access token.
+  # Instead of providing the --ghconfig file, you can set the 
+  # GH_ACCESS_TOKEN environment variable with your access token.
   ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml} 
 ```
 
 To run only part of the system, you can add an additional argument for the phase desired. 
 
 ```
-  # Instead of providing the --ghconfig file, you can set the GH_ACCESS_TOKEN environment variable with your access token.
+  # Instead of providing the --ghconfig file, you can set the 
+  # GH_ACCESS_TOKEN environment variable with your access token.
   ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml} {phase}
 ```
 
