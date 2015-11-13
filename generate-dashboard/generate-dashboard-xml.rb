@@ -42,7 +42,7 @@ def generate_metadata_header(dashboard_config)
   metadata << "  <reports>\n"
   report_instances=get_reporter_instances(dashboard_config)
   report_instances.each do |report_obj|
-    metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'>#{report_obj.describe}</report>\n"
+    metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
   end
   metadata << "  </reports>\n"
   
@@ -50,7 +50,7 @@ def generate_metadata_header(dashboard_config)
   metadata << "  <db-reports>\n"
   db_report_instances=get_db_reporter_instances(dashboard_config)
   db_report_instances.each do |report_obj|
-    metadata << "    <db-report key='#{report_obj.class.name}' name='#{report_obj.name}'>#{report_obj.describe}</db-report>\n"
+    metadata << "    <db-report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></db-report>\n"
   end
   metadata << "  </db-reports>\n"
   

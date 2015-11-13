@@ -482,7 +482,7 @@
               <xsl:variable name="report" select="@key"/>
             <div class="tab-pane" id="{$report}">
              <h3>GitHub Report: <xsl:value-of select="@name"/></h3>
-             <p><xsl:value-of select="."/></p>
+             <p><xsl:value-of select="description"/></p>
              <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
                 <thead>
@@ -509,7 +509,7 @@
               <xsl:variable name="report" select="@key"/>
             <div class="tab-pane" id="{$report}">
              <h3>Source Report: <xsl:value-of select="@name"/></h3>
-             <p><xsl:value-of select="."/></p>
+             <p><xsl:value-of select="description"/></p>
              <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
                 <thead>
