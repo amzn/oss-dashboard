@@ -1,5 +1,3 @@
--- TODO: Support labels
-
 DROP TABLE IF EXISTS items;
 
 CREATE TABLE items (
@@ -49,4 +47,46 @@ CREATE TABLE pull_request_files (
     deletions INTEGER,
     changes INTEGER,
     status VARCHAR
+);
+
+DROP TABLE IF EXISTS labels;
+
+CREATE TABLE labels (
+  orgrepo VARCHAR,
+  url VARCHAR,
+  name VARCHAR,
+  color VARCHAR
+);
+
+DROP TABLE IF EXISTS item_to_label;
+
+CREATE TABLE item_to_label (
+  item_id INTEGER,
+  url VARCHAR
+);
+
+DROP TABLE IF EXISTS milestones;
+
+CREATE TABLE milestones (
+  orgrepo VARCHAR,
+  id INTEGER,
+  html_url VARCHAR,
+  title VARCHAR,
+  state VARCHAR,
+  number INTEGER,
+  description VARCHAR,
+  creator INTEGER,
+  open_issues INTEGER,
+  closed_issues INTEGER,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  closed_at TIMESTAMP,
+  due_on TIMESTAMP
+);
+
+DROP TABLE IF EXISTS item_to_milestone;
+
+CREATE TABLE item_to_milestone (
+  item_id INTEGER,
+  milestone_id INTEGER
 );

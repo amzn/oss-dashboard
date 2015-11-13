@@ -20,7 +20,6 @@ require 'yaml'
 require "sqlite3"
 
   def db_insert_releases(db, org, repo, releases)
-    db.execute("BEGIN TRANSACTION");
     releases.each do |release|
         db.execute(
          "DELETE FROM releases WHERE org=? AND repo=? AND id=?", [org, repo, release.id] )
@@ -46,7 +45,6 @@ require "sqlite3"
           VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
           [ org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s, release.published_at.to_s, author] )
     end
-    db.execute("END TRANSACTION");
   end
 
 def sync_releases(feedback, dashboard_config, client, sync_db)
@@ -55,6 +53,7 @@ def sync_releases(feedback, dashboard_config, client, sync_db)
   feedback.puts " releases"
   
   organizations.each do |org|
+    sync_db.execute("BEGIN TRANSACTION");
     feedback.print "  #{org} "
 
     # There's no @since here, so it's removing current data and replacing with all release info from GitHub
@@ -64,6 +63,7 @@ def sync_releases(feedback, dashboard_config, client, sync_db)
       db_insert_releases(sync_db, org, repo_obj.name, releases)   # Replaces existing with these
       feedback.print '.'
     end
+    sync_db.execute("END TRANSACTION");
 
     feedback.print "\n"
   end

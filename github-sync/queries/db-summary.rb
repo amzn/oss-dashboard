@@ -23,6 +23,10 @@ queries = [
   ["SELECT COUNT(*) as IssueData FROM issues", " WHERE org=?"],
   ["SELECT COUNT(*) as PullRequestData FROM pull_requests", " WHERE org=?"],
   ["SELECT COUNT(*) as PullRequestFileData FROM pull_request_files pf", ", pull_requests pr WHERE pr.id=pf.pull_request_id AND pr.org=?"],
+  ["SELECT COUNT(*) as LabelData FROM labels", " WHERE orgrepo LIKE ?"],
+  ["SELECT COUNT(*) as Item2LabelData FROM item_to_label itl", ", labels l WHERE l.url=itl.url AND orgrepo LIKE ?"],
+  ["SELECT COUNT(*) as MilestoneData FROM milestones", " WHERE orgrepo LIKE ?"],
+  ["SELECT COUNT(*) as Item2MilestoneData FROM item_to_milestone itm", ", milestones m WHERE m.id=itm.milestone_id AND orgrepo LIKE ?"],
   ["SELECT COUNT(*) as OrganizationData FROM organization", " WHERE login=?"],
   ["SELECT COUNT(DISTINCT(t.id)) as TeamData FROM team t", ", team_to_repository ttr, repository r WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
   ["SELECT COUNT(*) as RepositoryData FROM repository", " WHERE org=?"],
@@ -51,7 +55,12 @@ end
 
 queries.each do |query, clause|
   if(org)
-    result=sync_db.query(query+clause, [org])
+    # Assumed that LIKE clauses are starts-with
+    if(clause.include?('LIKE'))
+      result=sync_db.query(query+clause, [org+'%'])
+    else
+      result=sync_db.query(query+clause, [org])
+    end
   else
     result=sync_db.query(query)
   end
