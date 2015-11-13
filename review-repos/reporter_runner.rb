@@ -18,18 +18,14 @@ require 'yaml'
 
 require_relative 'reporter.rb'
 
-def review_source(feedback, dashboard_config, client)
-  
-  organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
-  scratch_dir="#{data_directory}/scratch"
+# Standard reporters
+require_relative 'report_docs.rb'
+require_relative 'report_license.rb'
+
+def get_reporter_instances(dashboard_config)
   reports = dashboard_config['reports']
   report_path = dashboard_config['report-path']
-  
-  # Standard reporters
-  require_relative 'report_docs.rb'
-  require_relative 'report_license.rb'
-  
+
   # Use the report.path to add others
   if(report_path)
     # TODO: List files matching review_* and automatically require all of them.
@@ -44,10 +40,26 @@ def review_source(feedback, dashboard_config, client)
     end
   end
   
+  report_instances=[]
+  reports.each do |reportName|
+    clazz = Object.const_get(reportName)
+    report_instances<<clazz.new
+  end
+  return report_instances
+end
+
+def review_source(feedback, dashboard_config, client)
+
+  organizations = dashboard_config['organizations']
+  data_directory = dashboard_config['data-directory']
+  scratch_dir="#{data_directory}/scratch"
+
+  report_instances=get_reporter_instances(dashboard_config)
+ 
   unless(File.exists?("#{data_directory}/review-xml/"))
     Dir.mkdir("#{data_directory}/review-xml/")
   end
-  
+ 
   organizations.each do |owner|
     feedback.print "  #{owner} "
     review_file=File.open("#{data_directory}/review-xml/#{owner}.xml", 'w')
@@ -65,13 +77,11 @@ def review_source(feedback, dashboard_config, client)
       end
   
       report << "  <repo name='#{repo.name}'>\n"
-  
-      reports.each do |reportName|
-        clazz = Object.const_get(reportName)
-        instance=clazz.new
-        report << instance.report(repo, "#{scratch_dir}/#{repo.full_name}").to_s
+
+      report_instances.each do |report_obj|
+        report << report_obj.report(repo, "#{scratch_dir}/#{repo.full_name}").to_s
       end
-      
+
       report << "  </repo>\n"
       feedback.print '.'
     end

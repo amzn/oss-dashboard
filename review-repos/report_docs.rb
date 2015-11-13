@@ -18,6 +18,14 @@ require_relative 'reporter'
 
 class DocsReporter < Reporter
 
+  def name()
+    return "Document Report"
+  end
+
+  def describe()
+    return "This report shows you *.txt and *.md files in your repositories. Useful for reviews by documentation writers. "
+  end
+
   def report(repo, repodir)
     # Look for any text files
     txt  = filename_check(repo, repodir, /\.txt$/, 'DocsReporter', /(LICENSE.txt|NOTICE.txt)/);

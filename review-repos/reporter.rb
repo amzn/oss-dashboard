@@ -61,5 +61,17 @@ class Reporter
   def report(repo, dir)
     raise "No report(repo, dir) function defined by report subclass"
   end
+
+  # intended to be overriden
+  # returns string
+  def name()
+    raise "No name() function defined by report subclass"
+  end
+  
+  # intended to be overriden
+  # returns string
+  def describe()
+    raise "No describe() function defined by report subclass"
+  end
   
 end

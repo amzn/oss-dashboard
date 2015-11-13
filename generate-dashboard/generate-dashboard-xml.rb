@@ -20,6 +20,8 @@ require 'yaml'
 require 'rexml/document'
 include REXML
 
+require_relative '../review-repos/reporter_runner'
+
 def generate_metadata_header(dashboard_config)
   organizations = dashboard_config['organizations']
   reports = dashboard_config['reports']
@@ -37,8 +39,9 @@ def generate_metadata_header(dashboard_config)
   
   # Which Source Reports are configured?
   metadata << "  <reports>\n"
-  reports.each do |report|
-    metadata << "    <report>#{report}</report>\n"
+  report_instances=get_reporter_instances(dashboard_config)
+  report_instances.each do |report_obj|
+    metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'>#{report_obj.describe}</report>\n"
   end
   metadata << "  </reports>\n"
   

@@ -17,6 +17,14 @@ require_relative 'reporter'
 
 class LicenseReporter < Reporter
 
+  def name()
+    return "License Report"
+  end
+
+  def describe()
+    return "This report shows you the repositories that the <a href='https://github.com/benbalter/licensee'>licensee</a> project GitHub uses is unable to either find or identify. "
+  end
+
   def license_identify(repo, dir)
       begin
         license=Licensee::GitProject.new(dir).license
