@@ -18,16 +18,28 @@ require 'rubygems'
 require 'octokit'
 require 'date'
 require 'yaml'
+require 'optparse'
+
+options = {}
+
+optparse = OptionParser.new do |opts|
+  options[:ghconfig] = nil
+  opts.on( '-g', '--ghconfig FILE', 'Provide GitHub Access Token Configuation File' ) do |file|
+    options[:ghconfig] = file
+  end
+end
+optparse.parse!
 
 # GitHub setup
 if(ENV['GH_ACCESS_TOKEN'])
   access_token=ENV['GH_ACCESS_TOKEN']
-elsif(ARGV[0])
-  config_file = ARGV[0]
+elsif(options[:ghconfig])
+  config_file = options[:ghconfig]
   config = YAML.load(File.read(config_file))
   access_token = config['github']['access_token']
 else
   puts "ERROR: Need a GitHub access token, either via environment variable (GH_ACCESS_TOKEN) or configuration file. "
+  puts "Usages: \n    GH_ACCESS_TOKEN=... #{$0}\n    #{$0} --ghconfig <file>"
   exit
 end
 
