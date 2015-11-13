@@ -20,11 +20,19 @@ require 'date'
 require 'yaml'
 
 # GitHub setup
-config_file = ARGV[0]
-config = YAML.load(File.read(config_file))
-github_config = config['github']
+if(ENV['GH_ACCESS_TOKEN'])
+  access_token=ENV['GH_ACCESS_TOKEN']
+elsif(ARGV[0])
+  config_file = ARGV[0]
+  config = YAML.load(File.read(config_file))
+  access_token = config['github']['access_token']
+else
+  puts "ERROR: Need a GitHub access token, either via environment variable (GH_ACCESS_TOKEN) or configuration file. "
+  exit
+end
+
 
 Octokit.auto_paginate = true
-client = Octokit::Client.new :access_token => github_config['access_token'], :accept => 'application/vnd.github.moondragon+json' 
+client = Octokit::Client.new :access_token => access_token, :accept => 'application/vnd.github.moondragon+json' 
 
 p client.rate_limit
