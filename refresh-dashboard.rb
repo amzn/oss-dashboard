@@ -37,6 +37,10 @@ optparse = OptionParser.new do |opts|
   opts.on( '-q', '--quiet', 'Silence the script' ) do
     options[:quiet] = true
   end
+  options[:light] = false
+  opts.on( '-l', '--light', 'Run in light mode, pull minimum of data' ) do
+    options[:light] = true
+  end
 end
 optparse.parse!
 
@@ -78,8 +82,16 @@ else
   $stdout.sync = true
 end
 
+if(options[:light] and run_one)
+  puts "Light mode does not allow specific phases to be called. "
+  exit
+end
+
 feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
 
+if(options[:light])
+  run_one="init-database"
+end
 if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
   if(run_one=='init-database')
     feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
@@ -90,6 +102,10 @@ else
     feedback.puts "init-database"
     init_database(dashboard_config)
   end
+end
+
+if(options[:light])
+  run_one="github-sync/metadata"
 end
 if(not(run_one) or run_one.start_with?('github-sync'))
   feedback.puts "github-sync"
@@ -102,6 +118,10 @@ end
 if(not(run_one) or run_one=='review-source')
   feedback.puts "review-source"
   review_source(feedback, dashboard_config, client)
+end
+
+if(options[:light])
+  run_one="generate-dashboard"
 end
 if(not(run_one) or run_one.start_with?('generate-dashboard'))
   feedback.puts "generate-dashboard"

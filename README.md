@@ -110,7 +110,15 @@ With the configuration file created, you should execute the following:
   ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml} 
 ```
 
-To run only part of the system, you can add an additional argument for the phase desired. 
+For large repositories, or for a quick review, you can use the --light flag. This creates a database of only the metadata and generates a dashboard. 
+
+```
+  # Instead of providing the --ghconfig file, you can set the 
+  # GH_ACCESS_TOKEN environment variable with your access token.
+  ruby refresh-dashboard.rb --light --ghconfig {path to config-github.yml} {path to config-dashboard.yml} 
+```
+
+To run only part of the system, you can add an additional argument for the phase desired. This can be useful to fill in data after running the light flag.
 
 ```
   # Instead of providing the --ghconfig file, you can set the 
