@@ -33,6 +33,10 @@ optparse = OptionParser.new do |opts|
   opts.on( '-g', '--ghconfig FILE', 'Provide GitHub Access Token Configuation File' ) do |file|
     options[:ghconfig] = file
   end
+  options[:quiet] = false
+  opts.on( '-q', '--quiet', 'Silence the script' ) do
+    options[:quiet] = true
+  end
 end
 optparse.parse!
 
@@ -67,9 +71,8 @@ end
 run_one=ARGV[1]
 
 # Quiet mode or verbose
-quiet=false   # TODO: Move to a command line option
 feedback=$stdout
-if(quiet)
+if(options[:quiet])
   feedback=File.open(File::NULL, "w")
 else
   $stdout.sync = true
