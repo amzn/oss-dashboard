@@ -495,6 +495,7 @@
             <!-- DB REPORTS -->
             <xsl:for-each select="metadata/db-reports/db-report">
               <xsl:variable name="report" select="@key"/>
+              <xsl:variable name="columntypes" select="column-type"/>
             <div class="tab-pane" id="{$report}">
              <h3>GitHub Report: <xsl:value-of select="@name"/>
              (<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
@@ -510,8 +511,20 @@
                 <xsl:for-each select="/github-dashdata/organization">
                   <xsl:variable name="orgname2" select="@name"/>
                   <xsl:for-each select="/github-dashdata/organization/github-db-report/organization[@name=$orgname2]/db-reporting[@type=$report]">
+                    <xsl:variable name="value" select="."/>
                       <tr>
+                       <xsl:if test="$columntypes[1]/@type='text'">
                         <td><xsl:value-of select="."/></td>
+                       </xsl:if>
+                       <xsl:if test="$columntypes[1]/@type='url'">
+                        <td><a href="{$value}"><xsl:value-of select="."/></a></td>
+                       </xsl:if>
+                       <xsl:if test="$columntypes[1]/@type='org/repo'">
+                        <td><a href="https://github.com/{$value}"><xsl:value-of select="."/></a></td>
+                       </xsl:if>
+                       <xsl:if test="$columntypes[1]/@type='member'">
+                        <td><a href="https://github.com/{$value}"><xsl:value-of select="."/></a></td>
+                       </xsl:if>
                       </tr>
                   </xsl:for-each>
                 </xsl:for-each>

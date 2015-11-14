@@ -38,7 +38,7 @@ class DbReporter
   # intended to be overriden
   # returns array of text or array of array [name, {type}, {type-specific-data, ...} ]
   # Supported types are
-  #  text, org/repo, url
+  #  text, org/repo, url, member
   def db_columns()
     raise "No db_columns() function defined by report subclass"
   end

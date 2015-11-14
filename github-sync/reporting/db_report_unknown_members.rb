@@ -27,7 +27,7 @@ class UnknownMembersDbReporter < DbReporter
   end
 
   def db_columns()
-    return ['login']
+    return [ ['login', 'member'] ]
   end
 
   def db_report(org, sync_db)

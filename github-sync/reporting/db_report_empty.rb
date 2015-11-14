@@ -27,14 +27,14 @@ class EmptyDbReporter < DbReporter
   end
 
   def db_columns()
-    return ['repository']
+    return [ ['repository', 'org/repo'] ]
   end
 
   def db_report(org, sync_db)
     empty=sync_db.execute("SELECT r.name FROM repository r WHERE size=0 AND r.org=?", [org])
     text = ''
     empty.each do |row|
-      text << "  <db-reporting type='EmptyDbReporter'>#{row[0]}</db-reporting>\n"
+      text << "  <db-reporting type='EmptyDbReporter'>#{org}/#{row[0]}</db-reporting>\n"
     end
     return text
   end
