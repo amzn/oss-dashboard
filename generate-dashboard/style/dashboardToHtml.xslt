@@ -425,7 +425,7 @@
               </table>
              </div>
             </div>
-            <xsl:if test="team">
+            <xsl:if test="organization/team">
             <div class="tab-pane" id="teams">
               <table id='teamTable' class='data-grid'>
                 <thead>
