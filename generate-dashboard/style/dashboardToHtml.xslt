@@ -126,7 +126,7 @@
       </head>
       <body class="inverse">
         <ul class="nav nav-tabs pull-right" role="tablist">
-          <xsl:if test="@team or @includes_private!='false'">
+          <xsl:if test="team">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
               Team <span class="caret"></span>
@@ -140,6 +140,7 @@
             </ul>
           </li>
           </xsl:if>
+          <xsl:if test="organization">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
               Organization <span class="caret"></span>
@@ -151,6 +152,7 @@
               </xsl:for-each>
             </ul>
           </li>
+          </xsl:if>
         </ul>
 
         <div class="well">
