@@ -62,6 +62,8 @@ def run_db_reports(feedback, dashboard_config, client, sync_db)
   unless(File.exists?("#{data_directory}/db-report-xml/"))
     Dir.mkdir("#{data_directory}/db-report-xml/")
   end
+
+  feedback.puts " reporting"
   
   organizations.each do |org|
     feedback.print "  #{org} "
