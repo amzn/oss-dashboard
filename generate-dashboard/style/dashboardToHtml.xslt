@@ -538,12 +538,13 @@
             <xsl:for-each select="metadata/reports/report">
               <xsl:variable name="report" select="@key"/>
             <div class="tab-pane" id="{$report}">
-             <h3>Source Report: <xsl:value-of select="@name"/></h3>
+             <h3>Source Report: <xsl:value-of select="@name"/>
+             (<xsl:value-of select="count(/github-dashdata/organization/github-review/organization/repo/reporting[@type=$report])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
              <p><xsl:value-of select="description"/></p>
              <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
                 <thead>
-                <tr><th>Issue Found In (<xsl:value-of select="count(/github-dashdata/organization/github-review/organization/repo/reporting[@type=$report])"/>)</th><th>Details</th></tr> <!-- bug: unable to show summary count within a team mode -->
+                <tr><th>Issue Found In</th><th>Details</th></tr> 
                 </thead>
                 <tbody>
                 <xsl:for-each select="/github-dashdata/organization/repo">
