@@ -126,7 +126,7 @@
       </head>
       <body class="inverse">
         <ul class="nav nav-tabs pull-right" role="tablist">
-          <xsl:if test="team">
+          <xsl:if test="organization/team">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
               Team <span class="caret"></span>
@@ -165,10 +165,12 @@
             <li><a href="#repometrics" data-toggle="tab">Repository Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
             <li><a href="#repocharts" data-toggle="tab">Repository Charts</a></li>
             <li><a href="#triage" data-toggle="tab">Triage (<xsl:value-of select="count(organization/repo/issues/issue)"/>)</a></li>
-            <xsl:if test="not(organization/@team) and @includes_private!='false'">
+            <xsl:if test="organization/team">
             <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)-1"/>)</a></li>
             </xsl:if>
+            <xsl:if test="organization/member">
             <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member)"/>)</a></li>
+            </xsl:if>
             <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">GitHub Reports <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
                 <xsl:for-each select="metadata/db-reports/db-report">
@@ -423,7 +425,7 @@
               </table>
              </div>
             </div>
-            <xsl:if test="not(@team) and @includes_private!='false'">
+            <xsl:if test="team">
             <div class="tab-pane" id="teams">
               <table id='teamTable' class='data-grid'>
                 <thead>
@@ -461,6 +463,7 @@
               </table>
             </div>
             </xsl:if>
+            <xsl:if test="organization/member">
             <div class="tab-pane" id="members">
              <div class="data-grid-sortable tablesorter">
               <table id='memberTable' class='data-grid'>
@@ -487,6 +490,7 @@
               </table>
              </div>
             </div>
+            </xsl:if>
 
             <!-- DB REPORTS -->
             <xsl:for-each select="metadata/db-reports/db-report">
