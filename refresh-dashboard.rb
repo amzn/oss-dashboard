@@ -93,7 +93,9 @@ unless( not(run_one) or legitPhases.include?(run_one))
   exit
 end
 
-feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+unless(options[:quiet])
+  feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+end
 
 if(options[:light])
   run_one="init-database"
@@ -185,4 +187,6 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
   end
 end
 
-feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+unless(options[:quiet])
+  feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+end
