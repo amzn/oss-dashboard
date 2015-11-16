@@ -320,11 +320,11 @@
               </td>
               <td style="text:align=center">
                 <h4>Time to Close an Issue</h4><br/>
-                <div id="issueTimeToCloseChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+                <div id="issueTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=right">
                 <h4>Contributions</h4><br/>
-                <div id="issueCommunityPieChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+                <div id="issueCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
               </td>
               </tr>
              </table>
@@ -383,11 +383,11 @@
               </td>
               <td style="text:align=center">
                 <h4>Time to Close a Pull Request</h4><br/>
-                <div id="prTimeToCloseChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+                <div id="prTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=right">
                 <h4>Contributions</h4><br/>
-                <div id="prCommunityPieChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+                <div id="prCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
               </td>
               </tr>
              </table>
