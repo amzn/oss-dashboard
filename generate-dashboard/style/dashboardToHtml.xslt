@@ -60,6 +60,7 @@
         <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.stack.min.js"><xsl:comment/></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.pie.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.24.2/js/jquery.tablesorter.js"><xsl:comment/></script>
 
         <!-- This is inline to make for a simpler deliverable -->
@@ -313,11 +314,15 @@
               <tr>
               <td style="text:align=left">
                 <h4>Issue/PR Count over Time</h4><br/>
-                <div id="issueCountChart" class="right" style="height:150px;width:400px;"><xsl:comment/></div><br/>
+                <div id="issueCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+              </td>
+              <td style="text:align=center">
+                <h4>Time to Close an Issue</h4><br/>
+                <div id="issueTimeToCloseChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=right">
-                <h4>Time to Close an Issue</h4><br/>
-                <div id="issueTimeToCloseChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
+                <h4>Contributions</h4><br/>
+                <div id="issueCommunityPieChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
               </td>
               </tr>
              </table>
@@ -372,11 +377,15 @@
               <tr>
               <td style="text:align=left">
                 <h4>Pull Request Count over Time</h4><br/>
-                <div id="pullRequestCountChart" class="right" style="height:150px;width:400px;"><xsl:comment/></div><br/>
+                <div id="pullRequestCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+              </td>
+              <td style="text:align=center">
+                <h4>Time to Close a Pull Request</h4><br/>
+                <div id="prTimeToCloseChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=right">
-                <h4>Time to Close a Pull Request</h4><br/>
-                <div id="prTimeToCloseChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
+                <h4>Contributions</h4><br/>
+                <div id="prCommunityPieChart" style="height:100px;width:300px;"><xsl:comment/></div><br/>
               </td>
               </tr>
              </table>
@@ -801,6 +810,31 @@ $.plot($("#prTimeToCloseChart"), [ { data: prResolveTimes } ],
     },
     colors: ["#0F6BA9"]
 });
+
+$.plot($("#issueCommunityPieChart"), [ { label: "Project", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/issue-count[@type='project'])"/>, color: "#0F6BA9" }, { label: "Community", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/issue-count[@type='community'])"/>, color: "#2FABE9" } ],
+  {
+    series: {
+      pie: {
+        show: true,
+        grid: {
+            borderWidth: 0
+        }
+      }
+    }
+
+  });
+$.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/pr-count[@type='project'])"/>, color: "#0F6BA9" }, { label: "Community", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/pr-count[@type='community'])"/>, color: "#2FABE9" } ],
+  {
+    series: {
+      pie: {
+        show: true,
+        grid: {
+            borderWidth: 0
+        }
+      }
+    }
+
+  });
 </script>
 
         <script type="text/javascript">

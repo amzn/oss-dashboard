@@ -260,6 +260,18 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
         ageCount=sync_db.execute( "SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 365 AND org='#{org}' AND repo='#{orgRepo}' AND state='closed'" )
         dashboard_file.puts "      <pr-count age='over 1 year'>#{ageCount[0][0]}</pr-count>"
         dashboard_file.puts "    </age-count>"
+
+        projectIssueCount=sync_db.execute( "SELECT COUNT(DISTINCT(i.id)) FROM issues i LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON i.org=o.login LEFT OUTER JOIN member m ON otm.member_id=m.id WHERE i.org=? AND i.repo=? AND m.login=i.user_login", [org, orgRepo] )
+        communityIssueCount=sync_db.execute( "SELECT COUNT(DISTINCT(i.id)) FROM issues i LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON i.org=o.login WHERE i.org=? AND i.repo=? AND i.user_login NOT IN (SELECT m.login FROM member m)", [org, orgRepo] )
+        projectPrCount=sync_db.execute( "SELECT COUNT(DISTINCT(pr.id)) FROM pull_requests pr LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON pr.org=o.login LEFT OUTER JOIN member m ON otm.member_id=m.id WHERE pr.org=? AND pr.repo=? AND m.login=pr.user_login", [org, orgRepo] )
+        communityPrCount=sync_db.execute( "SELECT COUNT(DISTINCT(pr.id)) FROM pull_requests pr LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON pr.org=o.login WHERE pr.org=? AND pr.repo=? AND pr.user_login NOT IN (SELECT m.login FROM member m)", [org, orgRepo] )
+
+        dashboard_file.puts "    <community-balance>"
+        dashboard_file.puts "      <issue-count type='community'>#{communityIssueCount[0][0]}</issue-count>"
+        dashboard_file.puts "      <issue-count type='project'>#{projectIssueCount[0][0]}</issue-count>"
+        dashboard_file.puts "      <pr-count type='community'>#{communityPrCount[0][0]}</pr-count>"
+        dashboard_file.puts "      <pr-count type='project'>#{projectPrCount[0][0]}</pr-count>"
+        dashboard_file.puts "    </community-balance>"
     
         dashboard_file.puts "  </issue-data>"
     
