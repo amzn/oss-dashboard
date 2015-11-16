@@ -330,7 +330,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='issueTable' class='data-grid'>
                 <thead>
-                <tr><th>Issue</th><th>Title</th><th>Labels</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
+                <tr><th>Open Issue</th><th>Title</th><th>Labels</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/repo">
@@ -393,7 +393,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='prTable' class='data-grid'>
                 <thead>
-                <tr><th>Pull Request</th><th>Title</th><th>Labels</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
+                <tr><th>Open Pull Request</th><th>Title</th><th>Labels</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/repo">
