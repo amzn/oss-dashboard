@@ -78,3 +78,10 @@ CREATE TABLE team_to_member (
   team_id INTEGER,
   member_id INTEGER
 );
+
+DROP TABLE IF EXISTS organization_to_member;
+
+CREATE TABLE organization_to_member (
+  org_id INTEGER,
+  member_id INTEGER
+);

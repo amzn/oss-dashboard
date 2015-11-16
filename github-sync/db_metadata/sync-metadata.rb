@@ -29,6 +29,7 @@ def store_organization(db, client, org_login)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [org.login, org.id, org.url, org.avatar_url, org.description, org.name, org.company, org.blog, org.location, org.email, org.public_repos, org.public_gists, org.followers, org.following, org.html_url, org.created_at.to_s, org.type]
     )
+    return org
 end
 
 def store_organization_teams(db, client, org)
@@ -67,17 +68,18 @@ def store_organization_repositories(db, client, org)
   end
 end
 
-def store_organization_members(db, client, org, private)
+def store_organization_members(db, client, org_obj, private)
 
   # Build a map of the individuals in an org who have 2fa disabled
   disabled_2fa=Hash.new
   if(private)
-    client.org_members(org, 'filter' => '2fa_disabled').each do |user|
+    client.org_members(org_obj.login, 'filter' => '2fa_disabled').each do |user|
       disabled_2fa[user.login] = true
     end
   end
 
-  client.organization_members(org).each do |member_obj|
+  db.execute("DELETE FROM organization_to_member WHERE org_id=?", [org_obj.id])
+  client.organization_members(org_obj.login).each do |member_obj|
     db.execute("DELETE FROM member WHERE id=?", [member_obj.id])
 
     if(private == false)
@@ -90,6 +92,8 @@ def store_organization_members(db, client, org, private)
 
     db.execute("INSERT INTO member (id, login, two_factor_disabled)
                 VALUES(?, ?, ?)", [member_obj.id, member_obj.login, d_2fa] )
+
+    db.execute("INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", [org_obj.id, member_obj.id])
   end
 end
 
@@ -106,9 +110,9 @@ def sync_metadata(feedback, dashboard_config, client, sync_db)
 
   organizations.each do |org_login|
     feedback.print "  #{org_login} "
-    store_organization(sync_db, client, org_login)
+    org=store_organization(sync_db, client, org_login)
     store_organization_repositories(sync_db, client, org_login)
-    store_organization_members(sync_db, client, org_login, private_access.include?(org_login))
+    store_organization_members(sync_db, client, org, private_access.include?(org_login))
     if(private_access.include?(org_login))
       store_organization_teams(sync_db, client, org_login)
     end

@@ -275,8 +275,7 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
     end
   
     # Generate XML for Member data
-    # TODO: This is available for non-private too, just not stored in the DB
-    members=sync_db.execute("SELECT DISTINCT(m.login), m.two_factor_disabled, u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr LEFT OUTER JOIN users u ON m.login=u.login WHERE m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
+    members=sync_db.execute("SELECT DISTINCT(m.login), m.two_factor_disabled, u.email FROM member m, organization o, organization_to_member otm LEFT OUTER JOIN users u ON m.login=u.login WHERE m.id=otm.member_id AND otm.org_id=o.id AND o.login=?", [org])
     members.each do |memberRow|  
       # TODO: Include whether the individual is in ldap
       internalLogin=""
