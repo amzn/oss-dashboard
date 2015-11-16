@@ -31,7 +31,7 @@ class WikiOnDbReporter < DbReporter
   end
 
   def db_report(org, sync_db)
-    wikiOn=sync_db.execute("SELECT r.org || '/' || r.name FROM repository r WHERE has_wiki='1' AND r.org=?", [org])
+    wikiOn=sync_db.execute("SELECT r.name FROM repository r WHERE has_wiki='1' AND r.org=?", [org])
     text = ''
     wikiOn.each do |row|
       text << "  <db-reporting type='WikiOnDbReporter'>#{org}/#{row[0]}</db-reporting>\n"
