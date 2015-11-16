@@ -1,6 +1,8 @@
 # Amazon Open Source Program GitHub Dashboard
 A dashboard for viewing many GitHub organizations at once. This dashboard is an internal prototype, please try it out, but note it's being published primarily for the purposes of sharing with the TodoGroup. It's hoped that said group will produce a tool that far surpasses this tools limited features. 
 
+A very basic screenshot can be seen [here](screenshots/BasicDashboardExample.tiff).
+
 There are three phases to generating the dashboard.
 
 ## Phase 1
