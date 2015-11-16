@@ -287,23 +287,18 @@
                   <td><xsl:value-of select='@stars'/></td>
                   <td><xsl:value-of select='@watchers'/></td>
                   <td><xsl:value-of select='@forks'/></td>
-<!-- This combines issues and pull requests 
-                  <td><xsl:value-of select='@open_issue_count'/></td>  
--->
-                  <xsl:variable name="openIssue" select="count(issues/issue[@pull_request='false'])"/>
-                  <xsl:if test='@closed_issue_count=0 and $openIssue=0'>
+                  <xsl:if test='@closed_issue_count=0 and @open_issue_count=0'>
                     <td>&#8734;% (0 / 0)</td>
                   </xsl:if>
-                  <xsl:if test='@closed_issue_count!=0 or $openIssue!=0'>
-                    <td><xsl:value-of select='round(100 * @closed_issue_count div ($openIssue + @closed_issue_count))'/>% (<xsl:value-of select='@closed_issue_count'/> / <xsl:value-of select='$openIssue + @closed_issue_count'/>)</td>
+                  <xsl:if test='@closed_issue_count!=0 or @open_issue_count!=0'>
+                    <td><xsl:value-of select='round(100 * @closed_issue_count div (@open_issue_count + @closed_issue_count))'/>% (<xsl:value-of select='@closed_issue_count'/> / <xsl:value-of select='@open_issue_count + @closed_issue_count'/>)</td>
                   </xsl:if>
 
-                  <xsl:variable name="openPr" select="count(issues/issue[@pull_request='true'])"/>
-                  <xsl:if test='@closed_pr_count=0 and $openPr=0'>
+                  <xsl:if test='@closed_pr_count=0 and @open_pr_count=0'>
                     <td>&#8734;% (0 / 0)</td>
                   </xsl:if>
-                  <xsl:if test='@closed_pr_count!=0 or $openPr!=0'>
-                    <td><xsl:value-of select='round(100 * @closed_pr_count div ($openPr + @closed_pr_count))'/>% (<xsl:value-of select='@closed_pr_count'/> / <xsl:value-of select='$openPr + @closed_pr_count'/>)</td>
+                  <xsl:if test='@closed_pr_count!=0 or @open_pr_count!=0'>
+                    <td><xsl:value-of select='round(100 * @closed_pr_count div (@open_pr_count + @closed_pr_count))'/>% (<xsl:value-of select='@closed_pr_count'/> / <xsl:value-of select='@open_pr_count + @closed_pr_count'/>)</td>
                   </xsl:if>
                 </tr>
               </xsl:for-each>
