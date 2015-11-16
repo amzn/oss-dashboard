@@ -217,7 +217,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoTable' class='data-grid'>
               <thead>
-              <tr><th>Repo</th><th>Description</th><th>Teams</th>
+              <tr><th>Repo</th><th>Description</th><xsl:if test="organization/team"><th>Teams</th></xsl:if>
               </tr>
               </thead>
               <tbody>
@@ -235,12 +235,14 @@
                 </xsl:if>
                 </td>
                 <td><xsl:value-of select="description"/><xsl:if test='@homepage!=""'> - <a href="{$homepage}"><xsl:value-of select="@homepage"/></a></xsl:if></td>
+                 <xsl:if test="../organization/team">
                   <td><ul style='list-style-type: none;'><xsl:for-each select='/github-dashdata/organization[@name=$orgname2]/team[repos/repo=$reponame]'>
                        <xsl:if test="@name != 'Owners' and @name != 'private read-only'">
                         <li><xsl:value-of select='@name'/></li>
                        </xsl:if>
                       </xsl:for-each></ul>
                   </td>
+                 </xsl:if>
                 </tr>
               </xsl:for-each>
               </tbody>
