@@ -253,7 +253,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoMetricsTable' class='data-grid'>
               <thead>
-              <tr><th>Repo</th><th><a href="#" rel="tooltip" title="As Reported by GitHub/Licensee">Apparent License</a></th><th>Language</th>
+              <tr><th>Repo</th><th><a href="#" rel="tooltip" title="As Reported by GitHub/Licensee with confidence percentage">Apparent License</a></th><th>Language</th>
                   <th>Created</th>
                   <th>Pushed</th>
                   <th>Updated</th>
@@ -278,7 +278,12 @@
                    <sup><span style="margin-left: 5px" class="octicon octicon-repo-forked"></span></sup>
                 </xsl:if>
                 </td>
-                <td><xsl:value-of select="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license"/></td>
+                <td>
+                  <xsl:if test="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license/@confidence">
+                    <xsl:variable name="licenseFile" select="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license/@file"/>
+                    <a href="https://github.com/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license"/> (<xsl:value-of select="round(/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license/@confidence)"/>%)</a>
+                  </xsl:if>
+                </td>
                 <td><xsl:value-of select='@language'/></td>
                   <td><xsl:value-of select='substring(@created_at,1,10)'/></td>
                   <td><xsl:value-of select='substring(@pushed_at,1,10)'/></td>
