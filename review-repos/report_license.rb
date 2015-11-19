@@ -27,15 +27,20 @@ class LicenseReporter < Reporter
 
   def license_identify(repo, dir)
       begin
-        license=Licensee::GitProject.new(dir).license
+        project=Licensee::GitProject.new(dir)
+        ignore=project.license # Tests for the error
       rescue ArgumentError
         return "      <reporting type='LicenseReporter'>License causes error</reporting>\n"
       end
 
-      if(license)
-        return "      <license>#{license.name}</license>\n"
+      unless(project.matched_file)
+        return "      <reporting type='LicenseReporter'>No License File Found</reporting>\n"
+      end
+
+      unless(project.license)
+        return "      <reporting file='#{project.matched_file.filename}' type='LicenseReporter'>License unrecognized</reporting>\n"
       else
-        return "      <reporting type='LicenseReporter'>Unrecognized/Missing License</reporting>\n"
+        return "      <license file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
       end
   end
 
