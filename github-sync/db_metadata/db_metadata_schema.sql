@@ -63,13 +63,11 @@ DROP TABLE IF EXISTS member;
 CREATE TABLE member (
   id INTEGER,
   login VARCHAR,
--- name VARCHAR,
--- avatar_url VARCHAR,
--- company VARCHAR,
--- email VARCHAR,
-  two_factor_disabled BOOLEAN,
--- remove_access BOOLEAN,
-  employee_email VARCHAR
+  name VARCHAR,
+  avatar_url VARCHAR,
+  company VARCHAR,
+  email VARCHAR,
+  two_factor_disabled BOOLEAN
 );
 
 DROP TABLE IF EXISTS team_to_member;
@@ -83,5 +81,14 @@ DROP TABLE IF EXISTS organization_to_member;
 
 CREATE TABLE organization_to_member (
   org_id INTEGER,
+  member_id INTEGER
+);
+
+DROP TABLE IF EXISTS repository_to_member;
+
+-- This is a Collaborator
+CREATE TABLE repository_to_member (
+  org_id INTEGER,
+  repo_id INTEGER,
   member_id INTEGER
 );

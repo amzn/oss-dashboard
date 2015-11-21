@@ -68,9 +68,12 @@ def store_organization_repositories(db, client, org)
   end
 end
 
-def store_organization_members(db, client, org_obj, private)
+def store_organization_members(db, client, org_obj, private, previous_members)
 
-  # Build a map of the individuals in an org who have 2fa disabled
+  # Mapping for this org's member ids
+  org_members=Hash.new
+
+  # Build a mapping of the individuals in an org who have 2fa disabled
   disabled_2fa=Hash.new
   if(private)
     client.org_members(org_obj.login, 'filter' => '2fa_disabled').each do |user|
@@ -80,21 +83,60 @@ def store_organization_members(db, client, org_obj, private)
 
   db.execute("DELETE FROM organization_to_member WHERE org_id=?", [org_obj.id])
   client.organization_members(org_obj.login).each do |member_obj|
-    db.execute("DELETE FROM member WHERE id=?", [member_obj.id])
+    org_members[member_obj.id]=true
+    unless(previous_members[member_obj.id])
+      db.execute("DELETE FROM member WHERE id=?", [member_obj.id])
 
-    if(private == false)
-      d_2fa='unknown'
-    elsif(disabled_2fa[member_obj.login])
-      d_2fa='true'
-    else
-      d_2fa='false'
+      if(private == false)
+        d_2fa='unknown'
+      elsif(disabled_2fa[member_obj.login])
+        d_2fa='true'
+      else
+        d_2fa='false'
+      end
+
+      db.execute("INSERT INTO member (id, login, two_factor_disabled, avatar_url)
+                  VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url] )
+
+      previous_members[member_obj.id]=true
     end
-
-    db.execute("INSERT INTO member (id, login, two_factor_disabled)
-                VALUES(?, ?, ?)", [member_obj.id, member_obj.login, d_2fa] )
 
     db.execute("INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", [org_obj.id, member_obj.id])
   end
+
+  # Get collaborators too - no organization API :(
+  if(private)
+    client.organization_repositories(org_obj.id).each do |repo_obj|
+      db.execute("DELETE FROM repository_to_member WHERE org_id=? AND repo_id=?", [org_obj.id, repo_obj.id])
+      collaborators=client.collaborators(repo_obj.full_name)
+      collaborators.each do |collaborator|
+        unless(previous_members[collaborator.id])
+          db.execute("DELETE FROM member WHERE id=?", [collaborator.id])
+          db.execute("INSERT INTO member (id, login, two_factor_disabled, avatar_url)
+                      VALUES(?, ?, ?, ?)", [collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url] )
+          previous_members[collaborator.id]=true
+        end
+        unless(org_members[collaborator.id])
+          # This isn't quite accurate. You can be an outside collaborator to a project and also a member. In reality I should be looking for 
+          # those who have access to a repository but are not in a Team with access to the repository. This will, for now, highlight the 
+          # the real _outside_ collaborators though, which is the initial requirement. 
+          db.execute("INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)", [org_obj.id, repo_obj.id, collaborator.id])
+        end
+      end
+    end
+  end
+end
+
+def update_member_data(db, client)
+    # Select members in the db and update with their latest data
+    members=db.execute("SELECT id FROM member")
+
+    members.each do |member|
+      memberId=member[0]
+      user=client.user(memberId)
+      db.execute("UPDATE member SET name=?, company=?, email=? WHERE id=?",
+                [user.name, user.company, user.email, user.id] )
+    end
 end
 
 
@@ -107,16 +149,21 @@ def sync_metadata(feedback, dashboard_config, client, sync_db)
     private_access = []
   end
   feedback.puts " metadata"
+  previous_members=Hash.new
 
   organizations.each do |org_login|
     feedback.print "  #{org_login} "
     org=store_organization(sync_db, client, org_login)
     store_organization_repositories(sync_db, client, org_login)
-    store_organization_members(sync_db, client, org, private_access.include?(org_login))
+    store_organization_members(sync_db, client, org, private_access.include?(org_login), previous_members)
     if(private_access.include?(org_login))
       store_organization_teams(sync_db, client, org_login)
     end
     feedback.print "\n"
   end
+
+  feedback.print "  :filling-in-member-data"
+  update_member_data(sync_db, client)
+  feedback.print "\n"
 
 end
