@@ -172,6 +172,9 @@
             <xsl:if test="organization/member">
             <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member)"/>)</a></li>
             </xsl:if>
+            <xsl:if test="organization/repo/collaborators/collaborator">
+            <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(organization/repo/collaborators/collaborator)"/>)</a></li>
+            </xsl:if>
             <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">GitHub Reports <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
                 <xsl:for-each select="metadata/db-reports/db-report">
@@ -497,6 +500,35 @@
                         <span style="display:none">0</span>
                       </xsl:if></td>
                   </tr>
+                </xsl:for-each>
+                </tbody>
+              </table>
+             </div>
+            </div>
+            </xsl:if>
+            <!-- TODO: Merge with member above into people? -->
+            <xsl:if test="organization/repo/collaborators/collaborator">
+            <div class="tab-pane" id="collaborators">
+             <div class="data-grid-sortable tablesorter">
+              <table id='collaboratorTable' class='data-grid'>
+                <thead>
+                <tr><th>Repository</th><th>Collaborators</th></tr>
+                </thead>
+                <tbody>
+                <xsl:for-each select="organization/repo">
+                  <xsl:if test="collaborators/collaborator">
+                  <tr><td>
+                    <xsl:variable name="reponame" select="@name"/>
+                    <xsl:variable name="orgname2" select="../@name"/>
+                    <li><a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a></li>
+                  </td>
+                  <td><ul style='list-style-type: none;'>
+                  <xsl:for-each select="collaborators/collaborator">
+                    <xsl:variable name="collaborator" select="."/>
+                    <li><a href="https://github.com/{$collaborator}"><xsl:value-of select="."/></a></li>
+                  </xsl:for-each></ul></td>
+                  </tr>
+                  </xsl:if>
                 </xsl:for-each>
                 </tbody>
               </table>

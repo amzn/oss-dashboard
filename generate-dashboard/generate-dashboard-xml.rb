@@ -138,7 +138,7 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
     end
   
   
-    # Generate XML for Repo data, including time-indexed metrics
+    # Generate XML for Repo data, including time-indexed metrics and collaborators
     # TODO: How to integrate internal ticketing mapping
     repos=sync_db.execute("SELECT id, name, homepage, private, fork, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description FROM repository WHERE org=?", [org])
     repos.each do |repoRow|
@@ -153,6 +153,16 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
       dashboard_file.puts "  <repo name='#{repoRow[1]}' homepage='#{repoRow[2]}' private='#{privateRepo}' fork='#{isFork}' closed_issue_count='#{closedIssueCount}' closed_pr_count='#{closedPullRequestCount}' open_issue_count='#{openIssueCount}' open_pr_count='#{openPullRequestCount}' has_wiki='#{hasWiki}' language='#{repoRow[6]}' stars='#{repoRow[7]}' watchers='#{repoRow[8]}' forks='#{repoRow[9]}' created_at='#{repoRow[10]}' updated_at='#{repoRow[11]}' pushed_at='#{repoRow[12]}' size='#{repoRow[13]}'>"
       desc=repoRow[14]?repoRow[14].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;"):repoRow[14]
       dashboard_file.puts "    <description>#{desc}</description>"
+
+      collaborators=sync_db.execute( "SELECT m.login FROM member m, repository_to_member rtm WHERE rtm.member_id=m.id AND rtm.repo_id=?", [repoRow[0]] )
+      # TODO: This check is incorrect, needs to check for emptiness in the response, not nil
+      if(collaborators)
+        dashboard_file.puts "    <collaborators>"
+        collaborators.each do |collaborator|
+          dashboard_file.puts "      <collaborator>#{collaborator[0]}</collaborator>"
+        end
+        dashboard_file.puts "    </collaborators>"
+      end
   
   
         # Get the issues specifically
@@ -162,13 +172,8 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
           isPR=(issueRow[12] != nil)
           title=issueRow[5].gsub(/&/, "&amp;").gsub(/</, "&lt;")
           age=((Time.now - Time.parse(issueRow[9])) / (60 * 60 * 24)).round
-          internal=sync_db.execute("SELECT employee_email FROM member WHERE login=?", [issueRow[3]])
-          unless(internal.empty? or internal.any?)
-            amznLogin=internal[0][0].split('@')[0]
-            internalText=" internal='#{amznLogin}'"
-          end
           # TODO: Add labels as a child of issue.
-          dashboard_file.puts "      <issue id='#{issueRow[0]}' number='#{issueRow[1]}' user='#{issueRow[3]}' state='#{issueRow[4]}' created_at='#{issueRow[9]}' age='#{age}' updated_at='#{issueRow[10]}' pull_request='#{isPR}' comments='#{issueRow[11]}'#{internalText}><title>#{title}</title>"
+          dashboard_file.puts "      <issue id='#{issueRow[0]}' number='#{issueRow[1]}' user='#{issueRow[3]}' state='#{issueRow[4]}' created_at='#{issueRow[9]}' age='#{age}' updated_at='#{issueRow[10]}' pull_request='#{isPR}' comments='#{issueRow[11]}'><title>#{title}</title>"
           labels=sync_db.execute("SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?", [issueRow[0]])
           labels.each do |label|
             labelName=label[1].gsub(/ /, '&#xa0;')
