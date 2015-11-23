@@ -292,7 +292,7 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
     end
   
     # Generate XML for Member data
-    members=sync_db.execute("SELECT DISTINCT(m.login), m.two_factor_disabled, u.email FROM member m, organization o, organization_to_member otm LEFT OUTER JOIN users u ON m.login=u.login WHERE m.id=otm.member_id AND otm.org_id=o.id AND o.login=?", [org])
+    members=sync_db.execute("SELECT DISTINCT(m.login), m.two_factor_disabled, u.email, m.name, m.avatar_url, m.company, m.email FROM member m, organization o, organization_to_member otm LEFT OUTER JOIN users u ON m.login=u.login WHERE m.id=otm.member_id AND otm.org_id=o.id AND o.login=?", [org])
     members.each do |memberRow|  
       # TODO: Include whether the individual is in ldap
       internalLogin=""
@@ -300,7 +300,7 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
         internalLogin=memberRow[2].split('@')[0]
         internalText=" internal='#{internalLogin}' employee_email='#{memberRow[2]}'"
       end
-      dashboard_file.puts "  <member name='#{memberRow[0]}' disabled_2fa='#{memberRow[1]}'#{internalText}/>"
+      dashboard_file.puts "  <member login='#{memberRow[0]}' avatar_url='#{memberRow[4]}' email='#{memberRow[6]}' disabled_2fa='#{memberRow[1]}'#{internalText}><company>#{memberRow[5]}</company><name>#{memberRow[3]}</name></member>"
     end
   
     # Copy the review xml into the dashboard xml

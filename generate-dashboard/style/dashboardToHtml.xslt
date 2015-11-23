@@ -481,12 +481,16 @@
              <div class="data-grid-sortable tablesorter">
               <table id='memberTable' class='data-grid'>
                 <thead>
-                <tr><th>GitHub login</th><th>Employee login</th><th>2FA?</th></tr>
+                <tr><th>GitHub login</th><th>Name</th><th>Email</th><th>Company</th><th>Employee login</th><th>2FA?</th></tr>
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/member">
-                  <xsl:variable name="membername" select="@name"/>
-                  <tr><td><a href="https://github.com/{$membername}"><xsl:value-of select="@name"/></a></td>
+                  <xsl:variable name="memberlogin" select="@login"/>
+                  <xsl:variable name="avatar" select="@avatar_url"/>
+                  <tr><td><img width="35" height="35" src="{$avatar}&amp;s=35"/><a href="https://github.com/{$memberlogin}"><xsl:value-of select="@login"/></a></td>
+                      <td><xsl:value-of select="name"/></td>
+                      <td><xsl:value-of select="@email"/></td>
+                      <td><xsl:value-of select="company"/></td>
                       <td>
                         <xsl:if test="not(@internal)"><span class="octicon octicon-question"></span></xsl:if>
                         <xsl:if test="@internal"><xsl:value-of select="@employee_email"/></xsl:if>
