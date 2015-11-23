@@ -238,7 +238,7 @@
                 </xsl:if>
                 </td>
                 <td><xsl:value-of select="description"/><xsl:if test='@homepage!=""'> - <a href="{$homepage}"><xsl:value-of select="@homepage"/></a></xsl:if></td>
-                 <xsl:if test="../organization/team">
+                 <xsl:if test="../team">
                   <td><ul style='list-style-type: none;'><xsl:for-each select='/github-dashdata/organization[@name=$orgname2]/team[repos/repo=$reponame]'>
                        <xsl:if test="@name != 'Owners' and @name != 'private read-only'">
                         <li><xsl:value-of select='@name'/></li>
