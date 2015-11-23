@@ -167,7 +167,7 @@
             <li><a href="#issues" data-toggle="tab">Issues (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='false'])"/>)</a></li>
             <li><a href="#pullrequests" data-toggle="tab">Pull Requests (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='true'])"/>)</a></li>
             <xsl:if test="organization/team">
-            <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)-1"/>)</a></li>
+            <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)"/>)</a></li>
             </xsl:if>
             <xsl:if test="organization/member">
             <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member)"/>)</a></li>
