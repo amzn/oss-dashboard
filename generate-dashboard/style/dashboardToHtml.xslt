@@ -520,7 +520,7 @@
                   <tr><td>
                     <xsl:variable name="reponame" select="@name"/>
                     <xsl:variable name="orgname2" select="../@name"/>
-                    <li><a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a></li>
+                    <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
                   </td>
                   <td><ul style='list-style-type: none;'>
                   <xsl:for-each select="collaborators/collaborator">
