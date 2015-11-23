@@ -240,7 +240,7 @@
                 <td><xsl:value-of select="description"/><xsl:if test='@homepage!=""'> - <a href="{$homepage}"><xsl:value-of select="@homepage"/></a></xsl:if></td>
                  <xsl:if test="../team">
                   <td><ul style='list-style-type: none;'><xsl:for-each select='/github-dashdata/organization[@name=$orgname2]/team[repos/repo=$reponame]'>
-                       <xsl:if test="@name != 'Owners' and @name != 'private read-only'">
+                       <xsl:if test="@name != 'private read-only'">
                         <li><xsl:value-of select='@name'/></li>
                        </xsl:if>
                       </xsl:for-each></ul>
@@ -448,7 +448,6 @@
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/team">
-                 <xsl:if test="@name != 'Owners'">
                   <xsl:variable name="orgname2" select="../@name"/>
                   <xsl:variable name="teamname" select="@name"/>
                   <tr><td><a href="https://github.com/orgs/{$orgname2}/teams/{$teamname}"><xsl:value-of select="@name"/></a><br/>
@@ -472,7 +471,6 @@
                   </ul>
                   </td>
                   </tr>
-                 </xsl:if>
                 </xsl:for-each>
                 </tbody>
               </table>
