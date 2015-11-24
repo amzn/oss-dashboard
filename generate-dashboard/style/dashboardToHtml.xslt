@@ -170,7 +170,7 @@
             <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)"/>)</a></li>
             </xsl:if>
             <xsl:if test="organization/member">
-            <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member)"/>)</a></li>
+            <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member[not(@login=preceding::*/@login)])"/>)</a></li>
             </xsl:if>
             <xsl:if test="organization/repo/collaborators/collaborator">
             <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(organization/repo/collaborators/collaborator)"/>)</a></li>
@@ -484,7 +484,7 @@
                 <tr><th>GitHub login</th><th>Name</th><th>Email</th><th>Company</th><th>Employee login</th><th>2FA?</th></tr>
                 </thead>
                 <tbody>
-                <xsl:for-each select="organization/member">
+                <xsl:for-each select="organization/member[not(@login=preceding::*/@login)]">
                   <xsl:variable name="memberlogin" select="@login"/>
                   <xsl:variable name="avatar" select="@avatar_url"/>
                   <tr><td><img width="35" height="35" src="{$avatar}&amp;s=35"/><a href="https://github.com/{$memberlogin}"><xsl:value-of select="@login"/></a></td>
