@@ -398,7 +398,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='prTable' class='data-grid'>
                 <thead>
-                <tr><th>Open Pull Request</th><th>Title</th><th>Labels</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
+                <tr><th>Open Pull Request</th><th>Title</th><th>Labels</th><th>Created</th><th>Age</th><th>Updated</th><th>Requester</th><th>Comments</th><th># Files Changed</th><th># New Lines</th><th># Removed Lines</th></tr>
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/repo">
@@ -433,6 +433,9 @@
                         <a href="https://github.com/{$membername}"><xsl:value-of select="@user"/></a>
                       </td>
                       <td><xsl:value-of select='@comments'/></td>
+                      <td><xsl:value-of select='@prFileCount'/></td>
+                      <td>+<xsl:value-of select='@prAdditions'/></td>
+                      <td>-<xsl:value-of select='@prDeletions'/></td>
                     </tr>
                   </xsl:for-each>
                 </xsl:for-each>

@@ -170,10 +170,15 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
         dashboard_file.puts "    <issues count='#{issues.length}'>"
         issues.each do |issueRow|
           isPR=(issueRow[12] != nil)
+          prText=''
+          if(isPR)
+            changes=sync_db.execute("SELECT COUNT(filename), SUM(additions), SUM(deletions) FROM pull_request_files WHERE pull_request_id=?", [issueRow[0]])
+            prText=" prFileCount='#{changes[0][0]}' prAdditions='#{changes[0][1]}' prDeletions='#{changes[0][2]}'"
+          end
           title=issueRow[5].gsub(/&/, "&amp;").gsub(/</, "&lt;")
           age=((Time.now - Time.parse(issueRow[9])) / (60 * 60 * 24)).round
           # TODO: Add labels as a child of issue.
-          dashboard_file.puts "      <issue id='#{issueRow[0]}' number='#{issueRow[1]}' user='#{issueRow[3]}' state='#{issueRow[4]}' created_at='#{issueRow[9]}' age='#{age}' updated_at='#{issueRow[10]}' pull_request='#{isPR}' comments='#{issueRow[11]}'><title>#{title}</title>"
+          dashboard_file.puts "      <issue id='#{issueRow[0]}' number='#{issueRow[1]}' user='#{issueRow[3]}' state='#{issueRow[4]}' created_at='#{issueRow[9]}' age='#{age}' updated_at='#{issueRow[10]}' pull_request='#{isPR}' comments='#{issueRow[11]}'#{prText}><title>#{title}</title>"
           labels=sync_db.execute("SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?", [issueRow[0]])
           labels.each do |label|
             labelName=label[1].gsub(/ /, '&#xa0;')
