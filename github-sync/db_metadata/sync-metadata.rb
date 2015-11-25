@@ -133,7 +133,12 @@ def update_member_data(db, client)
 
     members.each do |member|
       memberId=member[0]
-      user=client.user(memberId)
+      begin
+        user=client.user(memberId)
+      rescue Octokit::NotFound => msg
+        # puts "ERROR: Unavailable to find user with id: #{memberId}"
+        next
+      end
       db.execute("UPDATE member SET name=?, company=?, email=? WHERE id=?",
                 [user.name, user.company, user.email, user.id] )
     end
