@@ -30,7 +30,7 @@ The dashboard assumes the following are installed:
  5. OctoKit Rubygem - 'octokit'
  6. Licensee Rubygem - 'licensee'; though this should go away when the data is provided by OctoKit
  7. XML Rubygem - 'libxml-ruby'
- 8. XSLT Rubygem - 'ruby-xslt'
+ 8. XSLT Rubygem - 'libxslt-ruby'
 
 ## Setup
 
