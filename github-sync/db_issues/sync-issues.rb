@@ -72,15 +72,16 @@ def db_link_issues(db, issues, org, orgrepo)
   end
 end
 
-# This should speed things up, but it doesn't work for two reasons:
-#    1) org_issues seems to be getting empty results
-#    2) There's no repo in the results, so data can't be stored
+# This should speed things up
+# TODO: Needs to a) do all the db things that are done below in addition to plain inserting
+#       and b) to figure out the repo from each issue returned. Frustratingly it's not in the API of an issue, 
+#       so it seems that one must parse the issue url.
 #def getLatestForOrg(client, issue_db, org)
 #  maxTimestamp=db_getMaxTimestampForOrg(issue_db, org)               # Get the current max timestamp in the db
 #  if(maxTimestamp)
-#    issues=client.org_issues(org, { 'state' => 'all', 'since' => maxTimestamp } )
+#    issues=client.org_issues(org, { 'state' => 'all', 'since' => maxTimestamp, 'filter' => 'all' } )
 #  else
-#    issues=client.org_issues(org, { 'state' => 'all' } )
+#    issues=client.org_issues(org, { 'state' => 'all', 'filter' => 'all' } )
 #  end
 #  db_insert_issues(issue_db, issues, org, repo)                   # Insert any new items
 #end
