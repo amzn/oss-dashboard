@@ -39,6 +39,11 @@ def sync_user_mapping(feedback, dashboard_config, client, sync_db)
       # TODO: Also test for it being the right data structure?
       if(USER_EMAILS)
         loadUserTable(sync_db, USER_EMAILS)
+
+        if defined? updateUserData
+          updateUserData(feedback, dashboard_config, client, sync_db)
+        end
+
       else
         puts "ERROR: USER_EMAILS mapping required in #{map_user_script}"
         exit   # Throw error?

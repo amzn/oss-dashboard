@@ -100,7 +100,22 @@ This is a list of paths to look for custom Database Reporters.
 
 Interaction between GitHub's user schema and your own user schema is a common use case for a dashboard. This script is executed to load in your customized data. 
 
-The user schema contains an email address field, to represent your internal login, and an is_employee field, to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase. 
+The user db schema contains an email address field, to represent your internal login, and an is_employee field (0=not employed), to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase. 
+
+(Warning - clunky system)
+The script provides a USER_EMAIL constant with a hash of GitHub login to internal email address. It can also provide an updateUserData function to, for example, update the is_employee column. 
+
+For example:
+
+```
+  USER_EMAIL = {
+    "github-login" => "internal-email-address"
+  }
+
+  def updateUserData(feedback, dashboard_config, client, sync_db)
+    # code to talk to internal employment database and update the users.is_employee field to 0 if someone has left
+  end
+```
 
 ## Running
 
