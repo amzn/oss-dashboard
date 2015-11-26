@@ -23,12 +23,16 @@ An HTML dashboard is generated from the SQLite Databases (phase 1) and the analy
 
 The dashboard assumes the following are installed:
 
- 1. SQLite 3.x
- 2. git
- 3. Ruby (tested on version 2.0.0 and 2.2.1).
- 4. SQLite Rubygem - 'sqlite3'
- 5. OctoKit Rubygem - 'octokit'
- 6. Licensee Rubygem - 'licensee'; though this should go away when the data is provided by OctoKit
+| Dependency | Use |
+| ----- | -------- |
+|  SQLite 3.x | Database for local copy of GitHub data |
+|  git  | Pulls source from GitHub |
+|  Ruby | Executes scripts (tested on version 2.0.0 and 2.2.1) |
+|  SQLite Rubygem - 'sqlite3' | Access the database |
+|  OctoKit Rubygem - 'octokit' | Access GitHub API |
+|  Licensee Rubygem - 'licensee' | Identify licensing, though this should go away when the data is provided by OctoKit |
+|  XML Rubygem - 'libxml-ruby' | Parse XML files |
+|  XSLT Rubygem - 'libxslt-ruby' | Process XSLT files |
 
 ## Setup
 
