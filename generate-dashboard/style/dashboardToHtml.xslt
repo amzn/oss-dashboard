@@ -358,7 +358,7 @@
                       <td><xsl:value-of select='substring(@created_at,1,10)'/></td>
                       <td><xsl:value-of select='substring(@updated_at,1,10)'/></td>
                       <td>
-                      <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@name=$membername]">
+                      <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@login=$membername]">
                        <!-- TODO: How to allow users to pass in a url and member@internal to their internal directories? -->
                        <xsl:if test="$logo">
                         <span style="margin-right: 2px;"><sup><img src="{$logo}" width="8" height="8"/></sup></span>
@@ -421,7 +421,7 @@
                       <td><xsl:value-of select='substring(@created_at,1,10)'/></td>
                       <td><xsl:value-of select='substring(@updated_at,1,10)'/></td>
                       <td>
-                      <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@name=$membername]">
+                      <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@login=$membername]">
                        <!-- TODO: How to allow users to pass in a url and member@internal to their internal directories? -->
                        <xsl:if test="$logo">
                         <span style="margin-right: 2px;"><sup><img src="{$logo}" width="8" height="8"/></sup></span>
@@ -530,7 +530,18 @@
                   <td><ul style='list-style-type: none;'>
                   <xsl:for-each select="collaborators/collaborator">
                     <xsl:variable name="collaborator" select="."/>
-                    <li><a href="https://github.com/{$collaborator}"><xsl:value-of select="."/></a></li>
+                    <li>
+                      <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@login=$collaborator]">
+                       <!-- TODO: How to allow users to pass in a url and member@internal to their internal directories? -->
+                       <xsl:if test="$logo">
+                        <span style="margin-right: 2px;"><sup><img src="{$logo}" width="8" height="8"/></sup></span>
+                       </xsl:if>
+                       <xsl:if test="not($logo)">
+                        <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
+                       </xsl:if>
+                      </xsl:if>
+                      <a href="https://github.com/{$collaborator}"><xsl:value-of select="."/></a>
+                    </li>
                   </xsl:for-each></ul></td>
                   </tr>
                   </xsl:if>
@@ -572,7 +583,18 @@
                         <td><a href="https://github.com/{$value}"><xsl:value-of select="."/></a></td>
                        </xsl:if>
                        <xsl:if test="$columntypes[1]/@type='member'">
-                        <td><a href="https://github.com/{$value}"><xsl:value-of select="."/></a></td>
+                        <td>
+                         <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@login=$value]">
+                          <!-- TODO: How to allow users to pass in a url and member@internal to their internal directories? -->
+                          <xsl:if test="$logo">
+                           <span style="margin-right: 2px;"><sup><img src="{$logo}" width="8" height="8"/></sup></span>
+                          </xsl:if>
+                          <xsl:if test="not($logo)">
+                           <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
+                          </xsl:if>
+                         </xsl:if>
+                         <a href="https://github.com/{$value}"><xsl:value-of select="."/></a>
+                        </td>
                        </xsl:if>
                       </tr>
                   </xsl:for-each>
