@@ -107,7 +107,7 @@ Interaction between GitHub's user schema and your own user schema is a common us
 The user db schema contains an email address field, to represent your internal login, and an is_employee field (0=not employed), to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase. 
 
 (Warning - clunky system)
-The script provides a USER_EMAIL constant with a hash of GitHub login to internal email address. It can also provide an updateUserData function to, for example, update the is_employee column. 
+The script provides a USER_EMAILS hash of GitHub login to internal email address. It can also provide an updateUserData function to, for example, update the is_employee column. 
 
 For example:
 
