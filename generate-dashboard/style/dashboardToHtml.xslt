@@ -634,10 +634,10 @@
                         <xsl:variable name="lineno"><xsl:value-of select="file/@lineno"/></xsl:variable>
                         <xsl:variable name="linetxt">#L<xsl:value-of select="$lineno"/></xsl:variable>
                         <xsl:if test="file and file/@lineno">
-                          <li><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}{$linetxt}"><xsl:value-of select="$file"/><xsl:value-of select="$linetxt"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
+                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}{$linetxt}"><xsl:value-of select="$file"/><xsl:value-of select="$linetxt"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
                         <xsl:if test="file and not(file/@lineno)">
-                          <li><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}"><xsl:value-of select="$file"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
+                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}"><xsl:value-of select="$file"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
                         <xsl:if test="not(file) and file/@lineno">
                           <li>ERROR: Line number and no file. </li>

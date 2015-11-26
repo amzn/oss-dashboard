@@ -38,7 +38,8 @@ class LicenseReporter < Reporter
       end
 
       unless(project.license)
-        return "      <reporting file='#{project.matched_file.filename}' type='LicenseReporter'>License unrecognized</reporting>\n"
+        return "      <reporting type='LicenseReporter'><file>#{project.matched_file.filename}</file><message>License unrecognized</message></reporting>\n"
+          txt << "      <reporting type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
       else
         return "      <license file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
       end
