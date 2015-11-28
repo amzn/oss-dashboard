@@ -196,11 +196,29 @@
 
             <div class="tab-pane active" id="overview">
 
-            <table cellpadding="10px" width="100%"><tr><td class="left">
-                <h4>Repo Count over Time</h4><br/>
-                <div id="repoCountChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
-            </td><td class="right">
+            <table cellpadding="10px" width="100%"><tr>
+            <td class="left">
+             <h4>Metadata</h4>
+                <table class="data-grid">
+                  <xsl:if test="organization/name"><tr><td>Name</td><td><xsl:value-of select="organization/name"/></td></tr></xsl:if>
+                  <xsl:if test="organization/url"><tr><td>URL</td><td><xsl:value-of select="organization/url"/></td></tr></xsl:if>
+                  <xsl:if test="organization/email"><tr><td>Email</td><td><xsl:value-of select="organization/email"/></td></tr></xsl:if>
+                  <xsl:if test="organization/location"><tr><td>Location</td><td><xsl:value-of select="organization/location"/></td></tr></xsl:if>
+                  <xsl:if test="organization/created_at"><tr><td>Create Date</td><td><xsl:value-of select="substring(organization/created_at,1,10)"/></td></tr></xsl:if>
+                </table>
+                <hr/>
+              <h4>Recent Repositories</h4>
+              <table class='data-grid'>
+                <xsl:for-each select="organization/repo">
+                  <xsl:sort select="@created_at" order="descending"/>
+                  <xsl:variable name='repo_url' select="@url"/>
+                  <xsl:if test="position() &lt;= 5">
+                    <tr><td><a href="{$repo_url}"><xsl:value-of select='substring(@created_at,1,10)'/></a> - <xsl:value-of select='@name'/></td></tr>
+                  </xsl:if>
+                </xsl:for-each>
+              </table>
               <xsl:if test="organization/repo/release-data/release">
+              <hr/>
               <h4>Recent Releases</h4>
               <table class='data-grid'>
                 <xsl:for-each select="organization/repo/release-data/release">
@@ -212,6 +230,10 @@
                 </xsl:for-each>
               </table>
               </xsl:if>
+            </td>
+            <td class="right">
+                <h4>Repo Count over Time</h4><br/>
+                <div id="repoCountChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
             </td></tr></table>
 
             </div>

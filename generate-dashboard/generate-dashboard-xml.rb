@@ -97,14 +97,29 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
     feedback.print "  #{org} "
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
   
-    org_data=sync_db.execute("SELECT avatar_url, description FROM organization WHERE login=?", [org])
+    org_data=sync_db.execute("SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login=?", [org])
 
     dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{org_data[0][0]}'>"
     dashboard_file.puts metadata
 
     dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}'>"
     unless(org_data[0][1]=="")
-      dashboard_file.puts "   <description>#{org_data[0][1]}</description>"
+      dashboard_file.puts "  <description>#{org_data[0][1]}</description>"
+    end
+    unless(org_data[0][2]=="")
+      dashboard_file.puts "  <url>#{org_data[0][2]}</url>"
+    end
+    unless(org_data[0][3]=="")
+      dashboard_file.puts "  <name>#{org_data[0][3]}</name>"
+    end
+    unless(org_data[0][4]=="")
+      dashboard_file.puts "  <location>#{org_data[0][4]}</location>"
+    end
+    unless(org_data[0][5]=="")
+      dashboard_file.puts "  <email>#{org_data[0][5]}</email>"
+    end
+    unless(org_data[0][6]=="")
+      dashboard_file.puts "  <created_at>#{org_data[0][6]}</created_at>"
     end
   
     # Generate XML for Team data if available
