@@ -201,7 +201,10 @@
              <h4>Metadata</h4>
                 <table class="data-grid">
                   <xsl:if test="organization/name"><tr><td>Name</td><td><xsl:value-of select="organization/name"/></td></tr></xsl:if>
-                  <xsl:if test="organization/url"><tr><td>URL</td><td><xsl:value-of select="organization/url"/></td></tr></xsl:if>
+                  <xsl:if test="organization/url">
+                    <xsl:variable name='org_url' select="organization/url"/>
+                    <tr><td>URL</td><td><a href="{$org_url}"><xsl:value-of select="organization/url"/></a></td></tr>
+                  </xsl:if>
                   <xsl:if test="organization/email"><tr><td>Email</td><td><xsl:value-of select="organization/email"/></td></tr></xsl:if>
                   <xsl:if test="organization/location"><tr><td>Location</td><td><xsl:value-of select="organization/location"/></td></tr></xsl:if>
                   <xsl:if test="organization/created_at"><tr><td>Create Date</td><td><xsl:value-of select="substring(organization/created_at,1,10)"/></td></tr></xsl:if>
