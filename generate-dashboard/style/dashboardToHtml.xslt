@@ -211,9 +211,9 @@
               <table class='data-grid'>
                 <xsl:for-each select="organization/repo">
                   <xsl:sort select="@created_at" order="descending"/>
-                  <xsl:variable name='repo_url' select="@url"/>
+                  <xsl:variable name='repo_name' select="@name"/>
                   <xsl:if test="position() &lt;= 5">
-                    <tr><td><a href="{$repo_url}"><xsl:value-of select='substring(@created_at,1,10)'/></a> - <xsl:value-of select='@name'/></td></tr>
+                    <tr><td><a href="https://github.com/{$orgname}/{$repo_name}"><xsl:value-of select='substring(@created_at,1,10)'/></a> - <xsl:value-of select='@name'/></td></tr>
                   </xsl:if>
                 </xsl:for-each>
               </table>
