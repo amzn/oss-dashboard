@@ -197,9 +197,11 @@
             <div class="tab-pane active" id="overview">
 
             <table cellpadding="10px" width="100%"><tr>
-            <td class="left">
-             <h4>Metadata</h4>
+            <td class="left" style="vertical-align:top">
+              <xsl:if test="count(organization)=1">
+                <h4>Organization:</h4>
                 <table class="data-grid">
+                  <xsl:if test="organization/@name"><tr><td>Login</td><td><xsl:value-of select="organization/@name"/></td></tr></xsl:if>
                   <xsl:if test="organization/name"><tr><td>Name</td><td><xsl:value-of select="organization/name"/></td></tr></xsl:if>
                   <xsl:if test="organization/url">
                     <xsl:variable name='org_url' select="organization/url"/>
@@ -209,8 +211,28 @@
                   <xsl:if test="organization/location"><tr><td>Location</td><td><xsl:value-of select="organization/location"/></td></tr></xsl:if>
                   <xsl:if test="organization/created_at"><tr><td>Create Date</td><td><xsl:value-of select="substring(organization/created_at,1,10)"/></td></tr></xsl:if>
                 </table>
-                <hr/>
-              <h4>Recent Repositories</h4>
+              </xsl:if>
+              <xsl:if test="count(organization)>1">
+                <h4>Organizations:</h4>
+                <table class="data-grid">
+                 <xsl:for-each select="organization">
+                  <xsl:variable name="orgname2" select="@name"/>
+                  <xsl:variable name="logo2" select="@logo"/>
+                  <xsl:variable name="orgDescription2" select="organization/description"/>
+                  <tr>
+                    <td><xsl:if test="@logo2"><a rel="tooltip" title="{$orgDescription2}" href="https://github.com/{$orgname2}"><img width="35" height="35" src="{$logo2}&amp;s=35"/></a></xsl:if><a href="{$orgname2}.html"><xsl:value-of select="@name"/></a></td>
+                    <td></td>
+                  </tr>
+                 </xsl:for-each>
+                </table>
+              </xsl:if>
+            </td>
+            <td class="center" style="vertical-align:top">
+                <h4>Repo Count over Time</h4><br/>
+                <div id="repoCountChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
+            </td>
+            <td class="right" style="vertical-align:top">
+              <h4>Recent Repositories:</h4>
               <table class='data-grid'>
                 <xsl:for-each select="organization/repo">
                   <xsl:sort select="@created_at" order="descending"/>
@@ -222,7 +244,7 @@
               </table>
               <xsl:if test="organization/repo/release-data/release">
               <hr/>
-              <h4>Recent Releases</h4>
+              <h4>Recent Releases:</h4>
               <table class='data-grid'>
                 <xsl:for-each select="organization/repo/release-data/release">
                   <xsl:sort select="@published_at" order="descending"/>
@@ -233,10 +255,6 @@
                 </xsl:for-each>
               </table>
               </xsl:if>
-            </td>
-            <td class="right">
-                <h4>Repo Count over Time</h4><br/>
-                <div id="repoCountChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
             </td></tr></table>
 
             </div>
