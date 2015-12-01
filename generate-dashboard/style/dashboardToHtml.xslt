@@ -614,32 +614,28 @@
                 <xsl:for-each select="/github-dashdata/organization">
                   <xsl:variable name="orgname2" select="@name"/>
                   <xsl:for-each select="/github-dashdata/organization/github-db-report/organization[@name=$orgname2]/db-reporting[@type=$report]">
-                    <xsl:variable name="value" select="."/>
-                      <tr>
-                       <xsl:if test="$columntypes[1]/@type='text'">
-                        <td><xsl:value-of select="."/></td>
-                       </xsl:if>
-                       <xsl:if test="$columntypes[1]/@type='url'">
-                        <td><a href="{$value}"><xsl:value-of select="."/></a></td>
-                       </xsl:if>
-                       <xsl:if test="$columntypes[1]/@type='org/repo'">
-                        <td><a href="https://github.com/{$value}"><xsl:value-of select="."/></a></td>
-                       </xsl:if>
-                       <xsl:if test="$columntypes[1]/@type='member'">
-                        <td>
-                         <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@login=$value]">
-                          <!-- TODO: How to allow users to pass in a url and member@internal to their internal directories? -->
-                          <xsl:if test="$logo">
-                           <span style="margin-right: 2px;"><sup><img src="{$logo}" width="8" height="8"/></sup></span>
-                          </xsl:if>
-                          <xsl:if test="not($logo)">
-                           <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
-                          </xsl:if>
-                         </xsl:if>
-                         <a href="https://github.com/{$value}"><xsl:value-of select="."/></a>
-                        </td>
-                       </xsl:if>
-                      </tr>
+                    <tr>
+                     <xsl:if test="not(field)">
+                      <xsl:call-template name="db-reporting-field">
+                        <xsl:with-param name="orgname" select="$orgname"/>
+                        <xsl:with-param name="logo" select="$logo"/>
+                        <xsl:with-param name="columntypes" select="$columntypes"/>
+                        <xsl:with-param name="value" select="."/>
+                        <xsl:with-param name="index" select="1"/>
+                      </xsl:call-template>
+                     </xsl:if>
+                     <xsl:if test="field">
+                      <xsl:for-each select="field">
+                       <xsl:call-template name="db-reporting-field">
+                         <xsl:with-param name="orgname" select="$orgname"/>
+                         <xsl:with-param name="logo" select="$logo"/>
+                         <xsl:with-param name="columntypes" select="$columntypes"/>
+                         <xsl:with-param name="value" select="."/>
+                         <xsl:with-param name="index" select="position()"/>
+                       </xsl:call-template>
+                      </xsl:for-each>
+                     </xsl:if>
+                    </tr>
                   </xsl:for-each>
                 </xsl:for-each>
                </tbody>
@@ -975,6 +971,37 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
 
       </body>
     </html>
+  </xsl:template>
+
+  <xsl:template name="db-reporting-field">
+    <xsl:param name="orgname"/>
+    <xsl:param name="logo"/>
+    <xsl:param name="columntypes"/>
+    <xsl:param name="value"/>
+    <xsl:param name="index"/>
+    <xsl:if test="$columntypes[$index]/@type='text'">
+     <td><xsl:value-of select="$value"/></td>
+    </xsl:if>
+    <xsl:if test="$columntypes[$index]/@type='url'">
+     <td><a href="{$value}"><xsl:value-of select="$value"/></a></td>
+    </xsl:if>
+    <xsl:if test="$columntypes[$index]/@type='org/repo'">
+     <td><a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a></td>
+    </xsl:if>
+    <xsl:if test="$columntypes[$index]/@type='member'">
+     <td>
+      <xsl:if test="/github-dashdata/organization[@name=$orgname]/member[@login=$value]">
+       <!-- TODO: How to allow users to pass in a url and member@internal to their internal directories? -->
+       <xsl:if test="$logo">
+        <span style="margin-right: 2px;"><sup><img src="{$logo}" width="8" height="8"/></sup></span>
+       </xsl:if>
+       <xsl:if test="not($logo)">
+        <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
+       </xsl:if>
+      </xsl:if>
+      <a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a>
+     </td>
+    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>
