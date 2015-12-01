@@ -27,16 +27,14 @@ class UnchangedDbReporter < DbReporter
   end
 
   def db_columns()
-#    return ['repository', 'date']
-    return ['repository - date']
+    return [ ['repository', 'org/repo'], 'date' ]
   end
 
   def db_report(org, sync_db)
     unchanged=sync_db.execute("SELECT r.name, r.created_at FROM repository r WHERE created_at=pushed_at AND r.org=?", [org])
     text = ''
     unchanged.each do |row|
-      # TODO: Move to a multi-column format
-      text << "  <db-reporting type='UnchangedDbReporter'>#{row[0]} - #{row[1]}</db-reporting>\n"
+      text << "  <db-reporting type='UnchangedDbReporter'><field>#{org}/#{row[0]}</field><field>#{row[1]}</field></db-reporting>\n"
     end
     return text
   end
