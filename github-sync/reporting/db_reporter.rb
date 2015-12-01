@@ -19,6 +19,10 @@ class DbReporter
 
   # intended to be overridden
   # returns strings in xml format
+  # Either:
+  #   <db-reporting type='ExampleDbReporter'>DATA</db-reporting>\n"
+  # Or:
+  #   <db-reporting type='ExampleDbReporter'><field>DATA</field><field>DATA2</field></db-reporting>\n"
   def db_report(repo, db)
     raise "No db_report(repo, db) function defined by report subclass"
   end
