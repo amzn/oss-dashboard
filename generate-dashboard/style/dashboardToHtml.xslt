@@ -239,7 +239,15 @@
                   <xsl:variable name='repo_name' select="@name"/>
                   <xsl:variable name='orgname2' select="../@name"/>
                   <xsl:if test="position() &lt;= 5">
-                    <tr><td><a href="https://github.com/{$orgname2}/{$repo_name}"><xsl:value-of select='substring(@created_at,1,10)'/></a> - <xsl:value-of select='@name'/></td></tr>
+                    <tr><td>
+                      <a href="https://github.com/{$orgname2}/{$repo_name}"><xsl:value-of select='substring(@created_at,1,10)'/></a> - <xsl:value-of select='@name'/>
+                      <xsl:if test="@private='true'">
+                         <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
+                      </xsl:if>
+                      <xsl:if test="@fork='true'">
+                         <sup><span style="margin-left: 5px" class="octicon octicon-repo-forked"></span></sup>
+                      </xsl:if>
+                    </td></tr>
                   </xsl:if>
                 </xsl:for-each>
               </table>
