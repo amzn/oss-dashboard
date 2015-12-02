@@ -90,3 +90,15 @@ CREATE TABLE item_to_milestone (
   item_id INTEGER,
   milestone_id INTEGER
 );
+
+DROP TABLE IF EXISTS item_comments;
+
+CREATE TABLE item_comments (
+  id INTEGER,
+  org VARCHAR,
+  repo VARCHAR,
+  item_number INTEGER,
+  body VARCHAR,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);

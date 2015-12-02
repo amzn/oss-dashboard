@@ -121,3 +121,36 @@ def sync_issues(feedback, dashboard_config, client, sync_db)
   end
 
 end
+
+def getLatestIssueComments(feedback, client, issue_db, org)
+  client.organization_repositories(org).each do |repo_obj|
+    repo=repo_obj.full_name
+    issue_db.execute("BEGIN TRANSACTION");
+
+    # Get the current max timestamp in the db
+    maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo)
+    if(maxTimestamp)
+      # Increment the timestamp by a second to avoid getting repeats
+      ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+      comments=client.issues_comments(repo, { 'since' => ts } )
+    else
+      comments=client.issues_comments(repo)
+    end
+    db_insert_comments(issue_db, comments, org, repo)
+    issue_db.execute("END TRANSACTION");
+    feedback.print '.'
+  end
+end
+
+def sync_issue_comments(feedback, dashboard_config, client, sync_db)
+
+  organizations = dashboard_config['organizations']
+  feedback.puts " issues"
+
+  organizations.each do |org|
+    feedback.print "  #{org} "
+    getLatestIssueComments(feedback, client, sync_db, org)
+    feedback.print "\n"
+  end
+
+end

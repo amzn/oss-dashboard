@@ -45,6 +45,34 @@ require "date"
     end
   end
 
+  # Inserts new comments. If any exist already, it replaces them.
+  def db_insert_comments(db, comments, org, repo)
+    comments.each do |comment|
+        db.execute("DELETE FROM item_comments WHERE id=?", comment.id)
+        itemNumber=comment.url.sub(/^.*\/([0-9]*)$/, '\1')
+        db.execute(
+         "INSERT INTO item_comments (
+               id, repo, org, item_number, body, created_at, updated_at
+          )
+          VALUES ( ?, ?, ?, ?, ?, ?, ? )",
+          [comment.id, org, repo, itemNumber, comment.body, gh_to_db_timestamp(comment.created_at), gh_to_db_timestamp(comment.updated_at)]
+        )
+    end
+  end
+
+  def db_getMaxCommentTimestampForRepo(db, repo)
+    # Normally '2015-04-18 14:17:02 UTC'
+    # Need '2015-04-18T14:17:02Z'
+    db.execute( "select max(updated_at) from item_comments where repo='#{repo}'" ) do |row|
+      timestamp=row[0]
+      if(timestamp)
+          return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
+      else
+          return timestamp
+      end
+    end
+  end
+
   def db_getMaxTimestampForRepo(db, repo)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'

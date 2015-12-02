@@ -43,6 +43,9 @@ def github_sync(feedback, dashboard_config, client, run_one)
   if(not(run_one) or run_one=='github-sync/issues')
     sync_issues(feedback, dashboard_config, client, sync_db)
   end
+  if(not(run_one) or run_one=='github-sync/issue-comments')
+    sync_issue_comments(feedback, dashboard_config, client, sync_db)
+  end
   if(not(run_one) or run_one=='github-sync/releases')
     sync_releases(feedback, dashboard_config, client, sync_db)
   end
