@@ -37,8 +37,8 @@ def store_organization_teams(db, client, org)
 
     db.execute("DELETE FROM team WHERE id=?", [team_obj.id])
     db.execute(
-      "INSERT INTO team (id, name, description) VALUES (?, ?, ?)",
-      [team_obj.id, team_obj.name, team_obj.description])
+      "INSERT INTO team (id, name, slug, description) VALUES (?, ?, ?, ?)",
+      [team_obj.id, team_obj.name, team_obj.slug, team_obj.description])
 
     db.execute("DELETE FROM team_to_repository WHERE team_id=?", [team_obj.id])
     repos=client.team_repositories(team_obj.id)

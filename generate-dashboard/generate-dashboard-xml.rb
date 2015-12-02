@@ -123,12 +123,11 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
     end
   
     # Generate XML for Team data if available
-    teams=sync_db.execute("SELECT DISTINCT(t.id), t.name, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
+    teams=sync_db.execute("SELECT DISTINCT(t.id), t.name, t.slug, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     teams.each do |teamRow|
       # TODO: Indicate if a team has read-only access to a repo, not write.
-      escaped=teamRow[1].gsub(/[ \/&:]/, '_')
-      dashboard_file.puts "  <team escaped_name='#{escaped}' name='#{teamRow[1]}'>"
-      desc=teamRow[2]
+      dashboard_file.puts "  <team slug='#{teamRow[2]}' name='#{teamRow[1]}'>"
+      desc=teamRow[3]
       if(desc)
         desc=desc.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
       end
@@ -391,14 +390,14 @@ def generate_team_xml(feedback, dashboard_config)
     # TODO: There's more creation of XML here than need be
     dashboardXml.root.elements['organization'].elements.each("team") do |team|
       name=team.attributes["name"]
-      escaped=name.gsub(/[ \/&:]/, '_')
-      teamMenu << "<team escaped_name='#{escaped}' name='#{name}'/>"
+      slug=team.attributes["slug"]
+      teamMenu << "<team slug='#{slug}' name='#{name}'/>"
     end
 
     dashboardXml.root.elements['organization'].elements.each("team") do |team|
       name=team.attributes["name"]
-      escaped=name.gsub(/[ \/&:]/, '_')
-      path="#{data_directory}/dash-xml/#{org}-team-#{escaped}.xml"
+      slug=team.attributes["slug"]
+      path="#{data_directory}/dash-xml/#{org}-team-#{slug}.xml"
       open(path, 'w') do |f|
         f.puts "<github-dashdata dashboard='#{org}' team='#{name}'>"
         f.puts header

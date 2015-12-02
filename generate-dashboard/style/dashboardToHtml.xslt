@@ -134,7 +134,7 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select='organization/team'>
-                <xsl:variable name="teamlink" select="@escaped_name"/>
+                <xsl:variable name="teamlink" select="@slug"/>
                 <xsl:variable name="orgname2" select="../@name"/>
                 <li><a href="{$orgname2}-team-{$teamlink}.html"><xsl:value-of select="../@name"/>::<xsl:value-of select="@name"/></a></li>
               </xsl:for-each>
@@ -504,8 +504,8 @@
                 <tbody>
                 <xsl:for-each select="organization/team">
                   <xsl:variable name="orgname2" select="../@name"/>
-                  <xsl:variable name="teamname" select="@name"/>
-                  <tr><td><a href="https://github.com/orgs/{$orgname2}/teams/{$teamname}"><xsl:value-of select="@name"/></a><br/>
+                  <xsl:variable name="teamlink" select="@slug"/>
+                  <tr><td><a href="https://github.com/orgs/{$orgname2}/teams/{$teamlink}"><xsl:value-of select="@name"/></a><br/>
                     <xsl:value-of select="description"/>
                   </td>
                   <td>

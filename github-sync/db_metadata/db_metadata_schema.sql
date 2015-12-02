@@ -48,6 +48,7 @@ CREATE TABLE team (
   id INTEGER,
 -- org VARCHAR,
   name VARCHAR,
+  slug VARCHAR,
   description VARCHAR
 );
 
