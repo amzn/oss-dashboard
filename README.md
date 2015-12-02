@@ -157,6 +157,7 @@ Available phases are:
 |  github-sync/commits | Syncs only the commit data |
 |  github-sync/events | Syncs only the event stream |
 |  github-sync/issues | Syncs the issue data - note that this is typically the heaviest initial load |
+|  github-sync/issue-comments | Syncs the issue comments |
 |  github-sync/releases | Syncs the release data |
 |  github-sync/user-mapping | Loads your user-mapping file into the database |
 |  github-sync/reporting | Runs the configured DB Reports |
