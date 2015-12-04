@@ -50,12 +50,13 @@ require "date"
     comments.each do |comment|
         db.execute("DELETE FROM item_comments WHERE id=?", comment.id)
         itemNumber=comment.url.sub(/^.*\/([0-9]*)$/, '\1')
+        user=comment.user ? comment.user.login : nil
         db.execute(
          "INSERT INTO item_comments (
-               id, repo, org, item_number, body, created_at, updated_at
+               id, repo, org, item_number, user_login, body, created_at, updated_at
           )
-          VALUES ( ?, ?, ?, ?, ?, ?, ? )",
-          [comment.id, org, repo, itemNumber, comment.body, gh_to_db_timestamp(comment.created_at), gh_to_db_timestamp(comment.updated_at)]
+          VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )",
+          [comment.id, org, repo, itemNumber, user, comment.body, gh_to_db_timestamp(comment.created_at), gh_to_db_timestamp(comment.updated_at)]
         )
     end
   end

@@ -98,6 +98,7 @@ CREATE TABLE item_comments (
   org VARCHAR,
   repo VARCHAR,
   item_number INTEGER,
+  user_login VARCHAR,
   body VARCHAR,
   created_at TIMESTAMP,
   updated_at TIMESTAMP
