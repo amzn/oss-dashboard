@@ -403,7 +403,7 @@
                       <td>
                        <xsl:for-each select='label'>
                         <xsl:variable name='labelColor' select='@color'/>
-                        <span class='labelColor' style='background-color: #{$labelColor}'><xsl:value-of select='@name'/></span>
+                        <span class='labelColor' style='background-color: #{$labelColor}'><xsl:value-of select='.'/></span>
                        </xsl:for-each>
                       </td>
                       <td><xsl:value-of select='@age'/>d</td>
@@ -466,7 +466,7 @@
                       <td>
                        <xsl:for-each select='label'>
                         <xsl:variable name='labelColor' select='@color'/>
-                        <span class='labelColor' style='background-color: #{$labelColor}'><xsl:value-of select='@name'/></span>
+                        <span class='labelColor' style='background-color: #{$labelColor}'><xsl:value-of select='.'/></span>
                        </xsl:for-each>
                       </td>
                       <td><xsl:value-of select='@age'/>d</td>
