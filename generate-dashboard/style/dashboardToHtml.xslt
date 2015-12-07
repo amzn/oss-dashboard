@@ -179,7 +179,7 @@
               <ul class="dropdown-menu" role="menu">
                 <xsl:for-each select="metadata/db-reports/db-report">
                   <xsl:variable name="report" select="@key"/>
-                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report])"/>)</a></li> 
+                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report and not(text()=preceding::db-reporting[@type=$report]/text())])"/>)</a></li> 
                 </xsl:for-each>
               </ul>
             </li>
@@ -610,7 +610,7 @@
               <xsl:variable name="columntypes" select="column-type"/>
             <div class="tab-pane" id="{$report}">
              <h3>GitHub Report: <xsl:value-of select="@name"/>
-             (<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
+             (<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report and not(text()=preceding::db-reporting[@type=$report]/text())])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
              <p><xsl:value-of select="description"/></p>
              <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
@@ -622,7 +622,7 @@
                <tbody>
                 <xsl:for-each select="/github-dashdata/organization">
                   <xsl:variable name="orgname2" select="@name"/>
-                  <xsl:for-each select="/github-dashdata/organization/github-db-report/organization[@name=$orgname2]/db-reporting[@type=$report]">
+                  <xsl:for-each select="/github-dashdata/organization/github-db-report/organization[@name=$orgname2]/db-reporting[@type=$report and not(text()=preceding::db-reporting[@type=$report]/text())]">
                     <tr>
                      <xsl:if test="not(field)">
                       <xsl:call-template name="db-reporting-field">
