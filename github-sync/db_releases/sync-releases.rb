@@ -47,25 +47,25 @@ require "sqlite3"
     end
   end
 
-def sync_releases(feedback, dashboard_config, client, sync_db)
+def sync_releases(context, sync_db)
   
-  organizations = dashboard_config['organizations']
-  feedback.puts " releases"
+  organizations = context.dashboard_config['organizations']
+  context.feedback.puts " releases"
   
   organizations.each do |org|
     sync_db.execute("BEGIN TRANSACTION");
-    feedback.print "  #{org} "
+    context.feedback.print "  #{org} "
 
     # There's no @since here, so it's removing current data and replacing with all release info from GitHub
     # Could use this for initial load and use the event data stream for updates
-    client.organization_repositories(org).each do |repo_obj|
-      releases=client.releases(repo_obj.full_name)
+    context.client.organization_repositories(org).each do |repo_obj|
+      releases=context.client.releases(repo_obj.full_name)
       db_insert_releases(sync_db, org, repo_obj.name, releases)   # Replaces existing with these
-      feedback.print '.'
+      context.feedback.print '.'
     end
     sync_db.execute("END TRANSACTION");
 
-    feedback.print "\n"
+    context.feedback.print "\n"
   end
 
 end

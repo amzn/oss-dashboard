@@ -25,35 +25,35 @@ require_relative 'db_releases/sync-releases.rb'
 require_relative 'user_mapping/sync-users.rb'
 require_relative 'reporting/db_reporter_runner.rb'
 
-def github_sync(feedback, dashboard_config, client, run_one)
+def github_sync(context, run_one)
 
-  db_filename=File.join(dashboard_config['data-directory'], 'db', 'gh-sync.db');
+  db_filename=File.join(context.dashboard_config['data-directory'], 'db', 'gh-sync.db');
 
   sync_db=SQLite3::Database.new db_filename
 
   if(not(run_one) or run_one=='github-sync/metadata')
-    sync_metadata(feedback, dashboard_config, client, sync_db)
+    sync_metadata(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/commits')
-    sync_commits(feedback, dashboard_config, client, sync_db)
+    sync_commits(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/events')
-    sync_events(feedback, dashboard_config, client, sync_db)
+    sync_events(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/issues')
-    sync_issues(feedback, dashboard_config, client, sync_db)
+    sync_issues(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/issue-comments')
-    sync_issue_comments(feedback, dashboard_config, client, sync_db)
+    sync_issue_comments(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/releases')
-    sync_releases(feedback, dashboard_config, client, sync_db)
+    sync_releases(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/user-mapping')
-    sync_user_mapping(feedback, dashboard_config, client, sync_db)
+    sync_user_mapping(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/reporting')
-    run_db_reports(feedback, dashboard_config, client, sync_db)
+    run_db_reports(context, sync_db)
   end
 
   sync_db.close

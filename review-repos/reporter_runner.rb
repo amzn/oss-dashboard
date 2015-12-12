@@ -48,26 +48,26 @@ def get_reporter_instances(dashboard_config)
   return report_instances
 end
 
-def review_source(feedback, dashboard_config, client)
+def review_source(context)
 
-  organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
+  organizations = context.dashboard_config['organizations']
+  data_directory = context.dashboard_config['data-directory']
   scratch_dir="#{data_directory}/scratch"
 
-  report_instances=get_reporter_instances(dashboard_config)
+  report_instances=get_reporter_instances(context.dashboard_config)
  
   unless(File.exists?("#{data_directory}/review-xml/"))
     Dir.mkdir("#{data_directory}/review-xml/")
   end
  
   organizations.each do |owner|
-    feedback.print "  #{owner} "
+    context.feedback.print "  #{owner} "
     review_file=File.open("#{data_directory}/review-xml/#{owner}.xml", 'w')
   
     report="<github-review>\n"
     report << " <organization name='#{owner}'>\n"
   
-    repos = client.organization_repositories(owner)
+    repos = context.client.organization_repositories(owner)
     repos.each do |repo|
       if repo.fork
         next
@@ -83,13 +83,13 @@ def review_source(feedback, dashboard_config, client)
       end
 
       report << "  </repo>\n"
-      feedback.print '.'
+      context.feedback.print '.'
     end
     report << " </organization>\n"
     report << "</github-review>\n"
     review_file.puts report
     review_file.close
-    feedback.print "\n"
+    context.feedback.print "\n"
   end
   
 end

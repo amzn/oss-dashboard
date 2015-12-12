@@ -72,16 +72,16 @@ end
 
 # Generate a data file for a GitHub organizations.
 # It contains the metadata for the organization, and the metrics.
-def generate_dashboard_xml(feedback, dashboard_config, client)
+def generate_dashboard_xml(context)
   
-  organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
-  private_access = dashboard_config['private-access']
+  organizations = context.dashboard_config['organizations']
+  data_directory = context.dashboard_config['data-directory']
+  private_access = context.dashboard_config['private-access']
   unless(private_access)
     private_access = []
   end
-  reports = dashboard_config['reports']
-  db_reports = dashboard_config['db-reports']
+  reports = context.dashboard_config['reports']
+  db_reports = context.dashboard_config['db-reports']
   
   sync_db=SQLite3::Database.new(File.join(data_directory, 'db/gh-sync.db'));
   
@@ -91,10 +91,10 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
   
   # First, generate the metadata needed to build navigation
   # Which other orgs form a part of this site?
-  metadata=generate_metadata_header(dashboard_config)
+  metadata=generate_metadata_header(context.dashboard_config)
   
   organizations.each do |org|
-    feedback.print "  #{org} "
+    context.feedback.print "  #{org} "
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
   
     org_data=sync_db.execute("SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login=?", [org])
@@ -336,21 +336,21 @@ def generate_dashboard_xml(feedback, dashboard_config, client)
     dashboard_file.puts "</github-dashdata>"
     
     dashboard_file.close
-    feedback.print "\n"
+    context.feedback.print "\n"
   end
 
 end
 
-def merge_dashboard_xml(feedback, dashboard_config)
+def merge_dashboard_xml(context)
 
-  organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
+  organizations = context.dashboard_config['organizations']
+  data_directory = context.dashboard_config['data-directory']
 
   dashboard_file=File.open("#{data_directory}/dash-xml/AllOrgs.xml", 'w')
   # TODO: Don't hard code includes_private
   dashboard_file.puts "<github-dashdata dashboard='All Organizations' includes_private='true'>"
 
-  dashboard_file.puts(generate_metadata_header(dashboard_config))
+  dashboard_file.puts(generate_metadata_header(context.dashboard_config))
 
   organizations.each do |org|
 
@@ -364,7 +364,7 @@ def merge_dashboard_xml(feedback, dashboard_config)
     end
 
     xmlfile.close
-    feedback.puts "  #{org}"
+    context.feedback.puts "  #{org}"
   end
 
   dashboard_file.puts "</github-dashdata>"
@@ -373,18 +373,18 @@ def merge_dashboard_xml(feedback, dashboard_config)
 
 end
 
-def generate_team_xml(feedback, dashboard_config)
+def generate_team_xml(context)
 
-  organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
+  organizations = context.dashboard_config['organizations']
+  data_directory = context.dashboard_config['data-directory']
 
   organizations.each do |org|
-    feedback.print "  #{org} "
+    context.feedback.print "  #{org} "
     xmlfile=File.new("#{data_directory}/dash-xml/#{org}.xml")
     begin
       dashboardXml = Document.new(xmlfile)
     end
-    header=generate_metadata_header(dashboard_config)
+    header=generate_metadata_header(context.dashboard_config)
 
     teamMenu=''
     # TODO: There's more creation of XML here than need be
@@ -419,9 +419,9 @@ def generate_team_xml(feedback, dashboard_config)
         f.puts " </organization>"
         f.puts "</github-dashdata>"
       end
-      feedback.print '.'
+      context.feedback.print '.'
     end
     xmlfile.close
-    feedback.print "\n"
+    context.feedback.print "\n"
   end
 end

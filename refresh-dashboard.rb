@@ -26,6 +26,18 @@ require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
 require 'optparse'
 
+class DashboardContext < Hash
+
+  attr_reader :feedback, :dashboard_config, :client
+
+  def initialize(feedback, dashboard_config, client)
+    @feedback=feedback
+    @dashboard_config=dashboard_config
+    @client=client
+  end
+
+end
+
 options = {}
 
 optparse = OptionParser.new do |opts|
@@ -82,6 +94,8 @@ else
   $stdout.sync = true
 end
 
+context=DashboardContext.new(feedback, dashboard_config, client)
+
 if(options[:light] and run_one)
   puts "Light mode does not allow specific phases to be called. "
   exit
@@ -94,7 +108,8 @@ unless( not(run_one) or legitPhases.include?(run_one))
 end
 
 unless(options[:quiet])
-  feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+  context['GITHUB_START']=client.rate_limit.remaining
+  context.feedback.puts "Remaining GitHub Calls: #{context['GITHUB_START']}"
 end
 
 if(options[:light])
@@ -102,13 +117,13 @@ if(options[:light])
 end
 if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
   if(run_one=='init-database')
-    feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
+    context.feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
     exit
   end
 else
   if(not(run_one) or run_one=='init-database')
-    feedback.puts "init-database"
-    init_database(dashboard_config)
+    context.feedback.puts "init-database"
+    init_database(context)
   end
 end
 
@@ -116,39 +131,39 @@ if(options[:light])
   run_one="github-sync/metadata"
 end
 if(not(run_one) or run_one.start_with?('github-sync'))
-  feedback.puts "github-sync"
-  github_sync(feedback, dashboard_config, client, run_one=='github-sync' ? nil : run_one)
+  context.feedback.puts "github-sync"
+  github_sync(context, run_one=='github-sync' ? nil : run_one)
 end
 if(not(run_one) or run_one=='pull-source')
-  feedback.puts "pull-source"
-  pull_source(feedback, dashboard_config, client)
+  context.feedback.puts "pull-source"
+  pull_source(context)
 end
 if(not(run_one) or run_one=='review-source')
-  feedback.puts "review-source"
-  review_source(feedback, dashboard_config, client)
+  context.feedback.puts "review-source"
+  review_source(context)
 end
 
 if(options[:light])
   run_one="generate-dashboard"
 end
 if(not(run_one) or run_one.start_with?('generate-dashboard'))
-  feedback.puts "generate-dashboard"
+  context.feedback.puts "generate-dashboard"
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xml')
-    feedback.puts " xml"
-    generate_dashboard_xml(feedback, dashboard_config, client)
+    context.feedback.puts " xml"
+    generate_dashboard_xml(context)
   end
 
   if(organizations.length > 1)
     if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/merge')
-      feedback.puts " merge"
-      merge_dashboard_xml(feedback, dashboard_config)
+      context.feedback.puts " merge"
+      merge_dashboard_xml(context)
     end
   end
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/teams-xml')
-    feedback.puts " teams-xml"
-    generate_team_xml(feedback, dashboard_config)
+    context.feedback.puts " teams-xml"
+    generate_team_xml(context)
   end
 
   if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xslt')
@@ -156,7 +171,7 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       Dir.mkdir(www_directory)
     end
 
-    feedback.print " xslt\n  "
+    context.feedback.print " xslt\n  "
     Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
       outputFile=File.basename(inputFile, ".xml")
 
@@ -167,12 +182,12 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       htmlFile = File.new("#{www_directory}/#{outputFile}.html", 'w')
       htmlFile.write(html)
       htmlFile.close
-      feedback.print "."
+      context.feedback.print "."
     end
-    feedback.print "\n"
+    context.feedback.print "\n"
 
     if(organizations.length > 1)
-      feedback.puts " AllOrgs"
+      context.feedback.puts " AllOrgs"
 
       stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
       xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
@@ -183,10 +198,10 @@ if(not(run_one) or run_one.start_with?('generate-dashboard'))
       htmlFile.close
     end
 
-    feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
+    context.feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
   end
 end
 
 unless(options[:quiet])
-  feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+  context.feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
 end

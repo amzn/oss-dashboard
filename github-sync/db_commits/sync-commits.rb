@@ -18,20 +18,20 @@ require 'date'
 require 'yaml'
 require_relative 'commitStoreLibrary.rb'
 
-def sync_commits(feedback, dashboard_config, client, sync_db)
+def sync_commits(context, sync_db)
   
-  organizations = dashboard_config['organizations']
+  organizations = context.dashboard_config['organizations']
 
-  feedback.puts " commits"
+  context.feedback.puts " commits"
   organizations.each do |org|
-    feedback.print "  #{org} "
+    context.feedback.print "  #{org} "
 
-    client.organization_repositories(org).each do |repo_obj|
+    context.client.organization_repositories(org).each do |repo_obj|
       if(repo_obj.size==0)
         # if no commits, octokit errors. Size of zero is close enough to no commits 
         # - i.e. the first commit may not get shown for a new repo
         # TODO: Catch the error?
-        feedback.print '!'
+        context.feedback.print '!'
         next
       end
       repo_name=repo_obj.name
@@ -40,14 +40,14 @@ def sync_commits(feedback, dashboard_config, client, sync_db)
       if(maxTimestamp)
         # Increment the timestamp by a second to avoid getting repeats
         ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
-        commits=client.commits_since(repo_full_name, ts)
+        commits=context.client.commits_since(repo_full_name, ts)
       else
-        commits=client.commits(repo_full_name)
+        commits=context.client.commits(repo_full_name)
       end
       db_insert_commits(sync_db, commits, org, repo_name)                   # Insert any new items
-      feedback.print '.'
+      context.feedback.print '.'
     end
-    feedback.print "\n"
+    context.feedback.print "\n"
   end
 
 end

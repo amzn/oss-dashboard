@@ -54,21 +54,21 @@ def get_db_reporter_instances(dashboard_config)
   return report_instances
 end
 
-def run_db_reports(feedback, dashboard_config, client, sync_db)
+def run_db_reports(context, sync_db)
   
-  organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
+  organizations = context.dashboard_config['organizations']
+  data_directory = context.dashboard_config['data-directory']
 
-  report_instances=get_db_reporter_instances(dashboard_config)
+  report_instances=get_db_reporter_instances(context.dashboard_config)
 
   unless(File.exists?("#{data_directory}/db-report-xml/"))
     Dir.mkdir("#{data_directory}/db-report-xml/")
   end
 
-  feedback.puts " reporting"
+  context.feedback.puts " reporting"
   
   organizations.each do |org|
-    feedback.print "  #{org} "
+    context.feedback.print "  #{org} "
     review_file=File.open("#{data_directory}/db-report-xml/#{org}.xml", 'w')
   
     report="<github-db-report>\n"
@@ -76,14 +76,14 @@ def run_db_reports(feedback, dashboard_config, client, sync_db)
   
     report_instances.each do |report_obj|
       report << report_obj.db_report(org, sync_db).to_s
-      feedback.print '.'
+      context.feedback.print '.'
     end
 
     report << " </organization>\n"
     report << "</github-db-report>\n"
     review_file.puts report
     review_file.close
-    feedback.print "\n"
+    context.feedback.print "\n"
   end
   
 end

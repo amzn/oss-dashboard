@@ -28,11 +28,11 @@ def loadUserTable(db, users)
   db.execute("END TRANSACTION");
 end
 
-def sync_user_mapping(feedback, dashboard_config, client, sync_db)
+def sync_user_mapping(context, sync_db)
 
-  feedback.puts " user-mapping"
+  context.feedback.puts " user-mapping"
 
-  map_user_script=dashboard_config['map-user-script']
+  map_user_script=context.dashboard_config['map-user-script']
   if(map_user_script)
     if(File.exist?(map_user_script))
       require(map_user_script)
@@ -41,7 +41,7 @@ def sync_user_mapping(feedback, dashboard_config, client, sync_db)
         loadUserTable(sync_db, USER_EMAILS)
 
         if defined? updateUserData
-          updateUserData(feedback, dashboard_config, client, sync_db)
+          updateUserData(context.feedback, context.dashboard_config, client, sync_db)
         end
 
       else

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def init_database(dashboard_config)
+def init_database(context)
 
-  data_directory = dashboard_config['data-directory']
+  data_directory = context.dashboard_config['data-directory']
   db_directory="#{data_directory}/db"
   db_filename=File.join(db_directory, 'gh-sync.db');
 

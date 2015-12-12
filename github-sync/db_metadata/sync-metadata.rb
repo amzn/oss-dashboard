@@ -145,30 +145,30 @@ def update_member_data(db, client)
 end
 
 
-def sync_metadata(feedback, dashboard_config, client, sync_db)
+def sync_metadata(context, sync_db)
 
-  organizations = dashboard_config['organizations']
-  data_directory = dashboard_config['data-directory']
-  private_access = dashboard_config['private-access']
+  organizations = context.dashboard_config['organizations']
+  data_directory = context.dashboard_config['data-directory']
+  private_access = context.dashboard_config['private-access']
   unless(private_access)
     private_access = []
   end
-  feedback.puts " metadata"
+  context.feedback.puts " metadata"
   previous_members=Hash.new
 
   organizations.each do |org_login|
-    feedback.print "  #{org_login} "
-    org=store_organization(sync_db, client, org_login)
-    store_organization_repositories(sync_db, client, org_login)
-    store_organization_members(sync_db, client, org, private_access.include?(org_login), previous_members)
+    context.feedback.print "  #{org_login} "
+    org=store_organization(sync_db, context.client, org_login)
+    store_organization_repositories(sync_db, context.client, org_login)
+    store_organization_members(sync_db, context.client, org, private_access.include?(org_login), previous_members)
     if(private_access.include?(org_login))
-      store_organization_teams(sync_db, client, org_login)
+      store_organization_teams(sync_db, context.client, org_login)
     end
-    feedback.print "\n"
+    context.feedback.print "\n"
   end
 
-  feedback.print "  :filling-in-member-data"
-  update_member_data(sync_db, client)
-  feedback.print "\n"
+  context.feedback.print "  :filling-in-member-data"
+  update_member_data(sync_db, context.client)
+  context.feedback.print "\n"
 
 end
