@@ -95,6 +95,7 @@ else
 end
 
 context=DashboardContext.new(feedback, dashboard_config, client)
+context['START_TIME']=DateTime.now
 
 if(options[:light] and run_one)
   puts "Light mode does not allow specific phases to be called. "
@@ -108,8 +109,8 @@ unless( not(run_one) or legitPhases.include?(run_one))
 end
 
 unless(options[:quiet])
-  context['GITHUB_START']=client.rate_limit.remaining
-  context.feedback.puts "Remaining GitHub Calls: #{context['GITHUB_START']}"
+  context['START_GITHUB_CALLS']=client.rate_limit.remaining
+  context.feedback.puts "Remaining GitHub Calls: #{context['START_GITHUB_CALLS']}"
 end
 
 if(options[:light])
@@ -142,6 +143,8 @@ if(not(run_one) or run_one=='review-source')
   context.feedback.puts "review-source"
   review_source(context)
 end
+
+context['END_GITHUB_CALLS']=client.rate_limit.remaining
 
 if(options[:light])
   run_one="generate-dashboard"
