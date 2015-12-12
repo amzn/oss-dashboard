@@ -27,10 +27,10 @@ def escape_for_xml(text)
   return text ? text.gsub(/&/, '&amp;') : text
 end
 
-def generate_metadata_header(dashboard_config)
-  organizations = dashboard_config['organizations']
-  reports = dashboard_config['reports']
-  db_reports = dashboard_config['db-reports']
+def generate_metadata_header(context)
+  organizations = context.dashboard_config['organizations']
+  reports = context.dashboard_config['reports']
+  db_reports = context.dashboard_config['db-reports']
   
   metadata = " <metadata>\n"
   metadata << "  <navigation>\n"
@@ -44,7 +44,7 @@ def generate_metadata_header(dashboard_config)
   
   # Which Source Reports are configured?
   metadata << "  <reports>\n"
-  report_instances=get_reporter_instances(dashboard_config)
+  report_instances=get_reporter_instances(context.dashboard_config)
   report_instances.each do |report_obj|
     metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
   end
@@ -52,7 +52,7 @@ def generate_metadata_header(dashboard_config)
   
   # Which DB Reports are configured?
   metadata << "  <db-reports>\n"
-  db_report_instances=get_db_reporter_instances(dashboard_config)
+  db_report_instances=get_db_reporter_instances(context.dashboard_config)
   db_report_instances.each do |report_obj|
     metadata << "    <db-report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
     report_obj.db_columns.each do |db_column|
@@ -65,6 +65,7 @@ def generate_metadata_header(dashboard_config)
     metadata << "</db-report>\n"
   end
   metadata << "  </db-reports>\n"
+  metadata << "  <run-metrics refreshTime='#{context[:START_TIME]}' generationTime='#{DateTime.now}' startRateLimit='#{context[:START_RATE_LIMIT]}' endRateLimit='#{context[:END_RATE_LIMIT]}' usedRateLimit='#{context[:USED_RATE_LIMIT]}'/>\n"
   
   metadata << " </metadata>\n"
   return metadata
@@ -91,7 +92,7 @@ def generate_dashboard_xml(context)
   
   # First, generate the metadata needed to build navigation
   # Which other orgs form a part of this site?
-  metadata=generate_metadata_header(context.dashboard_config)
+  metadata=generate_metadata_header(context)
   
   organizations.each do |org|
     context.feedback.print "  #{org} "
@@ -350,7 +351,7 @@ def merge_dashboard_xml(context)
   # TODO: Don't hard code includes_private
   dashboard_file.puts "<github-dashdata dashboard='All Organizations' includes_private='true'>"
 
-  dashboard_file.puts(generate_metadata_header(context.dashboard_config))
+  dashboard_file.puts(generate_metadata_header(context))
 
   organizations.each do |org|
 
@@ -384,7 +385,7 @@ def generate_team_xml(context)
     begin
       dashboardXml = Document.new(xmlfile)
     end
-    header=generate_metadata_header(context.dashboard_config)
+    header=generate_metadata_header(context)
 
     teamMenu=''
     # TODO: There's more creation of XML here than need be

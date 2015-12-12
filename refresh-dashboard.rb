@@ -95,7 +95,7 @@ else
 end
 
 context=DashboardContext.new(feedback, dashboard_config, client)
-context['START_TIME']=DateTime.now
+context[:START_TIME]=DateTime.now
 
 if(options[:light] and run_one)
   puts "Light mode does not allow specific phases to be called. "
@@ -109,8 +109,8 @@ unless( not(run_one) or legitPhases.include?(run_one))
 end
 
 unless(options[:quiet])
-  context['START_GITHUB_CALLS']=client.rate_limit.remaining
-  context.feedback.puts "Remaining GitHub Calls: #{context['START_GITHUB_CALLS']}"
+  context[:START_RATE_LIMIT]=client.rate_limit.remaining
+  context.feedback.puts "Remaining GitHub Calls: #{context[:START_RATE_LIMIT]}"
 end
 
 if(options[:light])
@@ -144,7 +144,12 @@ if(not(run_one) or run_one=='review-source')
   review_source(context)
 end
 
-context['END_GITHUB_CALLS']=client.rate_limit.remaining
+context[:END_RATE_LIMIT]=client.rate_limit.remaining
+context[:USED_RATE_LIMIT]=context[:START_RATE_LIMIT]-context[:END_RATE_LIMIT]
+# TODO: This isn't perfect, you could flip over the hour, but use lots of rate_limit and not be negative
+if(context[:USED_RATE_LIMIT] < 0)
+  context[:USED_RATE_LIMIT]+=5000
+end
 
 if(options[:light])
   run_one="generate-dashboard"
