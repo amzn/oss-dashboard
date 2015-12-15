@@ -108,8 +108,8 @@ unless( not(run_one) or legitPhases.include?(run_one))
   exit
 end
 
+context[:START_RATE_LIMIT]=client.rate_limit.remaining
 unless(options[:quiet])
-  context[:START_RATE_LIMIT]=client.rate_limit.remaining
   context.feedback.puts "Remaining GitHub Calls: #{context[:START_RATE_LIMIT]}"
 end
 
