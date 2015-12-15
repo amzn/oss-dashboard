@@ -30,7 +30,7 @@ end
 
 def sync_user_mapping(context, sync_db)
 
-  context.feedback.puts " user-mapping"
+  context.feedback.print " user-mapping "
 
   map_user_script=context.dashboard_config['map-user-script']
   if(map_user_script)
@@ -41,7 +41,7 @@ def sync_user_mapping(context, sync_db)
         loadUserTable(sync_db, USER_EMAILS)
 
         if defined? updateUserData
-          updateUserData(context.feedback, context.dashboard_config, client, sync_db)
+          updateUserData(context.feedback, context.dashboard_config, context.client, sync_db)
         end
 
       else
@@ -53,5 +53,7 @@ def sync_user_mapping(context, sync_db)
       exit   # Throw error?
     end
   end
+
+  context.feedback.print "\n"
 end
 
