@@ -995,7 +995,8 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
      <td><xsl:value-of select="$value"/></td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='url'">
-     <td><a href="{$value}"><xsl:value-of select="$value"/></a></td>
+     <xsl:variable name="href" select="@id"/>
+     <td><a href="{$href}"><xsl:value-of select="$value"/></a></td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='org/repo'">
      <td><a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a></td>
