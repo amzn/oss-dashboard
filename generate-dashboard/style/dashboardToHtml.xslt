@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+# Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+-->
+
 <xsl:stylesheet method="html" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
 
 <!--
@@ -711,23 +728,23 @@
 <!-- The years are hardcoded :( -->
 <script>
 publicRepoCount=[
-  [2009, <xsl:value-of select="count(organization/repo[@private='false' and '2009'>=substring(@created_at,1,4)])"/>],
   [2010, <xsl:value-of select="count(organization/repo[@private='false' and '2010'>=substring(@created_at,1,4)])"/>],
   [2011, <xsl:value-of select="count(organization/repo[@private='false' and '2011'>=substring(@created_at,1,4)])"/>],
   [2012, <xsl:value-of select="count(organization/repo[@private='false' and '2012'>=substring(@created_at,1,4)])"/>],
   [2013, <xsl:value-of select="count(organization/repo[@private='false' and '2013'>=substring(@created_at,1,4)])"/>],
   [2014, <xsl:value-of select="count(organization/repo[@private='false' and '2014'>=substring(@created_at,1,4)])"/>],
   [2015, <xsl:value-of select="count(organization/repo[@private='false' and '2015'>=substring(@created_at,1,4)])"/>],
+  [2016, <xsl:value-of select="count(organization/repo[@private='false' and '2016'>=substring(@created_at,1,4)])"/>],
 ]
 
 privateRepoCount=[
-  [2009, <xsl:value-of select="count(organization/repo[@private='true' and '2009'>=substring(@created_at,1,4)])"/>],
   [2010, <xsl:value-of select="count(organization/repo[@private='true' and '2010'>=substring(@created_at,1,4)])"/>],
   [2011, <xsl:value-of select="count(organization/repo[@private='true' and '2011'>=substring(@created_at,1,4)])"/>],
   [2012, <xsl:value-of select="count(organization/repo[@private='true' and '2012'>=substring(@created_at,1,4)])"/>],
   [2013, <xsl:value-of select="count(organization/repo[@private='true' and '2013'>=substring(@created_at,1,4)])"/>],
   [2014, <xsl:value-of select="count(organization/repo[@private='true' and '2014'>=substring(@created_at,1,4)])"/>],
   [2015, <xsl:value-of select="count(organization/repo[@private='true' and '2015'>=substring(@created_at,1,4)])"/>],
+  [2016, <xsl:value-of select="count(organization/repo[@private='true' and '2016'>=substring(@created_at,1,4)])"/>],
 ]
 
 $.plot($("#repoCountChart"), [ { data: privateRepoCount, label: 'private'}, { data: publicRepoCount, label: 'public' } ],
@@ -754,13 +771,13 @@ $.plot($("#repoCountChart"), [ { data: privateRepoCount, label: 'private'}, { da
 
 <script>
 issuesOpened=[
-  ['2009', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2009'>=@year]/@count)"/>],
   ['2010', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2010'>=@year]/@count)"/>],
   ['2011', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2011'>=@year]/@count)"/>],
   ['2012', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2012'>=@year]/@count)"/>],
   ['2013', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2013'>=@year]/@count)"/>],
   ['2014', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2014'>=@year]/@count)"/>],
   ['2015', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2015'>=@year]/@count)"/>],
+  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2016'>=@year]/@count)"/>],
 ]
 
 issuesClosed=[
@@ -771,6 +788,7 @@ issuesClosed=[
   ['2013', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2013'>=@year]/@count)"/>],
   ['2014', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2014'>=@year]/@count)"/>],
   ['2015', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2015'>=@year]/@count)"/>],
+  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2016'>=@year]/@count)"/>],
 ]
 
 prsOpened=[
@@ -781,6 +799,7 @@ prsOpened=[
   ['2013', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2013'>=@year]/@count)"/>],
   ['2014', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2014'>=@year]/@count)"/>],
   ['2015', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2015'>=@year]/@count)"/>],
+  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2016'>=@year]/@count)"/>],
 ]
 
 $.plot($("#issueCountChart"), [ 
@@ -809,13 +828,13 @@ $.plot($("#issueCountChart"), [
 });
 
 prsClosed=[
-  ['2009', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2009'>=@year]/@count)"/>],
   ['2010', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2010'>=@year]/@count)"/>],
   ['2011', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2011'>=@year]/@count)"/>],
   ['2012', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2012'>=@year]/@count)"/>],
   ['2013', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2013'>=@year]/@count)"/>],
   ['2014', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2014'>=@year]/@count)"/>],
   ['2015', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2015'>=@year]/@count)"/>],
+  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2016'>=@year]/@count)"/>],
 ]
 
 $.plot($("#pullRequestCountChart"), [ 
