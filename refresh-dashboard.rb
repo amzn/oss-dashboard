@@ -102,7 +102,7 @@ if(ARGV[1])
     end
   end
 elsif(options[:light])
-  run_list=legitPhases
+  run_list=['init-database', 'github-sync/metadata', 'github-sync/reporting', 'generate-dashboard']
 else
   run_list=allPhases
 end
