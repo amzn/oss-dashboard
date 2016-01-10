@@ -84,7 +84,36 @@ unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
 end
 
-run_one=ARGV[1]
+if(options[:light] and ARGV[1])
+  puts "Light mode does not allow specific phases to be called. "
+  exit
+end
+
+# TODO: Implement github-sync and generate-dashboard as aliases?
+allPhases=['init-database', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt']
+legitPhases=allPhases + ['github-sync', 'generate-dashboard']
+
+if(ARGV[1])
+  run_list=ARGV[1..-1]
+  if(run_list.include?('init-database'))
+    if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
+      context.feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
+      exit
+    end
+  end
+elsif(options[:light])
+  legitPhases=['init-database', 'github-sync/metadata', 'github-sync/reporting', 'generate-dashboard', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt']
+else
+  run_list=allPhases
+end
+
+# check all phases are legit
+run_list.each do |phase|
+  unless( legitPhases.include?(phase))
+    puts "No such phase: #{phase}."
+    exit
+  end
+end
 
 # Quiet mode or verbose
 feedback=$stdout
@@ -97,116 +126,103 @@ end
 context=DashboardContext.new(feedback, dashboard_config, client)
 context[:START_TIME]=DateTime.now
 
-if(options[:light] and run_one)
-  puts "Light mode does not allow specific phases to be called. "
-  exit
-end
-
-legitPhases=['init-database', 'github-sync', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt']
-unless( not(run_one) or legitPhases.include?(run_one))
-  puts "No such phase: #{run_one}."
-  exit
-end
-
 context[:START_RATE_LIMIT]=client.rate_limit.remaining
 unless(options[:quiet])
   context.feedback.puts "Remaining GitHub Calls: #{context[:START_RATE_LIMIT]}"
 end
+ 
+# State to make output cleaner
+printed_gh_sync=false
+printed_gen_dash=false
 
-if(options[:light])
-  run_one="init-database"
-end
-if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
-  if(run_one=='init-database')
-    context.feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
-    exit
-  end
-else
-  if(not(run_one) or run_one=='init-database')
-    context.feedback.puts "init-database"
-    init_database(context)
-  end
-end
-
-if(options[:light])
-  run_one="github-sync/metadata"
-end
-if(not(run_one) or run_one.start_with?('github-sync'))
-  context.feedback.puts "github-sync"
-  github_sync(context, run_one=='github-sync' ? nil : run_one)
-end
-if(not(run_one) or run_one=='pull-source')
-  context.feedback.puts "pull-source"
-  pull_source(context)
-end
-if(not(run_one) or run_one=='review-source')
-  context.feedback.puts "review-source"
-  review_source(context)
-end
-
-context[:END_RATE_LIMIT]=client.rate_limit.remaining
-context[:USED_RATE_LIMIT]=context[:START_RATE_LIMIT]-context[:END_RATE_LIMIT]
-# TODO: This isn't perfect, you could flip over the hour, but use lots of rate_limit and not be negative
-if(context[:USED_RATE_LIMIT] < 0)
-  context[:USED_RATE_LIMIT]+=5000
-end
-
-if(options[:light])
-  run_one="generate-dashboard"
-end
-if(not(run_one) or run_one.start_with?('generate-dashboard'))
-  context.feedback.puts "generate-dashboard"
-
-  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xml')
-    context.feedback.puts " xml"
-    generate_dashboard_xml(context)
-  end
-
-  if(organizations.length > 1)
-    if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/merge')
-      context.feedback.puts " merge"
-      merge_dashboard_xml(context)
+run_list.each do |phase|
+  if(phase=='init-database')
+    unless(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
+      context.feedback.puts "init-database"
+      init_database(context)
     end
   end
 
-  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/teams-xml')
-    context.feedback.puts " teams-xml"
-    generate_team_xml(context)
+  if(phase.start_with?('github-sync'))
+    unless(printed_gh_sync)
+      context.feedback.puts "github-sync"
+      printed_gh_sync=true
+    end
+    github_sync(context, phase=='github-sync' ? nil : phase)
+  end
+  if(phase=='pull-source')
+    context.feedback.puts "pull-source"
+    pull_source(context)
+  end
+  if(phase=='review-source')
+    context.feedback.puts "review-source"
+    review_source(context)
   end
 
-  if(not(run_one) or run_one=='generate-dashboard' or run_one=='generate-dashboard/xslt')
-    unless(File.exists?(www_directory))
-      Dir.mkdir(www_directory)
+  context[:END_RATE_LIMIT]=client.rate_limit.remaining
+  context[:USED_RATE_LIMIT]=context[:START_RATE_LIMIT]-context[:END_RATE_LIMIT]
+  # TODO: This isn't perfect, you could flip over the hour, but use lots of rate_limit and not be negative
+  if(context[:USED_RATE_LIMIT] < 0)
+    context[:USED_RATE_LIMIT]+=5000
+  end
+
+  if(phase.start_with?('generate-dashboard'))
+    unless(printed_gen_dash)
+      context.feedback.puts "generate-dashboard"
+       printed_gen_dash=true
     end
 
-    context.feedback.print " xslt\n  "
-    Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
-      outputFile=File.basename(inputFile, ".xml")
-
-      stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
-      xml_doc = LibXML::XML::Document.file(inputFile)
-      html = stylesheet.apply(xml_doc)
-
-      htmlFile = File.new("#{www_directory}/#{outputFile}.html", 'w')
-      htmlFile.write(html)
-      htmlFile.close
-      context.feedback.print "."
+    if(phase=='generate-dashboard' or phase=='generate-dashboard/xml')
+      context.feedback.puts " xml"
+      generate_dashboard_xml(context)
     end
-    context.feedback.print "\n"
 
     if(organizations.length > 1)
-      context.feedback.puts " AllOrgs"
-
-      stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
-      xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
-      html = stylesheet.apply(xml_doc)
-
-      htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
-      htmlFile.write(html)
-      htmlFile.close
+      if(phase=='generate-dashboard' or phase=='generate-dashboard/merge')
+        context.feedback.puts " merge"
+        merge_dashboard_xml(context)
+      end
     end
 
-    context.feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
+    if(phase=='generate-dashboard' or phase=='generate-dashboard/teams-xml')
+      context.feedback.puts " teams-xml"
+      generate_team_xml(context)
+    end
+
+    if(phase=='generate-dashboard' or phase=='generate-dashboard/xslt')
+      unless(File.exists?(www_directory))
+        Dir.mkdir(www_directory)
+      end
+
+      context.feedback.print " xslt\n  "
+      Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
+        outputFile=File.basename(inputFile, ".xml")
+
+        stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
+        xml_doc = LibXML::XML::Document.file(inputFile)
+        html = stylesheet.apply(xml_doc)
+
+        htmlFile = File.new("#{www_directory}/#{outputFile}.html", 'w')
+        htmlFile.write(html)
+        htmlFile.close
+        context.feedback.print "."
+      end
+      context.feedback.print "\n"
+
+      if(organizations.length > 1)
+        context.feedback.puts " AllOrgs"
+
+        stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
+        xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
+        html = stylesheet.apply(xml_doc)
+
+        htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
+        htmlFile.write(html)
+        htmlFile.close
+      end
+
+      context.feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
+    end
   end
 end
 
