@@ -781,7 +781,6 @@ issuesOpened=[
 ]
 
 issuesClosed=[
-  ['2009', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2009'>=@year]/@count)"/>],
   ['2010', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2010'>=@year]/@count)"/>],
   ['2011', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2011'>=@year]/@count)"/>],
   ['2012', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2012'>=@year]/@count)"/>],
@@ -792,7 +791,6 @@ issuesClosed=[
 ]
 
 prsOpened=[
-  ['2009', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2009'>=@year]/@count)"/>],
   ['2010', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2010'>=@year]/@count)"/>],
   ['2011', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2011'>=@year]/@count)"/>],
   ['2012', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2012'>=@year]/@count)"/>],
