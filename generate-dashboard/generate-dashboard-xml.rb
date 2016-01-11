@@ -320,7 +320,7 @@ def generate_dashboard_xml(context)
         internalLogin=memberRow[2].split('@')[0]
         internalText=" internal='#{internalLogin}' employee_email='#{memberRow[2]}'"
       end
-      dashboard_file.puts "  <member login='#{memberRow[0]}' avatar_url='#{memberRow[4]}' email='#{memberRow[6]}' disabled_2fa='#{memberRow[1]}'#{internalText}><company>#{memberRow[5]}</company><name>#{memberRow[3]}</name></member>"
+      dashboard_file.puts "  <member login='#{memberRow[0]}' avatar_url='#{memberRow[4]}' email='#{memberRow[6]}' disabled_2fa='#{memberRow[1]}'#{internalText}><company>#{escape_for_xml(memberRow[5])}</company><name>#{memberRow[3]}</name></member>"
     end
   
     # Copy the review xml into the dashboard xml
