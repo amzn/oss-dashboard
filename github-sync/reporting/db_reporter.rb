@@ -47,4 +47,9 @@ class DbReporter
     raise "No db_columns() function defined by report subclass"
   end
 
+  # Escapes ampersands
+  def escape_amp(text)
+    return text ? text.gsub(/&/, '&amp;') : text
+  end
+
 end
