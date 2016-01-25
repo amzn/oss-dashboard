@@ -127,7 +127,8 @@ def generate_dashboard_xml(context)
     teams=sync_db.execute("SELECT DISTINCT(t.id), t.name, t.slug, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     teams.each do |teamRow|
       # TODO: Indicate if a team has read-only access to a repo, not write.
-      dashboard_file.puts "  <team slug='#{teamRow[2]}' name='#{teamRow[1]}'>"
+      escapedTeamName=escape_for_xml(teamRow[1])
+      dashboard_file.puts "  <team slug='#{teamRow[2]}' name='#{escapedTeamName}'>"
       desc=teamRow[3]
       if(desc)
         desc=desc.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
