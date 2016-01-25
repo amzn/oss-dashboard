@@ -127,8 +127,7 @@ def generate_dashboard_xml(context)
     teams=sync_db.execute("SELECT DISTINCT(t.id), t.name, t.slug, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     teams.each do |teamRow|
       # TODO: Indicate if a team has read-only access to a repo, not write.
-      escapedTeamName=escape_for_xml(teamRow[1])
-      dashboard_file.puts "  <team slug='#{teamRow[2]}' name='#{escapedTeamName}'>"
+      dashboard_file.puts "  <team slug='#{teamRow[2]}' name='#{escape_for_xml(teamRow[1])}'>"
       desc=teamRow[3]
       if(desc)
         desc=desc.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
@@ -393,7 +392,7 @@ def generate_team_xml(context)
     dashboardXml.root.elements['organization'].elements.each("team") do |team|
       name=team.attributes["name"]
       slug=team.attributes["slug"]
-      teamMenu << "<team slug='#{slug}' name='#{name}'/>"
+      teamMenu << "<team slug='#{slug}' name='#{escape_for_xml(name)}'/>"
     end
 
     dashboardXml.root.elements['organization'].elements.each("team") do |team|
@@ -401,7 +400,7 @@ def generate_team_xml(context)
       slug=team.attributes["slug"]
       path="#{data_directory}/dash-xml/#{org}-team-#{slug}.xml"
       open(path, 'w') do |f|
-        f.puts "<github-dashdata dashboard='#{org}' team='#{name}'>"
+        f.puts "<github-dashdata dashboard='#{org}' team='#{escape_for_xml(name)}'>"
         f.puts header
         f.puts " <organization name='#{org}'>"
         f.puts teamMenu
