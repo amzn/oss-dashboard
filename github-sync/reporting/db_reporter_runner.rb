@@ -24,6 +24,7 @@ require_relative 'db_report_left_employment.rb'
 require_relative 'db_report_unknown_collaborators.rb'
 require_relative 'db_report_no_2fa.rb'
 require_relative 'db_report_wiki_on.rb'
+require_relative 'db_report_team_empty.rb'
 require_relative 'db_report_empty.rb'
 require_relative 'db_report_unchanged.rb'
  

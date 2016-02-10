@@ -643,7 +643,7 @@
                     <tr>
                      <xsl:if test="not(field)">
                       <xsl:call-template name="db-reporting-field">
-                        <xsl:with-param name="orgname" select="$orgname"/>
+                        <xsl:with-param name="orgname" select="$orgname2"/>
                         <xsl:with-param name="logo" select="$logo"/>
                         <xsl:with-param name="columntypes" select="$columntypes"/>
                         <xsl:with-param name="value" select="."/>
@@ -653,7 +653,7 @@
                      <xsl:if test="field">
                       <xsl:for-each select="field">
                        <xsl:call-template name="db-reporting-field">
-                         <xsl:with-param name="orgname" select="$orgname"/>
+                         <xsl:with-param name="orgname" select="$orgname2"/>
                          <xsl:with-param name="logo" select="$logo"/>
                          <xsl:with-param name="columntypes" select="$columntypes"/>
                          <xsl:with-param name="value" select="."/>
@@ -1017,6 +1017,10 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='org/repo'">
      <td><a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a></td>
+    </xsl:if>
+    <xsl:if test="$columntypes[$index]/@type='org/team'">
+     <xsl:variable name="teamname" select="substring-after($value, '/')"/>
+     <td><a href="https://github.com/orgs/{$orgname}/teams/{$teamname}"><xsl:value-of select="$value"/></a></td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='member'">
      <td>
