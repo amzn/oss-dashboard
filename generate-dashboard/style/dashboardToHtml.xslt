@@ -387,7 +387,7 @@
              <table width="100%">
               <tr>
               <td style="text:align=left">
-                <h4>Issue/PR Count over Time</h4><br/>
+                <h4>Issue Count over Time</h4><br/>
                 <div id="issueCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=center">
