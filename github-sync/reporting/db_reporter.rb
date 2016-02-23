@@ -20,9 +20,11 @@ class DbReporter
   # intended to be overridden
   # returns strings in xml format
   # Either:
-  #   <db-reporting type='ExampleDbReporter'>DATA</db-reporting>\n"
+  #   <reporting class='report-class' type='ExampleDbReporter'>DATA</reporting>\n"
   # Or:
-  #   <db-reporting type='ExampleDbReporter'><field>DATA</field><field>DATA2</field></db-reporting>\n"
+  #   <reporting class='report-class' type='ExampleDbReporter'><field>DATA</field><field>DATA2</field></reporting>\n"
+  #
+  # Where class can be 'user-report' or 'repo-report', and if it's repo-report it should also have repo='$org/$repo' as an attribute
   def db_report(repo, db)
     raise "No db_report(repo, db) function defined by report subclass"
   end
@@ -31,6 +33,12 @@ class DbReporter
   # returns string
   def name()
     raise "No name() function defined by report subclass"
+  end
+  
+  # intended to be overriden
+  # returns string
+  def report_class()
+    raise "No report_class() function defined by report subclass"
   end
   
   # intended to be overriden

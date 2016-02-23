@@ -22,6 +22,10 @@ class UnknownMembersDbReporter < DbReporter
     return "Unknown Members"
   end
 
+  def report_class()
+    return 'user-report'
+  end
+
   def describe()
     return "This report shows which of the organization members are not in your user_mapping of GitHub login to Internal Employee login. "
   end
@@ -34,7 +38,7 @@ class UnknownMembersDbReporter < DbReporter
     unknown=sync_db.execute("SELECT DISTINCT(m.login) FROM member m, repository r, team_to_member ttm, team_to_repository ttr WHERE m.login NOT IN (SELECT login FROM users) AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     text = ''
     unknown.each do |row|
-      text << "  <db-reporting type='UnknownMembersDbReporter'>#{row[0]}</db-reporting>\n"
+      text << "  <reporting class='user-report' type='UnknownMembersDbReporter'>#{row[0]}</reporting>\n"
     end
     return text
   end

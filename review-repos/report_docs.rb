@@ -22,6 +22,10 @@ class DocsReporter < Reporter
     return "Document Report"
   end
 
+  def report_class()
+    return 'repo-report'
+  end
+
   def describe()
     return "This report shows you *.txt and *.md files in your repositories. Useful for reviews by documentation writers. "
   end

@@ -22,6 +22,10 @@ class No2faDbReporter < DbReporter
     return "Members Without 2FA"
   end
 
+  def report_class()
+    return 'user-report'
+  end
+
   def describe()
     return "This report shows which of your organization members have not configured two-factor authentication for their account. "
   end
@@ -34,7 +38,7 @@ class No2faDbReporter < DbReporter
     no2fa=sync_db.execute("SELECT DISTINCT(m.login) FROM member m, repository r, team_to_member ttm, team_to_repository ttr WHERE m.two_factor_disabled='true' AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     text = ''
     no2fa.each do |row|
-      text << "  <db-reporting type='No2faDbReporter'>#{row[0]}</db-reporting>\n"
+      text << "  <reporting class='user-report' type='No2faDbReporter'>#{row[0]}</reporting>\n"
     end
     return text
   end

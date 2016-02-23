@@ -25,14 +25,14 @@
     <organization>org1</organization>
     <organization>org2</organization>
   </navigation>
-  <reports>
+  <user-reports>
+    <report>UserReporter</report>
+    <report>CustomUserReporter</report>
+  </user-reports>
+  <repo-reports>
     <report>DocsReporter</report>
-    <report>CustomReporter</report>
-  </reports>
-  <db-reports>
-    <db-report>DocsReporter</db-report>
-    <db-report>CustomReporter</db-report>
-  </db-reports>
+    <report>CustomRepoReporter</report>
+  </repo-reports>
  </metadata>
  <organization name='ORG'>
   <team name='NAME'>
@@ -192,19 +192,19 @@
             <xsl:if test="organization/repo/collaborators/collaborator">
             <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(organization/repo/collaborators/collaborator)"/>)</a></li>
             </xsl:if>
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">GitHub Reports <span class="caret"></span></a>
+            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Member Reports <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <xsl:for-each select="metadata/db-reports/db-report">
+                <xsl:for-each select="metadata/user-reports/report">
                   <xsl:variable name="report" select="@key"/>
-                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report and not(text()=preceding::db-reporting[@type=$report]/text())])"/>)</a></li> 
+                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())])"/>)</a></li> 
                 </xsl:for-each>
               </ul>
             </li>
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Source Reports <span class="caret"></span></a>
+            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Repository Reports <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <xsl:for-each select="metadata/reports/report">
+                <xsl:for-each select="metadata/repo-reports/report">
                   <xsl:variable name="report" select="@key"/>
-                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(/github-dashdata/organization/github-review/organization/repo/reporting[@type=$report])"/>)</a></li> 
+                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report])"/>)</a></li> 
                 </xsl:for-each>
               </ul>
             </li>
@@ -341,6 +341,7 @@
               <xsl:for-each select="organization/repo">
               <xsl:variable name="orgname2" select="../@name"/>
               <xsl:variable name="reponame" select="@name"/>
+              <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
                 <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
                 <xsl:if test="@private='true'">
@@ -351,9 +352,9 @@
                 </xsl:if>
                 </td>
                 <td>
-                  <xsl:if test="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license/@confidence">
-                    <xsl:variable name="licenseFile" select="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license/@file"/>
-                    <a href="https://github.com/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license"/> (<xsl:value-of select="round(/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/license/@confidence)"/>%)</a>
+                  <xsl:if test="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]">
+                    <xsl:variable name="licenseFile" select="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]/@file"/>
+                    <a href="https://github.com/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]"/> (<xsl:value-of select="round(/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]/@confidence)"/>%)</a>
                   </xsl:if>
                 </td>
                 <td><xsl:value-of select='@language'/></td>
@@ -621,13 +622,13 @@
             </div>
             </xsl:if>
 
-            <!-- DB REPORTS -->
-            <xsl:for-each select="metadata/db-reports/db-report">
+            <!-- USER REPORTS -->
+            <xsl:for-each select="metadata/user-reports/report">
               <xsl:variable name="report" select="@key"/>
               <xsl:variable name="columntypes" select="column-type"/>
             <div class="tab-pane" id="{$report}">
-             <h3>GitHub Report: <xsl:value-of select="@name"/>
-             (<xsl:value-of select="count(/github-dashdata/organization/github-db-report/organization/db-reporting[@type=$report and not(text()=preceding::db-reporting[@type=$report]/text())])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
+             <h3>User Report: <xsl:value-of select="@name"/>
+             (<xsl:value-of select="count(//reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
              <p><xsl:value-of select="description"/></p>
              <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
@@ -637,13 +638,11 @@
                </xsl:for-each>
                </tr></thead>
                <tbody>
-                <xsl:for-each select="/github-dashdata/organization">
-                  <xsl:variable name="orgname2" select="@name"/>
-                  <xsl:for-each select="/github-dashdata/organization/github-db-report/organization[@name=$orgname2]/db-reporting[@type=$report and not(text()=preceding::db-reporting[@type=$report]/text())]">
+                  <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
                     <tr>
                      <xsl:if test="not(field)">
-                      <xsl:call-template name="db-reporting-field">
-                        <xsl:with-param name="orgname" select="$orgname2"/>
+                      <xsl:call-template name="reporting-field">
+                        <xsl:with-param name="orgname" select="../../@name"/>
                         <xsl:with-param name="logo" select="$logo"/>
                         <xsl:with-param name="columntypes" select="$columntypes"/>
                         <xsl:with-param name="value" select="."/>
@@ -652,8 +651,8 @@
                      </xsl:if>
                      <xsl:if test="field">
                       <xsl:for-each select="field">
-                       <xsl:call-template name="db-reporting-field">
-                         <xsl:with-param name="orgname" select="$orgname2"/>
+                       <xsl:call-template name="reporting-field">
+                         <xsl:with-param name="orgname" select="../../@name"/>
                          <xsl:with-param name="logo" select="$logo"/>
                          <xsl:with-param name="columntypes" select="$columntypes"/>
                          <xsl:with-param name="value" select="."/>
@@ -663,46 +662,44 @@
                      </xsl:if>
                     </tr>
                   </xsl:for-each>
-                </xsl:for-each>
                </tbody>
               </table>
              </div>
             </div>
             </xsl:for-each>
 
-            <!-- SOURCE REPORTS -->
-            <xsl:for-each select="metadata/reports/report">
+            <!-- REPO REPORTS -->
+            <xsl:for-each select="metadata/repo-reports/report">
               <xsl:variable name="report" select="@key"/>
             <div class="tab-pane" id="{$report}">
-             <h3>Source Report: <xsl:value-of select="@name"/>
-             (<xsl:value-of select="count(/github-dashdata/organization/github-review/organization/repo/reporting[@type=$report])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
+             <h3>Repository Report: <xsl:value-of select="@name"/>
+             (<xsl:value-of select="count(//reporting[@type=$report])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
              <p><xsl:value-of select="description"/></p>
              <div class="data-grid-sortable tablesorter">
               <table id='{$report}Table' class='data-grid'>
+               <xsl:if test="not(column-type)">
                 <thead>
                 <tr><th>Issue Found In</th><th>Details</th></tr> 
                 </thead>
                 <tbody>
-                <xsl:for-each select="/github-dashdata/organization/repo">
-                  <xsl:variable name="orgname2" select="../@name"/>
-                  <xsl:variable name="reponame" select="@name"/>
-                  <xsl:if test="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/reporting[@type=$report]">
+                <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(@repo=preceding::reporting[@type=$report]/@repo)]">
+                  <xsl:variable name="orgreponame" select="@repo"/>
                     <tr>
-                      <td><a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                      <td><a href="https://github.com/{$orgreponame}"><xsl:value-of select="@repo"/></a>
                         <xsl:if test="@private='true'">
                            <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                         </xsl:if>
                       </td>
                       <td><ul style='list-style-type: none;'>
-                      <xsl:for-each select="/github-dashdata/organization/github-review/organization[@name=$orgname2]/repo[@name=$reponame]/reporting[@type=$report]">
+                      <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and @repo=$orgreponame]">
                         <xsl:variable name="file" select="file"/>
                         <xsl:variable name="lineno"><xsl:value-of select="file/@lineno"/></xsl:variable>
                         <xsl:variable name="linetxt">#L<xsl:value-of select="$lineno"/></xsl:variable>
                         <xsl:if test="file and file/@lineno">
-                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}{$linetxt}"><xsl:value-of select="$file"/><xsl:value-of select="$linetxt"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
+                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgreponame}/tree/master/{$file}{$linetxt}"><xsl:value-of select="$file"/><xsl:value-of select="$linetxt"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
                         <xsl:if test="file and not(file/@lineno)">
-                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgname2}/{$reponame}/tree/master/{$file}"><xsl:value-of select="$file"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
+                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgreponame}/tree/master/{$file}"><xsl:value-of select="$file"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
                         <xsl:if test="not(file) and file/@lineno">
                           <li>ERROR: Line number and no file. </li>
@@ -713,9 +710,44 @@
                       </xsl:for-each>
                       </ul></td>
                     </tr>
-                  </xsl:if>
                 </xsl:for-each>
                 </tbody>
+               </xsl:if>
+               <xsl:if test="column-type">
+               <xsl:variable name="columntypes" select="column-type"/>
+               <!-- DUPLICATE OF ABOVE - TODO: MERGE -->
+               <thead><tr>
+               <xsl:for-each select="column-type">
+                <th><xsl:value-of select="."/></th>
+               </xsl:for-each>
+               </tr></thead>
+               <tbody>
+                  <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
+                    <tr>
+                     <xsl:if test="not(field)">
+                      <xsl:call-template name="reporting-field">
+                        <xsl:with-param name="orgname" select="../../@name"/>
+                        <xsl:with-param name="logo" select="$logo"/>
+                        <xsl:with-param name="columntypes" select="$columntypes"/>
+                        <xsl:with-param name="value" select="."/>
+                        <xsl:with-param name="index" select="1"/>
+                      </xsl:call-template>
+                     </xsl:if>
+                     <xsl:if test="field">
+                      <xsl:for-each select="field">
+                       <xsl:call-template name="reporting-field">
+                         <xsl:with-param name="orgname" select="../../@name"/>
+                         <xsl:with-param name="logo" select="$logo"/>
+                         <xsl:with-param name="columntypes" select="$columntypes"/>
+                         <xsl:with-param name="value" select="."/>
+                         <xsl:with-param name="index" select="position()"/>
+                       </xsl:call-template>
+                      </xsl:for-each>
+                     </xsl:if>
+                    </tr>
+                  </xsl:for-each>
+               </tbody>
+               </xsl:if>
               </table>
              </div>
             </div>
@@ -980,12 +1012,12 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
                 $("#memberTable").tablesorter({
                     sortList: [[0,0]],
                 });
-            <xsl:for-each select="metadata/reports/report">
+            <xsl:for-each select="metadata/user-reports/report">
                 $("#<xsl:value-of select="@key"/>Table").tablesorter({
                     sortList: [[0,0]],
                 });
             </xsl:for-each>
-            <xsl:for-each select="metadata/db-reports/db-report">
+            <xsl:for-each select="metadata/repo-reports/report">
                 $("#<xsl:value-of select="@key"/>Table").tablesorter({
                     sortList: [[0,0]],
                 });
@@ -1002,7 +1034,7 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     </html>
   </xsl:template>
 
-  <xsl:template name="db-reporting-field">
+  <xsl:template name="reporting-field">
     <xsl:param name="orgname"/>
     <xsl:param name="logo"/>
     <xsl:param name="columntypes"/>

@@ -29,8 +29,6 @@ end
 
 def generate_metadata_header(context)
   organizations = context.dashboard_config['organizations']
-  reports = context.dashboard_config['reports']
-  db_reports = context.dashboard_config['db-reports']
   
   metadata = " <metadata>\n"
   metadata << "  <navigation>\n"
@@ -42,29 +40,56 @@ def generate_metadata_header(context)
   end
   metadata << "  </navigation>\n"
   
-  # Which Source Reports are configured?
-  metadata << "  <reports>\n"
+  # Which User Management Reports are configured?
+  metadata << "  <user-reports>\n"
   report_instances=get_reporter_instances(context.dashboard_config)
   report_instances.each do |report_obj|
-    metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
+    if(report_obj.report_class() == 'user-report')
+      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
+    end
   end
-  metadata << "  </reports>\n"
-  
-  # Which DB Reports are configured?
-  metadata << "  <db-reports>\n"
   db_report_instances=get_db_reporter_instances(context.dashboard_config)
   db_report_instances.each do |report_obj|
-    metadata << "    <db-report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
-    report_obj.db_columns.each do |db_column|
-      if(db_column.kind_of?(Array))
-        metadata << "<column-type type='#{db_column[1]}'>#{db_column[0]}</column-type>"
-      else
-        metadata << "<column-type type='text'>#{db_column}</column-type>"
+    if(report_obj.report_class() == 'user-report')
+      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
+      report_obj.db_columns.each do |db_column|
+        if(db_column.kind_of?(Array))
+          metadata << "<column-type type='#{db_column[1]}'>#{db_column[0]}</column-type>"
+        else
+          metadata << "<column-type type='text'>#{db_column}</column-type>"
+        end
       end
+      metadata << "</report>\n"
     end
-    metadata << "</db-report>\n"
   end
-  metadata << "  </db-reports>\n"
+  metadata << "  </user-reports>\n"
+  
+  # Which Repo Reports are configured?
+  # TODO: Abstract away the duplicate code with the above
+  metadata << "  <repo-reports>\n"
+  report_instances=get_reporter_instances(context.dashboard_config)
+  report_instances.each do |report_obj|
+    if(report_obj.report_class() == 'repo-report')
+      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
+    end
+  end
+  db_report_instances=get_db_reporter_instances(context.dashboard_config)
+  db_report_instances.each do |report_obj|
+    if(report_obj.report_class() == 'repo-report')
+      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
+      report_obj.db_columns.each do |db_column|
+        if(db_column.kind_of?(Array))
+          metadata << "<column-type type='#{db_column[1]}'>#{db_column[0]}</column-type>"
+        else
+          metadata << "<column-type type='text'>#{db_column}</column-type>"
+        end
+      end
+      metadata << "</report>\n"
+    end
+  end
+  metadata << "  </repo-reports>\n"
+
+
   metadata << "  <run-metrics refreshTime='#{context[:START_TIME]}' generationTime='#{DateTime.now}' startRateLimit='#{context[:START_RATE_LIMIT]}' endRateLimit='#{context[:END_RATE_LIMIT]}' usedRateLimit='#{context[:USED_RATE_LIMIT]}'/>\n"
   
   metadata << " </metadata>\n"
@@ -81,8 +106,6 @@ def generate_dashboard_xml(context)
   unless(private_access)
     private_access = []
   end
-  reports = context.dashboard_config['reports']
-  db_reports = context.dashboard_config['db-reports']
   
   sync_db=SQLite3::Database.new(File.join(data_directory, 'db/gh-sync.db'));
   
@@ -326,12 +349,38 @@ def generate_dashboard_xml(context)
     # Copy the review xml into the dashboard xml
     # TODO: This is clunky, but simpler than having xslt talk to more than one file at a time. Replace this, possibly along with XSLT.
     #       Quite possible that there's no need for the review xml file to be separate in the first place.
+    dashboard_file.puts " <reports>"
     if(File.exists?("#{data_directory}/review-xml/#{org}.xml"))
-      dashboard_file.puts File.open("#{data_directory}/review-xml/#{org}.xml").read
+      xmlfile=File.new("#{data_directory}/review-xml/#{org}.xml")
+      begin
+        dashboardXml = Document.new(xmlfile)
+      end
+  
+      dashboardXml.root.each_element("organization/reporting") do |child|
+        dashboard_file.puts " #{child}"
+      end
+      dashboardXml.root.each_element("organization/license") do |child|
+        dashboard_file.puts " #{child}"
+      end
+  
+      xmlfile.close
     end
     if(File.exists?("#{data_directory}/db-report-xml/#{org}.xml"))
-      dashboard_file.puts File.open("#{data_directory}/db-report-xml/#{org}.xml").read
+      xmlfile=File.new("#{data_directory}/db-report-xml/#{org}.xml")
+      begin
+        dashboardXml = Document.new(xmlfile)
+      end
+  
+      dashboardXml.root.each_element("organization/reporting") do |child|
+        dashboard_file.puts " #{child}"
+      end
+      dashboardXml.root.each_element("organization/license") do |child|
+        dashboard_file.puts " #{child}"
+      end
+  
+      xmlfile.close
     end
+    dashboard_file.puts " </reports>"
   
     dashboard_file.puts " </organization>"
     dashboard_file.puts "</github-dashdata>"

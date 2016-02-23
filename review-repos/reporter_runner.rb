@@ -76,13 +76,10 @@ def review_source(context)
         next
       end
   
-      report << "  <repo name='#{repo.name}'>\n"
-
       report_instances.each do |report_obj|
         report << report_obj.report(repo, "#{scratch_dir}/#{repo.full_name}").to_s
       end
 
-      report << "  </repo>\n"
       context.feedback.print '.'
     end
     report << " </organization>\n"

@@ -22,6 +22,10 @@ class WikiOnDbReporter < DbReporter
     return "Wiki-Enabled Repositories"
   end
 
+  def report_class()
+    return 'repo-report'
+  end
+
   def describe()
     return "This report shows repositories that have their wikis turned on. "
   end
@@ -34,7 +38,7 @@ class WikiOnDbReporter < DbReporter
     wikiOn=sync_db.execute("SELECT r.created_at, r.name FROM repository r WHERE has_wiki='1' AND r.org=?", [org])
     text = ''
     wikiOn.each do |row|
-      text << "  <db-reporting type='WikiOnDbReporter'><field>#{row[0]}</field><field>#{org}/#{row[1]}</field></db-reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{org}/#{row[1]}' type='WikiOnDbReporter'><field>#{row[0]}</field><field>#{org}/#{row[1]}</field></reporting>\n"
     end
     return text
   end

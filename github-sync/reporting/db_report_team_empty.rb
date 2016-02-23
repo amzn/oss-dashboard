@@ -22,6 +22,10 @@ class TeamEmptyDbReporter < DbReporter
     return "Empty Teams"
   end
 
+  def report_class()
+    return 'user-report'
+  end
+
   def describe()
     return "This report shows teams that lack any members. "
   end
@@ -34,7 +38,7 @@ class TeamEmptyDbReporter < DbReporter
     empty=sync_db.execute("SELECT DISTINCT(t.slug) FROM team t, team_to_repository ttr, repository r WHERE t.id NOT IN (SELECT DISTINCT(team_id) FROM team_to_member) AND t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     text = ''
     empty.each do |row|
-      text << "  <db-reporting type='TeamEmptyDbReporter'><field>#{org}/#{row[0]}</field></db-reporting>\n"
+      text << "  <reporting class='user-report' type='TeamEmptyDbReporter'><field>#{org}/#{row[0]}</field></reporting>\n"
     end
     return text
   end

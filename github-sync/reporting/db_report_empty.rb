@@ -22,6 +22,10 @@ class EmptyDbReporter < DbReporter
     return "Empty Repositories"
   end
 
+  def report_class()
+    return 'repo-report'
+  end
+
   def describe()
     return "This report shows repositories that GitHub is reporting as zero-sized. "
   end
@@ -34,7 +38,7 @@ class EmptyDbReporter < DbReporter
     empty=sync_db.execute("SELECT r.name, r.created_at FROM repository r WHERE size=0 AND r.org=?", [org])
     text = ''
     empty.each do |row|
-      text << "  <db-reporting type='EmptyDbReporter'><field>#{row[1]}</field><field>#{org}/#{row[0]}</field></db-reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{org}/#{row[0]}' type='EmptyDbReporter'><field>#{row[1]}</field><field>#{org}/#{row[0]}</field></reporting>\n"
     end
     return text
   end

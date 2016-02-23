@@ -22,6 +22,10 @@ class LeftEmploymentDbReporter < DbReporter
     return "Left Employment"
   end
 
+  def report_class()
+    return 'user-report'
+  end
+
   def describe()
     return "This report shows which of the organization members are flagging as having left the company (per a custom task's updating of the users.is_employee column. "
   end
@@ -35,7 +39,7 @@ class LeftEmploymentDbReporter < DbReporter
     text = ''
     unknown.each do |row|
       url="https://github.com/orgs/#{org}/people?utf8=%E2%9C%93&amp;query=#{row[0]}"
-      text << "  <db-reporting type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[0]}</field><field>#{row[1]}</field></db-reporting>\n"
+      text << "  <reporting class='user-report' type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[0]}</field><field>#{row[1]}</field></reporting>\n"
     end
     return text
   end

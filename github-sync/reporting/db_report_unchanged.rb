@@ -22,6 +22,10 @@ class UnchangedDbReporter < DbReporter
     return "Unchanged Repositories"
   end
 
+  def report_class()
+    return 'repo-report'
+  end
+
   def describe()
     return "This report shows repositories that have not had any changes since the day they were created. "
   end
@@ -34,7 +38,7 @@ class UnchangedDbReporter < DbReporter
     unchanged=sync_db.execute("SELECT r.name, r.created_at FROM repository r WHERE created_at=pushed_at AND r.org=?", [org])
     text = ''
     unchanged.each do |row|
-      text << "  <db-reporting type='UnchangedDbReporter'><field>#{row[1]}</field><field>#{org}/#{row[0]}</field></db-reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{org}/#{row[0]}' type='UnchangedDbReporter'><field>#{row[1]}</field><field>#{org}/#{row[0]}</field></reporting>\n"
     end
     return text
   end

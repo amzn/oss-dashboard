@@ -21,6 +21,10 @@ class LicenseReporter < Reporter
     return "License Report"
   end
 
+  def report_class()
+    return 'repo-report'
+  end
+
   def describe()
     return "This report shows you the repositories that the <a href='https://github.com/benbalter/licensee'>licensee</a> project GitHub uses is unable to either find or identify. "
   end
@@ -30,18 +34,18 @@ class LicenseReporter < Reporter
         project=Licensee::GitProject.new(dir)
         ignore=project.license # Tests for the error
       rescue ArgumentError
-        return "      <reporting type='LicenseReporter'>License causes error</reporting>\n"
+        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
       end
 
       unless(project.matched_file)
-        return "      <reporting type='LicenseReporter'>No License File Found</reporting>\n"
+        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>No License File Found</reporting>\n"
       end
 
       unless(project.license)
-        return "      <reporting type='LicenseReporter'><file>#{project.matched_file.filename}</file><message>License unrecognized</message></reporting>\n"
-          txt << "      <reporting type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
+        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'><file>#{project.matched_file.filename}</file><message>License unrecognized</message></reporting>\n"
+          txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
       else
-        return "      <license file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
+        return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
       end
   end
 

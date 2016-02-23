@@ -27,7 +27,7 @@ class Reporter
         end
   
         unless(File.directory?(file))
-          txt << "      <reporting type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
+          txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
         end
       end
       return txt
@@ -46,7 +46,7 @@ class Reporter
               if(pattern.match(line))
                 sliceIdx=dir.length + 1
                 escaped=line.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
-                txt << "      <reporting type='#{name}'><file lineno='#{num}'>#{file.to_s[sliceIdx..-1]}</file><match>#{escaped}</match></reporting>\n"
+                txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file lineno='#{num}'>#{file.to_s[sliceIdx..-1]}</file><match>#{escaped}</match></reporting>\n"
               end
             end
             fh.close
@@ -66,6 +66,12 @@ class Reporter
   # returns string
   def name()
     raise "No name() function defined by report subclass"
+  end
+  
+  # intended to be overriden
+  # returns string
+  def report_class()
+    raise "No report_class() function defined by report subclass"
   end
   
   # intended to be overriden

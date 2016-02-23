@@ -22,6 +22,10 @@ class UnknownCollaboratorsDbReporter < DbReporter
     return "Unknown Collaborator"
   end
 
+  def report_class()
+    return 'user-report'
+  end
+
   def describe()
     return "This report shows which of the outside collaborators are not in your user_mapping of GitHub login to Internal Employee login. "
   end
@@ -35,7 +39,7 @@ class UnknownCollaboratorsDbReporter < DbReporter
 
     text = ''
     unknown.each do |row|
-      text << "  <db-reporting type='UnknownCollaboratorsDbReporter'>#{row[0]}</db-reporting>\n"
+      text << "  <reporting class='user-report' type='UnknownCollaboratorsDbReporter'>#{row[0]}</reporting>\n"
     end
     return text
   end
