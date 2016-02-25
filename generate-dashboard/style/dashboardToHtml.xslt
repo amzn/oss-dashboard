@@ -72,6 +72,7 @@
         <!-- Lots of CDN usage here - you should replace this if you want to control the source of the JS/CSS -->
         <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.1.0/octicons.css" />
         <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+        <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.smartmenus/1.0.0/addons/bootstrap/jquery.smartmenus.bootstrap.min.css"/>
         <!-- xsl comment needed in JS to avoid an empty tag -->
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"><xsl:comment/></script>
@@ -79,6 +80,8 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.stack.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.pie.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.24.2/js/jquery.tablesorter.js"><xsl:comment/></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.smartmenus/1.0.0/jquery.smartmenus.min.js"><xsl:comment/></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.smartmenus/1.0.0/addons/bootstrap/jquery.smartmenus.bootstrap.min.js"><xsl:comment/></script>
 
         <!-- This is inline to make for a simpler deliverable -->
         <style>
@@ -112,31 +115,18 @@
             .tablesorter-header:hover{color:#ff5522;background-color:#f2f8fa;}
 
             .nav{margin-left:0;margin-bottom:17px;list-style:none;}
-            .nav>li>a{display:block;}
-            .nav>li>a:hover,.nav>li>a:focus{text-decoration:none;background-color:#aaaaaa;}
-            .nav>li>a>img{max-width:none;}
-            .nav>.pull-right{float:right;}
-            .nav li+.nav-header{margin-top:9px;}
-            .nav-list>li>a{margin-left:-15px;margin-right:-15px;text-shadow:0 1px 0 rgba(255, 255, 255, 0.5);}
-            .nav-list>li>a{padding:3px 15px;}
-            .nav-list>.active>a,.nav-list>.active>a:hover,.nav-list>.active>a:focus{color:#ffffff;text-shadow:0 -1px 0 rgba(0, 0, 0, 0.2);background-color:#0088cc;}
-            .nav-tabs{*zoom:1;}
+
             .nav-tabs:before,.nav-tabs:after{display:table;content:"";line-height:0;}
             .nav-tabs:after{clear:both;}
-            .nav-tabs>li{float:left;}
-            .nav-tabs>li>a{padding-right:12px;padding-left:12px;margin-right:2px;line-height:14px;}
-            .nav-tabs{border-bottom:1px solid #ddd;}
-            .nav-tabs>li{margin-bottom:-1px;}
-            .nav-tabs>li>a{padding-top:8px;padding-bottom:8px;line-height:17px;border:1px solid transparent;-webkit-border-radius:4px 4px 0 0;-moz-border-radius:4px 4px 0 0;border-radius:4px 4px 0 0;}
-            .nav-tabs>li>a:hover,.nav-tabs>li>a:focus{border-color:#aaaaaa #aaaaaa #dddddd;}
-            .nav-tabs>.active>a,.nav-tabs>.active>a:hover,.nav-tabs>.active>a:focus{color:#555555;background-color:#e8e8e8;border:1px solid #ddd;border-bottom-color:transparent;cursor:default;}
+            .navbar-nav{border-bottom:1px solid #ddd;}
 
-            .nav .dropdown-toggle .caret{border-top-color:#0088cc;border-bottom-color:#0088cc;margin-top:6px;}
-            .nav .dropdown-toggle:hover .caret,.nav .dropdown-toggle:focus .caret{border-top-color:#ff5522;border-bottom-color:#ff5522;}
-            .nav-tabs .dropdown-toggle .caret{margin-top:8px;}
+            .dropdown-toggle .caret{border-top-color:#0088cc;border-bottom-color:#0088cc;margin-top:6px;}
+            .dropdown-toggle:hover .caret,.dropdown-toggle:focus .caret{border-top-color:#ff5522;border-bottom-color:#ff5522;}
+            .dropdown-toggle .caret{margin-top:8px;}
 
             /* Dashboard specific */
             .labelColor {padding: 3px;-webkit-box-shadow:0 1px 2px #888888;-moz-box-shadow:0 1px 2px #888888;box-shadow:0 1px 2px #888888;}
+            #tabcontent {padding: 20px;}
         </style>
 
         <!-- This will fail - but if you drop a theme.css file in you can add your own Bootstrap Theme :) -->
@@ -177,38 +167,55 @@
           <xsl:variable name="logo" select="@logo"/>
           <xsl:variable name="orgDescription" select="organization/description"/>
           <h2>GitHub Dashboard: <xsl:if test="@logo"><a rel="tooltip" title="{$orgDescription}" href="https://github.com/{$orgname}"><img width="35" height="35" src="{$logo}&amp;s=35"/></a></xsl:if><xsl:value-of select='@dashboard'/><xsl:if test='@team'>/<xsl:value-of select='@team'/></xsl:if></h2><br/>
-          <ul id="tabs" class="nav nav-tabs">
+          <div class="container" style="padding-left: 0px; padding-right: 0px;">
+          <ul id="tabs" class="nav navbar-nav">
             <li class="active"><a href="#overview" data-toggle="tab">Overview</a></li>
-            <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(organization/repo)"/>)</a></li>
-            <li><a href="#repometrics" data-toggle="tab">Repository Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
-            <li><a href="#issues" data-toggle="tab">Issues (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='false'])"/>)</a></li>
-            <li><a href="#pullrequests" data-toggle="tab">Pull Requests (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='true'])"/>)</a></li>
-            <xsl:if test="organization/team">
-            <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)"/>)</a></li>
-            </xsl:if>
-            <xsl:if test="organization/member">
-            <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member[not(@login=preceding::*/@login)])"/>)</a></li>
-            </xsl:if>
-            <xsl:if test="organization/repo/collaborators/collaborator">
-            <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(organization/repo/collaborators/collaborator)"/>)</a></li>
-            </xsl:if>
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Member Reports <span class="caret"></span></a>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Repositories <span class="caret"/></a>
               <ul class="dropdown-menu" role="menu">
-                <xsl:for-each select="metadata/user-reports/report">
-                  <xsl:variable name="report" select="@key"/>
-                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())])"/>)</a></li> 
-                </xsl:for-each>
+                <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(organization/repo)"/>)</a></li>
+                <li><a href="#repometrics" data-toggle="tab">Repository Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <xsl:for-each select="metadata/repo-reports/report">
+                      <xsl:variable name="report" select="@key"/>
+                      <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report])"/>)</a></li> 
+                    </xsl:for-each>
+                  </ul>
+                </li>
               </ul>
             </li>
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Repository Reports <span class="caret"></span></a>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">Triage <span class="caret"/></a>
               <ul class="dropdown-menu" role="menu">
-                <xsl:for-each select="metadata/repo-reports/report">
-                  <xsl:variable name="report" select="@key"/>
-                  <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report])"/>)</a></li> 
-                </xsl:for-each>
+                <li><a href="#issues" data-toggle="tab">Issues (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='false'])"/>)</a></li>
+                <li><a href="#pullrequests" data-toggle="tab">Pull Requests (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='true'])"/>)</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">User Management <span class="caret"/></a>
+              <ul class="dropdown-menu" role="menu">
+                <xsl:if test="organization/team">
+                <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)"/>)</a></li>
+                </xsl:if>
+                <xsl:if test="organization/member">
+                <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member[not(@login=preceding::*/@login)])"/>)</a></li>
+                </xsl:if>
+                <xsl:if test="organization/repo/collaborators/collaborator">
+                <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(organization/repo/collaborators/collaborator)"/>)</a></li>
+                </xsl:if>
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <xsl:for-each select="metadata/user-reports/report">
+                      <xsl:variable name="report" select="@key"/>
+                      <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())])"/>)</a></li> 
+                    </xsl:for-each>
+                  </ul>
+                </li>
               </ul>
             </li>
           </ul>
+          </div>
           <div id="tabcontent" class="tab-content">
 
             <div class="tab-pane active" id="overview">
