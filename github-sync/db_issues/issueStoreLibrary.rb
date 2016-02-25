@@ -49,7 +49,8 @@ require "date"
   def db_insert_comments(db, comments, org, repo)
     comments.each do |comment|
         db.execute("DELETE FROM item_comments WHERE id=?", comment.id)
-        itemNumber=comment.url.sub(/^.*\/([0-9]*)$/, '\1')
+        # eg: https://github.com/amznlabs/oss-dashboard/issues/13#issuecomment-155591520
+        itemNumber=comment.html_url.sub(/^.*\/([0-9]*)#issuecomment-[0-9]*$/, '\1')
         user=comment.user ? comment.user.login : nil
         db.execute(
          "INSERT INTO item_comments (
