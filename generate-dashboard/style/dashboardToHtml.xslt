@@ -190,6 +190,16 @@
               <ul class="dropdown-menu" role="menu">
                 <li><a href="#issues" data-toggle="tab">Issues (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='false'])"/>)</a></li>
                 <li><a href="#pullrequests" data-toggle="tab">Pull Requests (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='true'])"/>)</a></li>
+                <xsl:if test="metadata/issue-reports/report">
+                <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
+                  <ul class="dropdown-menu" role="menu">
+                    <xsl:for-each select="metadata/issue-reports/report">
+                      <xsl:variable name="report" select="@key"/>
+                      <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report])"/>)</a></li> 
+                    </xsl:for-each>
+                  </ul>
+                </li>
+                </xsl:if>
               </ul>
             </li>
             <li class="dropdown">

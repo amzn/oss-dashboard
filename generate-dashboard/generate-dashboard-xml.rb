@@ -69,8 +69,10 @@ def generate_metadata_header(context)
   generate_report_metadata(context, metadata, 'user-report')
   
   # Which Repo Reports are configured?
-  # TODO: Abstract away the duplicate code with the above
   generate_report_metadata(context, metadata, 'repo-report')
+
+  # Which Issue Reports are configured?
+  generate_report_metadata(context, metadata, 'issue-report')
 
   metadata << "  <run-metrics refreshTime='#{context[:START_TIME]}' generationTime='#{DateTime.now}' startRateLimit='#{context[:START_RATE_LIMIT]}' endRateLimit='#{context[:END_RATE_LIMIT]}' usedRateLimit='#{context[:USED_RATE_LIMIT]}'/>\n"
   
