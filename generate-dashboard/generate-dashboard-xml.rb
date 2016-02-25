@@ -27,6 +27,31 @@ def escape_for_xml(text)
   return text ? text.gsub(/&/, '&amp;') : text
 end
 
+def generate_report_metadata(context, metadata, tag)
+  metadata << "  <#{tag}s>\n"
+  report_instances=get_reporter_instances(context.dashboard_config)
+  report_instances.each do |report_obj|
+    if(report_obj.report_class() == tag)
+      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
+    end
+  end
+  db_report_instances=get_db_reporter_instances(context.dashboard_config)
+  db_report_instances.each do |report_obj|
+    if(report_obj.report_class() == tag)
+      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
+      report_obj.db_columns.each do |db_column|
+        if(db_column.kind_of?(Array))
+          metadata << "<column-type type='#{db_column[1]}'>#{db_column[0]}</column-type>"
+        else
+          metadata << "<column-type type='text'>#{db_column}</column-type>"
+        end
+      end
+      metadata << "</report>\n"
+    end
+  end
+  metadata << "  </#{tag}s>\n"
+end
+
 def generate_metadata_header(context)
   organizations = context.dashboard_config['organizations']
   
@@ -41,54 +66,11 @@ def generate_metadata_header(context)
   metadata << "  </navigation>\n"
   
   # Which User Management Reports are configured?
-  metadata << "  <user-reports>\n"
-  report_instances=get_reporter_instances(context.dashboard_config)
-  report_instances.each do |report_obj|
-    if(report_obj.report_class() == 'user-report')
-      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
-    end
-  end
-  db_report_instances=get_db_reporter_instances(context.dashboard_config)
-  db_report_instances.each do |report_obj|
-    if(report_obj.report_class() == 'user-report')
-      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
-      report_obj.db_columns.each do |db_column|
-        if(db_column.kind_of?(Array))
-          metadata << "<column-type type='#{db_column[1]}'>#{db_column[0]}</column-type>"
-        else
-          metadata << "<column-type type='text'>#{db_column}</column-type>"
-        end
-      end
-      metadata << "</report>\n"
-    end
-  end
-  metadata << "  </user-reports>\n"
+  generate_report_metadata(context, metadata, 'user-report')
   
   # Which Repo Reports are configured?
   # TODO: Abstract away the duplicate code with the above
-  metadata << "  <repo-reports>\n"
-  report_instances=get_reporter_instances(context.dashboard_config)
-  report_instances.each do |report_obj|
-    if(report_obj.report_class() == 'repo-report')
-      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description></report>\n"
-    end
-  end
-  db_report_instances=get_db_reporter_instances(context.dashboard_config)
-  db_report_instances.each do |report_obj|
-    if(report_obj.report_class() == 'repo-report')
-      metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
-      report_obj.db_columns.each do |db_column|
-        if(db_column.kind_of?(Array))
-          metadata << "<column-type type='#{db_column[1]}'>#{db_column[0]}</column-type>"
-        else
-          metadata << "<column-type type='text'>#{db_column}</column-type>"
-        end
-      end
-      metadata << "</report>\n"
-    end
-  end
-  metadata << "  </repo-reports>\n"
-
+  generate_report_metadata(context, metadata, 'repo-report')
 
   metadata << "  <run-metrics refreshTime='#{context[:START_TIME]}' generationTime='#{DateTime.now}' startRateLimit='#{context[:START_RATE_LIMIT]}' endRateLimit='#{context[:END_RATE_LIMIT]}' usedRateLimit='#{context[:USED_RATE_LIMIT]}'/>\n"
   
