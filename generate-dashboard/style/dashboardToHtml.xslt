@@ -1074,7 +1074,8 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='org/team'">
      <xsl:variable name="teamname" select="substring-after($value, '/')"/>
-     <td><a href="https://github.com/orgs/{$orgname}/teams/{$teamname}"><xsl:value-of select="$value"/></a></td>
+     <xsl:variable name="teamorg" select="substring-before($value, '/')"/>
+     <td><a href="https://github.com/orgs/{$teamorg}/teams/{$teamname}"><xsl:value-of select="$value"/></a></td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='member'">
      <td>
