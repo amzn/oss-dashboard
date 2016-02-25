@@ -1050,6 +1050,16 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     <xsl:if test="$columntypes[$index]/@type='text'">
      <td><xsl:value-of select="$value"/></td>
     </xsl:if>
+    <xsl:if test="$columntypes[$index]/@type='labels'">
+      <xsl:if test="label">
+       <td>
+        <xsl:for-each select='label'>
+          <xsl:variable name='labelColor' select='@color'/>
+          <span class='labelColor' style='background-color: #{$labelColor}'><xsl:value-of select='.'/></span>
+        </xsl:for-each>
+       </td>
+      </xsl:if>
+    </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='url'">
       <xsl:if test="@id">
         <xsl:variable name="href" select="@id"/>
