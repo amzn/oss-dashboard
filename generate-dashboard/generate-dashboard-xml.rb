@@ -112,7 +112,7 @@ def generate_dashboard_xml(context)
 
     dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}'>"
     unless(org_data[0][1]=="")
-      dashboard_file.puts "  <description>#{org_data[0][1]}</description>"
+      dashboard_file.puts "  <description>#{escape_for_xml(org_data[0][1])}</description>"
     end
     unless(org_data[0][2]=="")
       dashboard_file.puts "  <url>#{org_data[0][2]}</url>"
