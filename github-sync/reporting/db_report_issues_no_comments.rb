@@ -1,5 +1,5 @@
 
-class NoCommentsDbReporter < DbReporter
+class NoIssueCommentsDbReporter < DbReporter
 
   def name()
     return "Open Issues with no comments"
@@ -20,7 +20,7 @@ class NoCommentsDbReporter < DbReporter
   def db_report(org, sync_db)
 
     text = ""
-    issue_query="SELECT id, item_number, title, org, repo, created_at, updated_at, comment_count FROM items WHERE comment_count=0 AND state='open' AND org=?"
+    issue_query="SELECT id, issue_number, title, org, repo, created_at, updated_at, comment_count FROM issues WHERE comment_count=0 AND state='open' AND org=?"
     label_query='SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?'
 
     issue_data=sync_db.execute(issue_query, [org])
@@ -38,7 +38,7 @@ class NoCommentsDbReporter < DbReporter
           end
         end
         
-        text << "  <reporting class='repo-report' repo='#{row[4]}' type='NoCommentsDbReporter'><field>#{url}</field><field>#{title}</field><field>#{labels}</field></reporting>\n"
+        text << "  <reporting class='issue-report' repo='#{row[4]}' type='NoIssueCommentsDbReporter'><field>#{url}</field><field>#{title}</field><field>#{labels}</field></reporting>\n"
     end
 
     return text
