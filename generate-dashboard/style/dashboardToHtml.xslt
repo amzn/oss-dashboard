@@ -640,7 +640,54 @@
             </xsl:if>
 
             <!-- USER REPORTS -->
+            <!-- TODO: This is one big copy of the above, need to refactor -->
             <xsl:for-each select="metadata/user-reports/report">
+              <xsl:variable name="report" select="@key"/>
+              <xsl:variable name="columntypes" select="column-type"/>
+            <div class="tab-pane" id="{$report}">
+             <h3>User Report: <xsl:value-of select="@name"/>
+             (<xsl:value-of select="count(//reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
+             <p><xsl:value-of select="description"/></p>
+             <div class="data-grid-sortable tablesorter">
+              <table id='{$report}Table' class='data-grid'>
+               <thead><tr>
+               <xsl:for-each select="column-type">
+                <th><xsl:value-of select="."/></th>
+               </xsl:for-each>
+               </tr></thead>
+               <tbody>
+                  <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
+                    <tr>
+                     <xsl:if test="not(field)">
+                      <xsl:call-template name="reporting-field">
+                        <xsl:with-param name="orgname" select="../../@name"/>
+                        <xsl:with-param name="logo" select="$logo"/>
+                        <xsl:with-param name="columntypes" select="$columntypes"/>
+                        <xsl:with-param name="value" select="."/>
+                        <xsl:with-param name="index" select="1"/>
+                      </xsl:call-template>
+                     </xsl:if>
+                     <xsl:if test="field">
+                      <xsl:for-each select="field">
+                       <xsl:call-template name="reporting-field">
+                         <xsl:with-param name="orgname" select="../../@name"/>
+                         <xsl:with-param name="logo" select="$logo"/>
+                         <xsl:with-param name="columntypes" select="$columntypes"/>
+                         <xsl:with-param name="value" select="."/>
+                         <xsl:with-param name="index" select="position()"/>
+                       </xsl:call-template>
+                      </xsl:for-each>
+                     </xsl:if>
+                    </tr>
+                  </xsl:for-each>
+               </tbody>
+              </table>
+             </div>
+            </div>
+            </xsl:for-each>
+
+            <!-- ISSUE REPORTS -->
+            <xsl:for-each select="metadata/issue-reports/report">
               <xsl:variable name="report" select="@key"/>
               <xsl:variable name="columntypes" select="column-type"/>
             <div class="tab-pane" id="{$report}">
