@@ -175,6 +175,7 @@
               <ul class="dropdown-menu" role="menu">
                 <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(organization/repo)"/>)</a></li>
                 <li><a href="#repometrics" data-toggle="tab">Repository Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
+                <xsl:if test="metadata/repo-reports/report">
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
                     <xsl:for-each select="metadata/repo-reports/report">
@@ -183,6 +184,7 @@
                     </xsl:for-each>
                   </ul>
                 </li>
+                </xsl:if>
               </ul>
             </li>
             <li class="dropdown">
@@ -214,6 +216,7 @@
                 <xsl:if test="organization/repo/collaborators/collaborator">
                 <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(organization/repo/collaborators/collaborator)"/>)</a></li>
                 </xsl:if>
+                <xsl:if test="metadata/user-reports/report">
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
                     <xsl:for-each select="metadata/user-reports/report">
@@ -222,6 +225,7 @@
                     </xsl:for-each>
                   </ul>
                 </li>
+                </xsl:if>
               </ul>
             </li>
           </ul>
