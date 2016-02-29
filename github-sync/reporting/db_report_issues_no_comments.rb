@@ -14,7 +14,7 @@ class NoIssueCommentsDbReporter < DbReporter
   end
 
   def db_columns()
-    return [ 'Created', ['Issue', 'url'], 'Title', ['Labels', 'labels'] ]
+    return [ ['Created', 'date'], ['Issue', 'url'], 'Title', ['Labels', 'labels'] ]
   end
 
   def db_report(org, sync_db)

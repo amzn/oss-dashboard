@@ -1117,6 +1117,9 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     <xsl:if test="$columntypes[$index]/@type='text'">
      <td><xsl:value-of select="$value"/></td>
     </xsl:if>
+    <xsl:if test="$columntypes[$index]/@type='date'">
+     <td><xsl:value-of select="substring-before($value, 'T')"/></td>
+    </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='labels'">
       <xsl:if test="label">
        <td>

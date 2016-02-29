@@ -14,7 +14,7 @@ class NoPrCommentsDbReporter < DbReporter
   end
 
   def db_columns()
-    return [ 'Created', ['Pr', 'url'], 'Title', ['Labels', 'labels'] ]
+    return [ ['Created', 'date'], ['Pr', 'url'], 'Title', ['Labels', 'labels'] ]
   end
 
   def db_report(org, sync_db)
