@@ -14,7 +14,7 @@ class NoPrCommentsDbReporter < DbReporter
   end
 
   def db_columns()
-    return [ ['Pr', 'url'], 'Title', ['Labels', 'labels'] ]
+    return [ 'Created', ['Pr', 'url'], 'Title', ['Labels', 'labels'] ]
   end
 
   def db_report(org, sync_db)
@@ -38,7 +38,7 @@ class NoPrCommentsDbReporter < DbReporter
           end
         end
         
-        text << "  <reporting class='issue-report' repo='#{row[4]}' type='NoPrCommentsDbReporter'><field>#{url}</field><field>#{title}</field><field>#{labels}</field></reporting>\n"
+        text << "  <reporting class='issue-report' repo='#{row[4]}' type='NoPrCommentsDbReporter'><field>#{row[5]}</field><field>#{url}</field><field>#{title}</field><field>#{labels}</field></reporting>\n"
     end
 
     return text
