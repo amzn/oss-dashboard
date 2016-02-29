@@ -10,7 +10,7 @@ class NoPrCommentsDbReporter < DbReporter
   end
 
   def describe()
-    return "This report shows open pull requests with no comments. "
+    return "This report shows open pull requests from the community with no comments. "
   end
 
   def db_columns()
@@ -20,7 +20,7 @@ class NoPrCommentsDbReporter < DbReporter
   def db_report(org, sync_db)
 
     text = ""
-    pr_query="SELECT id, pr_number, title, org, repo, created_at, updated_at, comment_count FROM pull_requests WHERE comment_count=0 AND state='open' AND org=?"
+    pr_query="SELECT pr.id, pr.pr_number, pr.title, pr.org, pr.repo, pr.created_at, pr.updated_at, pr.comment_count FROM pull_requests pr WHERE pr.comment_count=0 AND pr.state='open' AND pr.user_login NOT IN (SELECT m.login FROM member m) AND pr.org=?"
     label_query='SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?'
 
     pr_data=sync_db.execute(pr_query, [org])

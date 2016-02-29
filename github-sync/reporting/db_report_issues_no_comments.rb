@@ -10,7 +10,7 @@ class NoIssueCommentsDbReporter < DbReporter
   end
 
   def describe()
-    return "This report shows open issues with no comments. "
+    return "This report shows open issues from the community with no comments. "
   end
 
   def db_columns()
@@ -20,7 +20,8 @@ class NoIssueCommentsDbReporter < DbReporter
   def db_report(org, sync_db)
 
     text = ""
-    issue_query="SELECT id, issue_number, title, org, repo, created_at, updated_at, comment_count FROM issues WHERE comment_count=0 AND state='open' AND org=?"
+    issue_query="SELECT i.id, i.issue_number, i.title, i.org, i.repo, i.created_at, i.updated_at, i.comment_count FROM issues i LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON i.org=o.login WHERE i.comment_count=0 AND i.state='open' AND i.user_login NOT IN (SELECT m.login FROM member m) AND i.org=?"
+
     label_query='SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?'
 
     issue_data=sync_db.execute(issue_query, [org])
