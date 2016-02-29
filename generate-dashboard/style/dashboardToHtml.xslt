@@ -255,10 +255,10 @@
                 <table class="data-grid">
                  <xsl:for-each select="organization">
                   <xsl:variable name="orgname2" select="@name"/>
-                  <xsl:variable name="logo2" select="@logo"/>
+                  <xsl:variable name="logo2" select="@avatar"/>
                   <xsl:variable name="orgDescription2" select="organization/description"/>
                   <tr>
-                    <td><xsl:if test="@logo2"><a rel="tooltip" title="{$orgDescription2}" href="https://github.com/{$orgname2}"><img width="35" height="35" src="{$logo2}&amp;s=35"/></a></xsl:if><a href="{$orgname2}.html"><xsl:value-of select="@name"/> (<xsl:value-of select="count(repo)"/>)</a></td>
+                    <td><xsl:if test="$logo2"><a rel="tooltip" title="{$orgDescription2}" href="https://github.com/{$orgname2}"><img width="35" height="35" src="{$logo2}&amp;s=35"/></a></xsl:if><a href="{$orgname2}.html"><xsl:value-of select="@name"/> (<xsl:value-of select="count(repo)"/>)</a></td>
                     <td></td>
                   </tr>
                  </xsl:for-each>
