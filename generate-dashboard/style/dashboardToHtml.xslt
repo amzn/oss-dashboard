@@ -254,6 +254,7 @@
                 <h4>Organizations:</h4>
                 <table class="data-grid">
                  <xsl:for-each select="organization">
+                  <xsl:sort select="count(repo)" data-type="number" order="descending"/>
                   <xsl:variable name="orgname2" select="@name"/>
                   <xsl:variable name="logo2" select="@avatar"/>
                   <xsl:variable name="orgDescription2" select="organization/description"/>
