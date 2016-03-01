@@ -18,10 +18,25 @@ require 'sqlite3'
 require 'date'
 require 'yaml'
 
+def clear_organization(db, org_login)
+  queries = [
+    "DELETE FROM team_to_member WHERE team_id IN (SELECT id FROM team WHERE org=?)",
+    "DELETE FROM organization_to_member WHERE org_id IN (SELECT id FROM organization WHERE login=?)",
+    "DELETE FROM team_to_repository WHERE repository_id IN (SELECT id FROM repository WHERE org=?)",
+    "DELETE FROM repository_to_member WHERE org_id IN (SELECT id FROM organization WHERE login=?)",
+    "DELETE FROM team WHERE org=?",
+    "DELETE FROM repository WHERE org=?",
+    "DELETE FROM organization WHERE login=?"
+  ]
+
+  queries.each do |query|
+    db.execute(query, [org_login])
+  end
+end
+
 def store_organization(db, client, org_login)
   org=client.organization(org_login)
   
-  db.execute("DELETE FROM organization WHERE id=?", [org.id])
   db.execute(
     "INSERT INTO organization (
       login, id, url, avatar_url, description, name, company, blog, location, email, public_repos, public_gists, followers, following, html_url, created_at, type
@@ -35,18 +50,15 @@ end
 def store_organization_teams(db, client, org)
   client.organization_teams(org).each do |team_obj|
 
-    db.execute("DELETE FROM team WHERE id=?", [team_obj.id])
     db.execute(
       "INSERT INTO team (id, org, name, slug, description) VALUES (?, ?, ?, ?, ?)",
       [team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description])
 
-    db.execute("DELETE FROM team_to_repository WHERE team_id=?", [team_obj.id])
     repos=client.team_repositories(team_obj.id)
     repos.each do |repo_obj|
       db.execute("INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", [team_obj.id, repo_obj.id])
     end
   
-    db.execute("DELETE FROM team_to_member WHERE team_id=?", [team_obj.id])
     members=client.team_members(team_obj.id)
     members.each do |member_obj|
       db.execute("INSERT INTO team_to_member (team_id, member_id) VALUES(?, ?)", [team_obj.id, member_obj.id])
@@ -59,7 +71,6 @@ def store_organization_repositories(db, client, org)
   client.organization_repositories(org).each do |repo_obj|
     watchers=client.send('subscribers', "#{org}/#{repo_obj.name}").length
 
-    db.execute("DELETE FROM repository WHERE id=?", [repo_obj.id])
 
     db.execute("INSERT INTO repository 
       (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description)
@@ -81,7 +92,6 @@ def store_organization_members(db, client, org_obj, private, previous_members)
     end
   end
 
-  db.execute("DELETE FROM organization_to_member WHERE org_id=?", [org_obj.id])
   client.organization_members(org_obj.login).each do |member_obj|
     org_members[member_obj.id]=true
     unless(previous_members[member_obj.id])
@@ -107,7 +117,6 @@ def store_organization_members(db, client, org_obj, private, previous_members)
   # Get collaborators too - no organization API :(
   if(private)
     client.organization_repositories(org_obj.id).each do |repo_obj|
-      db.execute("DELETE FROM repository_to_member WHERE org_id=? AND repo_id=?", [org_obj.id, repo_obj.id])
       collaborators=client.collaborators(repo_obj.full_name)
       collaborators.each do |collaborator|
         unless(previous_members[collaborator.id])
@@ -157,13 +166,16 @@ def sync_metadata(context, sync_db)
   previous_members=Hash.new
 
   organizations.each do |org_login|
+    sync_db.execute("BEGIN TRANSACTION")
     context.feedback.print "  #{org_login} "
+    clear_organization(sync_db, org_login)
     org=store_organization(sync_db, context.client, org_login)
     store_organization_repositories(sync_db, context.client, org_login)
     store_organization_members(sync_db, context.client, org, private_access.include?(org_login), previous_members)
     if(private_access.include?(org_login))
       store_organization_teams(sync_db, context.client, org_login)
     end
+    sync_db.execute("COMMIT")
     context.feedback.print "\n"
   end
 
