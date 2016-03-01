@@ -31,14 +31,14 @@ class WikiOnDbReporter < DbReporter
   end
 
   def db_columns()
-    return [ 'Create Date', ['repository', 'org/repo'] ]
+    return [ 'Create Date', ['repository', 'org/repo'], ['Wiki', 'url'] ]
   end
 
   def db_report(org, sync_db)
     wikiOn=sync_db.execute("SELECT r.created_at, r.name FROM repository r WHERE has_wiki='1' AND r.org=?", [org])
     text = ''
     wikiOn.each do |row|
-      text << "  <reporting class='repo-report' repo='#{org}/#{row[1]}' type='WikiOnDbReporter'><field>#{row[0]}</field><field>#{org}/#{row[1]}</field></reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{org}/#{row[1]}' type='WikiOnDbReporter'><field>#{row[0]}</field><field>#{org}/#{row[1]}</field><field>https://github.com/#{org}/#{row[1]}/wiki</field></reporting>\n"
     end
     return text
   end
