@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS team;
 
 CREATE TABLE team (
   id INTEGER,
--- org VARCHAR,
+  org VARCHAR,
   name VARCHAR,
   slug VARCHAR,
   description VARCHAR
