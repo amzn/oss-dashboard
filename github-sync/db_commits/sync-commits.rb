@@ -37,6 +37,11 @@ def sync_commits(context, sync_db)
       repo_name=repo_obj.name
       repo_full_name=repo_obj.full_name
       maxTimestamp=db_commit_max_timestamp_by_repo(sync_db, org, repo_name)               # Get the current max timestamp in the db
+      unless(maxTimestamp)
+        if(repo_obj.fork)
+          maxTimestamp=gh_to_db_timestamp(repo_obj.created_at.to_s)
+        end
+      end
       if(maxTimestamp)
         # Increment the timestamp by a second to avoid getting repeats
         ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
