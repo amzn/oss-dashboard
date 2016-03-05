@@ -1143,7 +1143,16 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
       </xsl:if>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='org/repo'">
-     <td><a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a></td>
+     <xsl:variable name="reponame" select="substring-after($value, '/')"/>
+     <xsl:variable name="repoorg" select="substring-before($value, '/')"/>
+     <td><a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a>
+       <xsl:if test="/github-dashdata/organization[@name=$repoorg]/repo[@name=$reponame and @private='true']">
+         <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
+       </xsl:if>
+       <xsl:if test="/github-dashdata/organization[@name=$repoorg]/repo[@name=$reponame and @fork='true']">
+         <sup><span style="margin-left: 5px" class="octicon octicon-repo-forked"></span></sup>
+       </xsl:if>
+     </td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='org/team'">
      <xsl:variable name="teamname" select="substring-after($value, '/')"/>
