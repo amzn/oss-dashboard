@@ -27,7 +27,7 @@ class RepoUnownedDbReporter < DbReporter
   end
 
   def describe()
-    return "This report shows repositories that have no committers"
+    return "This report shows repositories that have no team committers. \nThey may have collaborators, or oss-dashboard may not have had the permissions to see team data. "
   end
 
   def db_columns()
