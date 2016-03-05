@@ -179,6 +179,7 @@
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
                     <xsl:for-each select="metadata/repo-reports/report">
+                      <xsl:sort select="@name"/>
                       <xsl:variable name="report" select="@key"/>
                       <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report])"/>)</a></li> 
                     </xsl:for-each>
@@ -196,6 +197,7 @@
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
                     <xsl:for-each select="metadata/issue-reports/report">
+                      <xsl:sort select="@name"/>
                       <xsl:variable name="report" select="@key"/>
                       <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report])"/>)</a></li> 
                     </xsl:for-each>
@@ -220,6 +222,7 @@
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
                     <xsl:for-each select="metadata/user-reports/report">
+                      <xsl:sort select="@name"/>
                       <xsl:variable name="report" select="@key"/>
                       <li><a href="#{$report}" data-toggle="tab"><xsl:value-of select="@name"/>(<xsl:value-of select="count(//reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())])"/>)</a></li> 
                     </xsl:for-each>
