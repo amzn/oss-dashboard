@@ -282,7 +282,7 @@
                   <xsl:variable name='orgname2' select="../@name"/>
                   <xsl:if test="position() &lt;= 5">
                     <tr><td>
-                      <a href="https://github.com/{$orgname2}/{$repo_name}"><xsl:value-of select='substring(@created_at,1,10)'/></a> - <xsl:value-of select='@name'/>
+                      <xsl:value-of select='substring(@created_at,1,10)'/> - <a href="https://github.com/{$orgname2}/{$repo_name}"><xsl:value-of select='@name'/></a>
                       <xsl:if test="@private='true'">
                          <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                       </xsl:if>
@@ -301,7 +301,7 @@
                   <xsl:sort select="@published_at" order="descending"/>
                   <xsl:variable name='release_url' select="@url"/>
                   <xsl:if test="position() &lt;= 5">
-                    <tr><td><a href="{$release_url}"><xsl:value-of select='substring(@published_at,1,10)'/></a> - <xsl:value-of select='../../@name'/>: <xsl:value-of select='.'/></td></tr>
+                    <tr><td><xsl:value-of select='substring(@published_at,1,10)'/> - <a href="{$release_url}"><xsl:value-of select='../../@name'/>: <xsl:value-of select='.'/></a></td></tr>
                   </xsl:if>
                 </xsl:for-each>
               </table>
