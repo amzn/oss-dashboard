@@ -77,7 +77,7 @@ def review_source(context)
       end
   
       report_instances.each do |report_obj|
-        report << report_obj.report(repo, "#{scratch_dir}/#{repo.full_name}").to_s
+        report << report_obj.report(context, repo, "#{scratch_dir}/#{repo.full_name}").to_s
       end
 
       context.feedback.print '.'

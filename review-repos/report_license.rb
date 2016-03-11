@@ -29,9 +29,12 @@ class LicenseReporter < Reporter
     return "This report shows you the repositories that the <a href='https://github.com/benbalter/licensee'>licensee</a> project GitHub uses is unable to either find or identify. "
   end
 
-  def license_identify(repo, dir)
+  # Allows for context.dashboard_config['LicenseReporter']['license-hashes'] parameter
+  # TODO: Implement the custom license hash identification
+  def report(context, repo, repodir)
+
       begin
-        project=Licensee::GitProject.new(dir)
+        project=Licensee::GitProject.new(repodir)
         ignore=project.license # Tests for the error
       rescue ArgumentError
         return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
@@ -47,11 +50,6 @@ class LicenseReporter < Reporter
       else
         return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
       end
-  end
-
-  def report(repo, repodir)
-    # Run the license review
-    license_identify(repo, repodir);
   end
 
 end

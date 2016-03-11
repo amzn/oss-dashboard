@@ -58,8 +58,8 @@ class Reporter
 
   # intended to be overridden
   # returns strings in xml format
-  def report(repo, dir)
-    raise "No report(repo, dir) function defined by report subclass"
+  def report(context, repo, dir)
+    raise "No report(context, repo, dir) function defined by report subclass"
   end
 
   # intended to be overriden

@@ -30,7 +30,7 @@ class DocsReporter < Reporter
     return "This report shows you *.txt and *.md files in your repositories. Useful for reviews by documentation writers. "
   end
 
-  def report(repo, repodir)
+  def report(context, repo, repodir)
     # Look for any text files
     txt  = filename_check(repo, repodir, /\.txt$/, 'DocsReporter', /(LICENSE.txt|NOTICE.txt)/);
     # Look for any md files, this also picks up README.md
