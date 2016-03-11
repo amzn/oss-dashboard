@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require 'licensee'
+require 'yaml'
 require_relative 'reporter'
 
 class LicenseReporter < Reporter
@@ -40,13 +41,23 @@ class LicenseReporter < Reporter
         return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
       end
 
+      if(context.dashboard_config['LicenseReporter'] and context.dashboard_config['LicenseReporter']['license-hashes'])
+        license_hashes_file=context.dashboard_config['LicenseReporter']['license-hashes']
+        license_hashes = YAML.load(File.read(license_hashes_file))
+
+        license_hashes['license-hashes'].each do |custom_hash|
+          unless(project.license.hash == custom_hash['hash'])
+            return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='100'>#{custom_hash['name']}</license>\n"
+          end
+        end
+      end
+
       unless(project.matched_file)
         return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>No License File Found</reporting>\n"
       end
 
       unless(project.license)
         return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'><file>#{project.matched_file.filename}</file><message>License unrecognized</message></reporting>\n"
-          txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
       else
         return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
       end
