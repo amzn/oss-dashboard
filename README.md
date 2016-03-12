@@ -200,3 +200,23 @@ By default the refresh_dashboard.rb script outputs '.' characters to show it's t
 ## Bootstrap Themes
 
 The HTML generated relies, amongst other libraries, on Bootstrap. The HTML files look for a file named bootstrap-theme.css in the same directory, allowing you to customize the look and feel of the dashboard (typically by finding a theme you like and using that). 
+
+## LicenseReporter report
+
+The license report both identifies licenses for the Repository Metrics section, and provides information on why it could not find the license. When a license file is available but it can't be recognized, it includes the Licensee hash. One can provide a separate YAML file to identify licenses that the Licensee project is unable to identify.
+
+This is configured in two steps. Firstly, add a line to your dashboard config pointing to your license-hashes.yml file:
+
+  # Report arguments
+  LicenseReporter:
+    license-hashes: '/full/path/to/license-hashes.yml'
+
+Then creates that license-hashes.yml file with content similar to:
+
+  license-hashes:
+   - name: 'Custom License A'
+     hash: 'c189e0a7f6a535af91b0d3e1b1a3de1ea4443d69'
+   - name: 'Custom License B'
+     hash: '84b3be39b2d06ca7b5afe43b461544f7dd7c2f1a'
+
+These hashes are found on the Repository -> Reports -> License Report, which saves you having to write code against Licensee to identify the hash. 
