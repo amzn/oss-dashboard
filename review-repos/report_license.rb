@@ -41,26 +41,33 @@ class LicenseReporter < Reporter
         return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
       end
 
-      if(context.dashboard_config['LicenseReporter'] and context.dashboard_config['LicenseReporter']['license-hashes'])
-        license_hashes_file=context.dashboard_config['LicenseReporter']['license-hashes']
-        license_hashes = YAML.load(File.read(license_hashes_file))
-
-        license_hashes['license-hashes'].each do |custom_hash|
-          unless(project.license.hash == custom_hash['hash'])
-            return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='100'>#{custom_hash['name']}</license>\n"
-          end
-        end
-      end
-
       unless(project.matched_file)
         return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>No License File Found</reporting>\n"
       end
 
-      unless(project.license)
-        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'><file>#{project.matched_file.filename}</file><message>License unrecognized</message></reporting>\n"
-      else
+      if(project.matched_file.confidence == '100')
         return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
       end
+
+      if(project.matched_file.hash)
+        if(context.dashboard_config['LicenseReporter'] and context.dashboard_config['LicenseReporter']['license-hashes'])
+          license_hashes_file=context.dashboard_config['LicenseReporter']['license-hashes']
+          license_hashes = YAML.load(File.read(license_hashes_file))
+  
+          license_hashes['license-hashes'].each do |custom_hash|
+            if(project.matched_file.hash == custom_hash['hash'])
+              return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='100'>#{custom_hash['name']}</license>\n"
+            end
+          end
+        end
+      end
+
+      if(project.license)
+        return "      <license repo='#{repo.full_name}' file='#{project.matched_file.filename}' confidence='#{project.matched_file.confidence}'>#{project.license.name}</license>\n"
+      else
+        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'><file>#{project.matched_file.filename}</file><message>License unrecognized (hash:#{project.matched_file.hash})</message></reporting>\n"
+      end
+
   end
 
 end
