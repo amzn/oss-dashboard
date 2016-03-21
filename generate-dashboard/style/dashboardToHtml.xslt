@@ -137,7 +137,7 @@
           <xsl:if test="organization/team">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-              Team <span class="caret"></span>
+              Teams <span class="caret"></span>
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select='organization/team'>
@@ -151,7 +151,7 @@
           <xsl:if test="organization">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-              Organization <span class="caret"></span>
+              Organizations <span class="caret"></span>
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select="metadata/navigation/organization">
