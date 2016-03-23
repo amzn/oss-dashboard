@@ -460,18 +460,24 @@ def generate_team_xml(context)
           # We want to output the repo section for this id
           licenseNode=XPath.first(dashboardXml.root, "organization/reports/license[@repo='#{org}/#{id}']")
           f.puts "  #{licenseNode}"
-          reportNode=XPath.first(dashboardXml.root, "organization/reports/reporting[@class='repo-report' and @repo='#{org}/#{id}']")
-          f.puts "  #{reportNode}"
-          reportNode=XPath.first(dashboardXml.root, "organization/reports/reporting[@class='issue-report' and @repo='#{org}/#{id}']")
-          f.puts "  #{reportNode}"
+          reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='repo-report' and @repo='#{org}/#{id}']")
+          reportNodes.each do |node|
+            f.puts "  #{node}"
+          end
+          reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='issue-report' and @repo='#{org}/#{id}']")
+          reportNodes.each do |node|
+            f.puts "  #{node}"
+          end
         end
 
         # Copy member reports
         team.elements.each("members/member") do |teammember|
           login=teammember.text
           # We want to output the member section for this login
-          reportNode=XPath.first(dashboardXml.root, "organization/reports/reporting[@class='user-report' and .='#{login}']")
-          f.puts "  #{reportNode}"
+          reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='user-report' and .='#{login}']")
+          reportNodes.each do |node|
+            f.puts "  #{node}"
+          end
         end
 
         f.puts " </reports>"
