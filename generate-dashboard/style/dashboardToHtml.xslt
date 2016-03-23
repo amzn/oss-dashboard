@@ -191,8 +191,10 @@
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">Triage <span class="caret"/></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#issues" data-toggle="tab">Issues (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='false'])"/>)</a></li>
-                <li><a href="#pullrequests" data-toggle="tab">Pull Requests (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='true'])"/>)</a></li>
+                <li><a href="#issuemetrics" data-toggle="tab">Issue Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
+                <li><a href="#prmetrics" data-toggle="tab">PR Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
+                <li><a href="#issues" data-toggle="tab">Open Issues (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='false'])"/>)</a></li>
+                <li><a href="#pullrequests" data-toggle="tab">Open PRs (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='true'])"/>)</a></li>
                 <xsl:if test="metadata/issue-reports/report">
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
@@ -358,8 +360,6 @@
                   <th><a href="#" rel="tooltip" title="# of Stars"><span class="octicon octicon-star"></span></a></th>
                   <th><a href="#" rel="tooltip" title="# of Watchers"><span class="octicon octicon-eye"></span></a></th>
                   <th><a href="#" rel="tooltip" title="# of Forks"><span class="octicon octicon-repo-forked"></span></a></th>
-                  <th><a href="#" rel="tooltip" title="Issue Resolution %age"><span class="octicon octicon-issue-opened"></span></a></th>
-                  <th><a href="#" rel="tooltip" title="Pull Request Resolution %age"><span class="octicon octicon-git-pull-request"></span></a></th>
               </tr>
               </thead>
               <tbody>
@@ -390,26 +390,13 @@
                   <td><xsl:value-of select='@stars'/></td>
                   <td><xsl:value-of select='@watchers'/></td>
                   <td><xsl:value-of select='@forks'/></td>
-                  <xsl:if test='@closed_issue_count=0 and @open_issue_count=0'>
-                    <td>&#8734;% (0 / 0)</td>
-                  </xsl:if>
-                  <xsl:if test='@closed_issue_count!=0 or @open_issue_count!=0'>
-                    <td><xsl:value-of select='round(100 * @closed_issue_count div (@open_issue_count + @closed_issue_count))'/>% (<xsl:value-of select='@closed_issue_count'/> / <xsl:value-of select='@open_issue_count + @closed_issue_count'/>)</td>
-                  </xsl:if>
-
-                  <xsl:if test='@closed_pr_count=0 and @open_pr_count=0'>
-                    <td>&#8734;% (0 / 0)</td>
-                  </xsl:if>
-                  <xsl:if test='@closed_pr_count!=0 or @open_pr_count!=0'>
-                    <td><xsl:value-of select='round(100 * @closed_pr_count div (@open_pr_count + @closed_pr_count))'/>% (<xsl:value-of select='@closed_pr_count'/> / <xsl:value-of select='@open_pr_count + @closed_pr_count'/>)</td>
-                  </xsl:if>
                 </tr>
               </xsl:for-each>
               </tbody>
               </table>
              </div>
             </div>
-            <div class="tab-pane" id="issues">
+            <div class="tab-pane" id="issuemetrics">
              <table width="100%">
               <tr>
               <td style="text:align=left">
@@ -427,6 +414,110 @@
               </tr>
              </table>
              <hr/>
+             <div class="data-grid-sortable tablesorter">
+              <table id='issueMetricsTable' class='data-grid'>
+              <thead>
+              <tr><th>Repo</th>
+                  <th>Issues Opened</th>
+                  <th>Issues Closed</th>
+                  <th>Issue Total</th>
+                  <th>Issue %age Closed</th>
+              </tr>
+              </thead>
+              <tbody>
+              <xsl:for-each select="organization/repo">
+              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:variable name="reponame" select="@name"/>
+              <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
+                <tr><td>
+                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                <xsl:if test="@private='true'">
+                   <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
+                </xsl:if>
+                <xsl:if test="@fork='true'">
+                   <sup><span style="margin-left: 5px" class="octicon octicon-repo-forked"></span></sup>
+                </xsl:if>
+                </td>
+
+                <td><xsl:value-of select='@open_issue_count'/></td>
+                <td><xsl:value-of select='@closed_issue_count'/></td>
+                <td><xsl:value-of select='@open_issue_count + @closed_issue_count'/></td>
+
+                  <!-- Issue %age -->
+                  <xsl:if test='@closed_issue_count=0 and @open_issue_count=0'>
+                    <td>n/a</td>
+                  </xsl:if>
+                  <xsl:if test='@closed_issue_count!=0 or @open_issue_count!=0'>
+                    <td><xsl:value-of select='round(100 * @closed_issue_count div (@open_issue_count + @closed_issue_count))'/>%</td>
+                  </xsl:if>
+
+                </tr>
+              </xsl:for-each>
+              </tbody>
+              </table>
+             </div>
+            </div>
+            <div class="tab-pane" id="prmetrics">
+             <table width="100%">
+              <tr>
+              <td style="text:align=left">
+                <h4>Pull Request Count over Time</h4><br/>
+                <div id="pullRequestCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+              </td>
+              <td style="text:align=center">
+                <h4>Time to Close a Pull Request</h4><br/>
+                <div id="prTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
+              </td>
+              <td style="text:align=right">
+                <h4>Contributions</h4><br/>
+                <div id="prCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
+              </td>
+              </tr>
+             </table>
+             <hr/>
+             <div class="data-grid-sortable tablesorter">
+              <table id='prMetricsTable' class='data-grid'>
+              <thead>
+              <tr><th>Repo</th>
+                  <th>PRs Opened</th>
+                  <th>PRs Closed</th>
+                  <th>PR Total</th>
+                  <th>PR %age Closed</th>
+              </tr>
+              </thead>
+              <tbody>
+              <xsl:for-each select="organization/repo">
+              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:variable name="reponame" select="@name"/>
+              <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
+                <tr><td>
+                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                <xsl:if test="@private='true'">
+                   <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
+                </xsl:if>
+                <xsl:if test="@fork='true'">
+                   <sup><span style="margin-left: 5px" class="octicon octicon-repo-forked"></span></sup>
+                </xsl:if>
+                </td>
+
+                <td><xsl:value-of select='@open_pr_count'/></td>
+                <td><xsl:value-of select='@closed_pr_count'/></td>
+                <td><xsl:value-of select='@open_pr_count + @closed_pr_count'/></td>
+
+                  <!-- PR %age -->
+                  <xsl:if test='@closed_pr_count=0 and @open_pr_count=0'>
+                    <td>n/a</td>
+                  </xsl:if>
+                  <xsl:if test='@closed_pr_count!=0 or @open_pr_count!=0'>
+                    <td><xsl:value-of select='round(100 * @closed_pr_count div (@open_pr_count + @closed_pr_count))'/>%</td>
+                  </xsl:if>
+                </tr>
+              </xsl:for-each>
+              </tbody>
+              </table>
+             </div>
+            </div>
+            <div class="tab-pane" id="issues">
              <div class="data-grid-sortable tablesorter">
               <table id='issueTable' class='data-grid'>
                 <thead>
@@ -473,23 +564,6 @@
              </div>
             </div>
             <div class="tab-pane" id="pullrequests">
-             <table width="100%">
-              <tr>
-              <td style="text:align=left">
-                <h4>Pull Request Count over Time</h4><br/>
-                <div id="pullRequestCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
-              </td>
-              <td style="text:align=center">
-                <h4>Time to Close a Pull Request</h4><br/>
-                <div id="prTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
-              </td>
-              <td style="text:align=right">
-                <h4>Contributions</h4><br/>
-                <div id="prCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
-              </td>
-              </tr>
-             </table>
-             <hr/>
              <div class="data-grid-sortable tablesorter">
               <table id='prTable' class='data-grid'>
                 <thead>
@@ -1073,6 +1147,12 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
                     sortList: [[0,0]],
                 });
                 $("#repoMetricsTable").tablesorter({
+                    sortList: [[0,0]],
+                });
+                $("#issueMetricsTable").tablesorter({
+                    sortList: [[0,0]],
+                });
+                $("#prMetricsTable").tablesorter({
                     sortList: [[0,0]],
                 });
                 $("#issueTable").tablesorter({
