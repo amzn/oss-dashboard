@@ -156,7 +156,6 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select="metadata/navigation/organization">
-                <xsl:sort select="."/>
                 <xsl:variable name="org" select="."/>
                 <li><a href="{$org}.html"><xsl:value-of select="."/></a></li>
               </xsl:for-each>
