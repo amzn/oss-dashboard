@@ -141,6 +141,7 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select='organization/team'>
+                <xsl:sort select="@name"/>
                 <xsl:variable name="teamlink" select="@slug"/>
                 <xsl:variable name="orgname2" select="../@name"/>
                 <li><a href="{$orgname2}-team-{$teamlink}.html"><xsl:value-of select="../@name"/>::<xsl:value-of select="@name"/></a></li>
@@ -155,6 +156,7 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select="metadata/navigation/organization">
+                <xsl:sort select="."/>
                 <xsl:variable name="org" select="."/>
                 <li><a href="{$org}.html"><xsl:value-of select="."/></a></li>
               </xsl:for-each>
