@@ -127,17 +127,18 @@ The license report both identifies licenses for the Repository Metrics section, 
 
 This is configured in two steps. Firstly, add a line to your dashboard config pointing to your license-hashes.yml file:
 
-  # Report arguments
-  LicenseReporter:
+```
     license-hashes: '/full/path/to/license-hashes.yml'
+```
 
 Then creates that license-hashes.yml file with content similar to:
 
-  license-hashes:
+```
    - name: 'Custom License A'
      hash: 'c189e0a7f6a535af91b0d3e1b1a3de1ea4443d69'
    - name: 'Custom License B'
      hash: '84b3be39b2d06ca7b5afe43b461544f7dd7c2f1a'
+```
 
 These hashes are found on the Repository -> Reports -> License Report, which saves you having to write code against Licensee to identify the hash. 
 
