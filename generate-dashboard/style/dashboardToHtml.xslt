@@ -66,7 +66,7 @@
     <xsl:variable name="orgname" select="organization/@name"/>
     <html>
       <head>
-        <title>GitHub Dashboard: <xsl:value-of select='@dashboard'/><xsl:if test='@team'>/<xsl:value-of select='@team'/></xsl:if></title>
+        <title>GitHub Dashboard: <xsl:value-of select='@dashboard'/><xsl:if test='@team'> Team</xsl:if></title>
         <meta charset="utf-8"/>
 
         <!-- Lots of CDN usage here - you should replace this if you want to control the source of the JS/CSS -->
@@ -140,12 +140,22 @@
               Teams <span class="caret"></span>
             </a>
             <ul class="dropdown-menu" role="menu">
+             <xsl:if test="metadata/navigation/team">
+              <!-- we're on a team page -->
+              <xsl:for-each select="metadata/navigation/team">
+                <xsl:sort select="@name"/>
+                <xsl:variable name="teamlink" select="@slug"/>
+                <li><a href="team-{$teamlink}.html"><xsl:value-of select="@name"/></a></li>
+              </xsl:for-each>
+             </xsl:if>
+             <xsl:if test="not(metadata/navigation/team)">
+              <!-- we're on an organization page -->
               <xsl:for-each select='organization/team'>
                 <xsl:sort select="@name"/>
                 <xsl:variable name="teamlink" select="@slug"/>
-                <xsl:variable name="orgname2" select="../@name"/>
-                <li><a href="{$orgname2}-team-{$teamlink}.html"><xsl:value-of select="../@name"/>::<xsl:value-of select="@name"/></a></li>
+                <li><a href="team-{$teamlink}.html"><xsl:value-of select="@name"/></a></li>
               </xsl:for-each>
+             </xsl:if>
             </ul>
           </li>
           </xsl:if>
@@ -167,7 +177,7 @@
         <div class="well">
           <xsl:variable name="logo" select="@logo"/>
           <xsl:variable name="orgDescription" select="organization/description"/>
-          <h2>GitHub Dashboard: <xsl:if test="@logo"><a rel="tooltip" title="{$orgDescription}" href="https://github.com/{$orgname}"><img width="35" height="35" src="{$logo}&amp;s=35"/></a></xsl:if><xsl:value-of select='@dashboard'/><xsl:if test='@team'>/<xsl:value-of select='@team'/></xsl:if></h2><br/>
+          <h2>GitHub Dashboard: <xsl:if test="@logo"><a rel="tooltip" title="{$orgDescription}" href="https://github.com/{$orgname}"><img width="35" height="35" src="{$logo}&amp;s=35"/></a></xsl:if><xsl:value-of select='@dashboard'/><xsl:if test='@team'> Team</xsl:if></h2><br/>
           <div class="container" style="padding-left: 0px; padding-right: 0px;">
           <ul id="tabs" class="nav navbar-nav">
             <li class="active"><a href="#overview" data-toggle="tab">Overview</a></li>

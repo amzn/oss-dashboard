@@ -410,85 +410,117 @@ def generate_team_xml(context)
   organizations = context.dashboard_config['organizations']
   data_directory = context.dashboard_config['data-directory']
 
-  organizations.each do |org|
-    context.feedback.print "  #{org} "
-    xmlfile=File.new("#{data_directory}/dash-xml/#{org}.xml")
-    begin
-      dashboardXml = Document.new(xmlfile)
+  if(organizations.length > 1)
+    xmlfile=File.new("#{data_directory}/dash-xml/AllOrgs.xml")
+  else
+    xmlfile=File.new("#{data_directory}/dash-xml/#{organizations[0]}.xml")
+  end
+  begin
+    dashboardXml = Document.new(xmlfile)
+  end
+
+  # Copy the metadata from AllOrgs
+  # Clone or regenerate?
+  ### header=dashboardXml.root.elements['metadata'].deep_clone
+
+  header=generate_metadata_header(context)
+
+  # Loop over each unique team
+  teams=Set.new
+  team_headers=Set.new
+  dashboardXml.root.elements.each('organization') do |org|
+    org.elements.each('team') do |team|
+      teams << [team.attributes['slug'], team.attributes['name']]
+      team_headers << "<team name='#{escape_for_xml(team.attributes['name'])}' slug='#{team.attributes['slug']}'/>"
     end
-    header=generate_metadata_header(context)
+  end
+  teams.delete('owners')   # why not working?
+  header.insert(header.index(%r{</navigation>}), team_headers.to_a.join(','))
 
-    teamMenu=''
-    # TODO: There's more creation of XML here than need be
-    dashboardXml.root.elements['organization'].elements.each("team") do |team|
-      name=team.attributes["name"]
-      slug=team.attributes["slug"]
-      teamMenu << "<team slug='#{slug}' name='#{escape_for_xml(name)}'/>"
-    end
+  teams.each do |team, teamname|
+    context.feedback.print "  #{team} "
 
-    dashboardXml.root.elements['organization'].elements.each("team") do |team|
-      name=team.attributes["name"]
-      slug=team.attributes["slug"]
-      path="#{data_directory}/dash-xml/#{org}-team-#{slug}.xml"
-      open(path, 'w') do |f|
-        f.puts "<github-dashdata dashboard='#{org}' team='#{escape_for_xml(name)}'>"
-        f.puts header
-        f.puts " <organization name='#{org}'>"
-        f.puts teamMenu
+    path="#{data_directory}/dash-xml/team-#{team}.xml"
+    f = open(path, 'w')
 
-        # Copy repo data
-        team.elements.each("repos/repo") do |teamrepo|
-          id=teamrepo.text
-          # We want to output the repo section for this id
-          repoNode=XPath.first(dashboardXml.root, "organization/repo[@name='#{id}']")
-          f.puts "  #{repoNode}"
-        end
+    f.puts "<github-dashdata dashboard='#{escape_for_xml(teamname)}' team='true'>"
+    f.puts header
 
+    # For team, find organizations it appears in
+    XPath.each(dashboardXml.root, "organization[team/@slug='#{team}']") do |node|
+      org=node.attributes['name']
+      teamnode=XPath.first(node, "team[@slug='#{team}']")
+      org_clone=node.deep_clone
+      report_clone=org_clone.elements['reports'].clone   # shallow clone
+
+      # remove all teams, repos, reports and members
+      org_clone.elements.delete_all('team')
+      org_clone.elements.delete_all('repo')   # tmp
+      org_clone.elements.delete_all('reports')   # tmp
+      org_clone.elements.delete_all('member')   # tmp
+
+      # add back the team we're talking about
+      org_clone.add(teamnode.deep_clone)
+
+      # For each member of the team
+      teamnode.each_element('members/member') do |member|
         # Copy member data
-        team.elements.each("members/member") do |teammember|
-          login=teammember.text
-          # We want to output the member section for this login
-          memberNode=XPath.first(dashboardXml.root, "organization/member[@login='#{login}']")
-          f.puts "  #{memberNode}"
+        membernode=XPath.first(node, "member[@login='#{member.text}']")
+        if(membernode)
+          org_clone.add(membernode)
         end
-
-        f.puts " <reports>"
-
-        # Copy repo/issue/license reports
-        team.elements.each("repos/repo") do |teamrepo|
-          id=teamrepo.text
-          # We want to output the repo section for this id
-          licenseNode=XPath.first(dashboardXml.root, "organization/reports/license[@repo='#{org}/#{id}']")
-          f.puts "  #{licenseNode}"
-          reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='repo-report' and @repo='#{org}/#{id}']")
-          reportNodes.each do |node|
-            f.puts "  #{node}"
-          end
-          reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='issue-report' and @repo='#{org}/#{id}']")
-          reportNodes.each do |node|
-            f.puts "  #{node}"
-          end
-        end
-
-        # Copy member reports
-        team.elements.each("members/member") do |teammember|
-          login=teammember.text
-          # We want to output the member section for this login
-          reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='user-report' and .='#{login}']")
-          reportNodes.each do |node|
-            f.puts "  #{node}"
-          end
-        end
-
-        f.puts " </reports>"
-
-        f.puts " #{XPath.first(dashboardXml.root, 'organization/metric')}"
-        f.puts " </organization>"
-        f.puts "</github-dashdata>"
       end
-      context.feedback.print '.'
+
+      # For each repo the team has access to
+      teamnode.each_element('repos/repo') do |repo|
+        # Copy repo data
+        reponode=XPath.first(node, "repo[@name='#{repo.text}']")
+        if(reponode)
+          org_clone.add(reponode)
+        end
+      end
+
+      # Copy member reports
+      teamnode.elements.each("members/member") do |teammember|
+        login=teammember.text
+        # We want to output the member section for this login
+        reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='user-report' and .='#{login}']")
+        reportNodes.each do |node|
+          report_clone.add(node)
+        end
+      end
+
+      # Copy repo/issue/license reports
+      teamnode.elements.each("repos/repo") do |teamrepo|
+        id=teamrepo.text
+        # We want to output the repo section for this id
+        licenseNode=XPath.first(dashboardXml.root, "organization/reports/license[@repo='#{org}/#{id}']")
+        if(licenseNode)
+          report_clone.add(licenseNode)
+        end
+        reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='repo-report' and @repo='#{org}/#{id}']")
+        reportNodes.each do |node|
+          if(node)
+            report_clone.add(node)
+          end
+        end
+        reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='issue-report' and @repo='#{org}/#{id}']")
+        reportNodes.each do |node|
+          if(node)
+            report_clone.add(node)
+          end
+        end
+      end
+
+      org_clone.add(report_clone)
+
+      f.puts org_clone
     end
-    xmlfile.close
+    f.puts "</github-dashdata>"
+
+#    xmlfile.close
+    f.close
     context.feedback.print "\n"
   end
+  context.feedback.print "\n"
 end
