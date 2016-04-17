@@ -150,7 +150,7 @@
              </xsl:if>
              <xsl:if test="not(metadata/navigation/team)">
               <!-- we're on an organization page -->
-              <xsl:for-each select='organization/team'>
+              <xsl:for-each select='organization/team[not(@slug=preceding::*/@slug)]'>
                 <xsl:sort select="@name"/>
                 <xsl:variable name="teamlink" select="@slug"/>
                 <li><a href="team-{$teamlink}.html"><xsl:value-of select="@name"/></a></li>
