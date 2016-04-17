@@ -518,9 +518,9 @@ def generate_team_xml(context)
     end
     f.puts "</github-dashdata>"
 
-#    xmlfile.close
     f.close
     context.feedback.print "\n"
   end
   context.feedback.print "\n"
+  xmlfile.close
 end
