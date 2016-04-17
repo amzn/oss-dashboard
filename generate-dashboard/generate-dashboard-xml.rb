@@ -435,7 +435,7 @@ def generate_team_xml(context)
     end
   end
   teams.delete('owners')   # why not working?
-  header.insert(header.index(%r{</navigation>}), team_headers.to_a.join(','))
+  header.insert(header.index(%r{</navigation>}), team_headers.to_a.join("\n    "))
 
   teams.each do |team, teamname|
     context.feedback.print "  #{team} "
