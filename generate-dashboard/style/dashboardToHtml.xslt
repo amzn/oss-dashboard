@@ -34,7 +34,7 @@
     <report>CustomRepoReporter</report>
   </repo-reports>
  </metadata>
- <organization name='ORG'>
+ <organization name='ORG' avatar='url'>
   <team name='NAME'>
     <description>XYZ</description>
     <repos>
