@@ -37,5 +37,7 @@ def init_database(context)
   sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'db_issues', 'db_issue_schema.sql' ) ) )
   sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'user_mapping', 'db_user_schema.sql' ) ) )
 
+  sync_db.close
+
 end
 
