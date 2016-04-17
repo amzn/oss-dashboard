@@ -625,6 +625,7 @@
             </div>
             <xsl:if test="organization/team">
             <div class="tab-pane" id="teams">
+             <div class="data-grid-sortable tablesorter">
               <table id='teamTable' class='data-grid'>
                 <thead>
                 <tr><th>Team</th><th>Repos</th><th>Members</th></tr>
@@ -633,7 +634,7 @@
                 <xsl:for-each select="organization/team">
                   <xsl:variable name="orgname2" select="../@name"/>
                   <xsl:variable name="teamlink" select="@slug"/>
-                  <tr><td><a href="https://github.com/orgs/{$orgname2}/teams/{$teamlink}"><xsl:value-of select="../@name"/>/<xsl:value-of select="@name"/></a><br/>
+                  <tr><td><a href="https://github.com/orgs/{$orgname2}/teams/{$teamlink}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a><br/>
                     <xsl:value-of select="description"/>
                   </td>
                   <td>
@@ -657,6 +658,7 @@
                 </xsl:for-each>
                 </tbody>
               </table>
+             </div>
             </div>
             </xsl:if>
             <xsl:if test="organization/member">
@@ -1173,6 +1175,9 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
                     sortList: [[3,1]],
                 });
                 $("#memberTable").tablesorter({
+                    sortList: [[0,0]],
+                });
+                $("#teamTable").tablesorter({
                     sortList: [[0,0]],
                 });
             <xsl:for-each select="metadata/user-reports/report">
