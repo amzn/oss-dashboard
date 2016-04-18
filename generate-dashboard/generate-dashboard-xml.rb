@@ -420,10 +420,7 @@ def generate_team_xml(context)
   end
 
   # Copy the metadata from AllOrgs
-  # Clone or regenerate?
-  ### header=dashboardXml.root.elements['metadata'].deep_clone
-
-  header=generate_metadata_header(context)
+  header=dashboardXml.root.elements['metadata'].to_s
 
   # Loop over each unique team
   teams=Set.new
