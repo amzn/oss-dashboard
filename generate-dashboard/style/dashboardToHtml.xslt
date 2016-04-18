@@ -287,6 +287,7 @@
                 <div id="repoCountChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
             </td>
             <td class="right" style="vertical-align:top">
+              <xsl:if test="organization/repo">
               <h4>Recent Repositories:</h4>
               <table class='data-grid'>
                 <xsl:for-each select="organization/repo">
@@ -306,6 +307,7 @@
                   </xsl:if>
                 </xsl:for-each>
               </table>
+              </xsl:if>
               <xsl:if test="organization/repo/release-data/release">
               <hr/>
               <h4>Recent Releases:</h4>
