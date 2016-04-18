@@ -467,7 +467,7 @@ def generate_team_xml(context)
         # Copy member data
         membernode=XPath.first(node, "member[@login='#{member.text}']")
         if(membernode)
-          org_clone.add(membernode)
+          org_clone.add(membernode.deep_clone)
         end
       end
 
@@ -476,7 +476,7 @@ def generate_team_xml(context)
         # Copy repo data
         reponode=XPath.first(node, "repo[@name='#{repo.text}']")
         if(reponode)
-          org_clone.add(reponode)
+          org_clone.add(reponode.deep_clone)
         end
       end
 
@@ -486,7 +486,7 @@ def generate_team_xml(context)
         # We want to output the member section for this login
         reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='user-report' and .='#{login}']")
         reportNodes.each do |node|
-          report_clone.add(node)
+          report_clone.add(node.deep_clone)
         end
       end
 
@@ -496,18 +496,18 @@ def generate_team_xml(context)
         # We want to output the repo section for this id
         licenseNode=XPath.first(dashboardXml.root, "organization/reports/license[@repo='#{org}/#{id}']")
         if(licenseNode)
-          report_clone.add(licenseNode)
+          report_clone.add(licenseNode.deep_clone)
         end
         reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='repo-report' and @repo='#{org}/#{id}']")
         reportNodes.each do |node|
           if(node)
-            report_clone.add(node)
+            report_clone.add(node.deep_clone)
           end
         end
         reportNodes=XPath.each(dashboardXml.root, "organization/reports/reporting[@class='issue-report' and @repo='#{org}/#{id}']")
         reportNodes.each do |node|
           if(node)
-            report_clone.add(node)
+            report_clone.add(node.deep_clone)
           end
         end
       end
