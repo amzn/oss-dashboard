@@ -477,33 +477,40 @@ def generate_team_xml(context)
         end
       end
 
+      memberReportNodes=XPath.match(dashboardXml.root, "organization[@name='#{org}']/reports/reporting[@class='user-report']")
+
       # Copy member reports
       teamnode.elements.each("members/member") do |teammember|
         login=teammember.text
         # We want to output the member section for this login
-        reportNodes=XPath.each(dashboardXml.root, "organization[@name='#{org}']/reports/reporting[@class='user-report' and .='#{login}']")
-        reportNodes.each do |node|
-          report_clone.add(node.deep_clone)
+        memberReportNodes.each do |node|
+          if(node.text==login)
+            report_clone.add(node.deep_clone)
+          end
         end
       end
+
+      repoReportNodes=XPath.match(dashboardXml.root, "organization[@name='#{org}']/reports/reporting[@class='repo-report']")
+      issueReportNodes=XPath.match(dashboardXml.root, "organization[@name='#{org}']/reports/reporting[@class='issue-report']")
+      licenseNodes=XPath.match(dashboardXml.root, "organization[@name='#{org}']/reports/license']")
 
       # Copy repo/issue/license reports
       teamnode.elements.each("repos/repo") do |teamrepo|
         id=teamrepo.text
+        orgrepo="#{org}/#{id}"
         # We want to output the repo section for this id
-        licenseNode=XPath.first(dashboardXml.root, "organization[@name='#{org}']/reports/license[@repo='#{org}/#{id}']")
-        if(licenseNode)
-          report_clone.add(licenseNode.deep_clone)
-        end
-        reportNodes=XPath.each(dashboardXml.root, "organization[@name='#{org}']/reports/reporting[@class='repo-report' and @repo='#{org}/#{id}']")
-        reportNodes.each do |node|
-          if(node)
+        licenseNodes.each do |node|
+          if(node and node.attributes['repo']==orgrepo)
             report_clone.add(node.deep_clone)
           end
         end
-        reportNodes=XPath.each(dashboardXml.root, "organization[@name='#{org}']/reports/reporting[@class='issue-report' and @repo='#{org}/#{id}']")
-        reportNodes.each do |node|
-          if(node)
+        repoReportNodes.each do |node|
+          if(node and node.attributes['repo']==orgrepo)
+            report_clone.add(node.deep_clone)
+          end
+        end
+        issueReportNodes.each do |node|
+          if(node and node.attributes['repo']==orgrepo)
             report_clone.add(node.deep_clone)
           end
         end
