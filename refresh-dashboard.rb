@@ -234,18 +234,6 @@ run_list.each do |phase|
       end
       context.feedback.print "\n"
 
-#      if(owners.length > 1)
-#        context.feedback.puts " AllOrgs"
-#
-#        stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
-#        xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
-#        html = stylesheet.apply(xml_doc)
-#
-#        htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
-#        htmlFile.write(html)
-#        htmlFile.close
-#      end
-
       context.feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
     end
   end
