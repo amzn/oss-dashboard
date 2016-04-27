@@ -392,7 +392,7 @@ end
 def merge_dashboard_xml(context)
   merge_dashboard_xml_to(context, 'logins', 'AllLogins.xml', 'All Logins')
   merge_dashboard_xml_to(context, 'organizations', 'AllOrgs.xml', 'All Organizations')
-  merge_dashboard_xml_to(context, 'organizations+logins', 'AllOrgsLogins.xml', 'All Organizations and Logins')
+  merge_dashboard_xml_to(context, 'organizations+logins', 'AllAccounts.xml', 'All Accounts')
 end
 
 def merge_dashboard_xml_to(context, attribute, xmlfile, title)

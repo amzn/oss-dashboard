@@ -135,7 +135,7 @@
       </head>
       <body class="inverse">
         <ul class="nav nav-tabs pull-right" role="tablist">
-          <li><a href="AllOrgsLogins.html">All</a></li>
+          <li><a href="AllAccounts.html">All</a></li>
           <xsl:if test="metadata/navigation/login">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -268,7 +268,12 @@
             <table cellpadding="10px" width="100%"><tr>
             <td class="left" style="vertical-align:top">
               <xsl:if test="count(organization)=1">
-                <h4>Organization:</h4>
+                <xsl:if test="organization/@type='login'">
+                  <h4>User Account:</h4>
+                </xsl:if>
+                <xsl:if test="organization/@type='organization'">
+                  <h4>Organization:</h4>
+                </xsl:if>
                 <table class="data-grid">
                   <xsl:if test="organization/@name"><tr><td>Login</td><td><xsl:value-of select="organization/@name"/></td></tr></xsl:if>
                   <xsl:if test="organization/name"><tr><td>Name</td><td><xsl:value-of select="organization/name"/></td></tr></xsl:if>
@@ -282,7 +287,7 @@
                 </table>
               </xsl:if>
               <xsl:if test="count(organization)>1">
-                <h4>Organizations/Logins:</h4>
+                <h4>Accounts:</h4>
                 <table class="data-grid">
                  <xsl:for-each select="organization">
                   <xsl:sort select="count(repo)" data-type="number" order="descending"/>
