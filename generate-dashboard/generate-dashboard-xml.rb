@@ -54,14 +54,25 @@ end
 
 def generate_metadata_header(context)
   organizations = context.dashboard_config['organizations']
+  logins = context.dashboard_config['logins']
   
   metadata = " <metadata>\n"
   metadata << "  <navigation>\n"
-  if(organizations.length > 1)
-    metadata << "    <organization>AllOrgs</organization>\n"
+  if(organizations)
+    if(organizations.length > 1)
+      metadata << "    <organization>AllOrgs</organization>\n"
+    end
+    organizations.each do |org|
+      metadata << "    <organization>#{org}</organization>\n"
+    end
   end
-  organizations.each do |org|
-    metadata << "    <organization>#{org}</organization>\n"
+  if(logins)
+    if(logins.length > 1)
+      metadata << "    <login>AllLogins</login>\n"
+    end
+    logins.each do |login|
+      metadata << "    <login>#{login}</login>\n"
+    end
   end
   metadata << "  </navigation>\n"
   
@@ -84,7 +95,7 @@ end
 # It contains the metadata for the organization, and the metrics.
 def generate_dashboard_xml(context)
   
-  organizations = context.dashboard_config['organizations']
+  organizations = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
   private_access = context.dashboard_config['private-access']
   unless(private_access)
@@ -110,7 +121,12 @@ def generate_dashboard_xml(context)
     dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{org_data[0][0]}'>"
     dashboard_file.puts metadata
 
-    dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}'>"
+    account_type="organization"
+    if(context.login?(org))
+      account_type="login"
+    end
+
+    dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}' type='#{account_type}'>"
     unless(org_data[0][1]=="")
       dashboard_file.puts "  <description>#{escape_for_xml(org_data[0][1])}</description>"
     end
@@ -374,13 +390,23 @@ def generate_dashboard_xml(context)
 end
 
 def merge_dashboard_xml(context)
+  merge_dashboard_xml_to(context, 'logins', 'AllLogins.xml', 'All Logins')
+  merge_dashboard_xml_to(context, 'organizations', 'AllOrgs.xml', 'All Organizations')
+  merge_dashboard_xml_to(context, 'organizations+logins', 'AllOrgsLogins.xml', 'All Organizations and Logins')
+end
 
-  organizations = context.dashboard_config['organizations']
+def merge_dashboard_xml_to(context, attribute, xmlfile, title)
+
+  organizations = context.dashboard_config[attribute]
+  unless(organizations)
+    return
+  end
+
   data_directory = context.dashboard_config['data-directory']
 
-  dashboard_file=File.open("#{data_directory}/dash-xml/AllOrgs.xml", 'w')
+  dashboard_file=File.open("#{data_directory}/dash-xml/#{xmlfile}", 'w')
   # TODO: Don't hard code includes_private
-  dashboard_file.puts "<github-dashdata dashboard='All Organizations' includes_private='true'>"
+  dashboard_file.puts "<github-dashdata dashboard='#{title}' includes_private='true'>"
 
   dashboard_file.puts(generate_metadata_header(context))
 
@@ -407,7 +433,7 @@ end
 
 def generate_team_xml(context)
 
-  organizations = context.dashboard_config['organizations']
+  organizations = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
 
   if(organizations.length > 1)

@@ -20,13 +20,21 @@ require_relative 'commitStoreLibrary.rb'
 
 def sync_commits(context, sync_db)
   
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
 
   context.feedback.puts " commits"
-  organizations.each do |org|
+  owners.each do |org|
     context.feedback.print "  #{org} "
 
-    context.client.organization_repositories(org).each do |repo_obj|
+  if(context.login?(org))
+    repos=context.client.repositories(org)
+  else
+    repos=context.client.organization_repositories(org)
+  end
+
+#    context.client.organization_repositories(org).each do |repo_obj|
+    repos.each do |repo_obj|
+
       if(repo_obj.size==0)
         # if no commits, octokit errors. Size of zero is close enough to no commits 
         # - i.e. the first commit may not get shown for a new repo

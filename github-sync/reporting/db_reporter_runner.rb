@@ -60,7 +60,7 @@ end
 
 def run_db_reports(context, sync_db)
   
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
 
   report_instances=get_db_reporter_instances(context.dashboard_config)
@@ -71,7 +71,7 @@ def run_db_reports(context, sync_db)
 
   context.feedback.puts " reporting"
   
-  organizations.each do |org|
+  owners.each do |org|
     context.feedback.print "  #{org} "
     review_file=File.open("#{data_directory}/db-report-xml/#{org}.xml", 'w')
   

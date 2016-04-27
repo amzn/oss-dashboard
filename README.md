@@ -1,5 +1,5 @@
 # Amazon Open Source Program GitHub Dashboard
-A dashboard for viewing many GitHub organizations at once. This dashboard is an internal prototype, please try it out, but note it's being published primarily for the purposes of sharing with the TodoGroup. It's hoped that said group will produce a tool that far surpasses this tool's limited features. 
+A dashboard for viewing many GitHub organizations, and/or users, at once. This dashboard is an internal prototype, please try it out, but note it's being published primarily for the purposes of sharing with the TodoGroup. It's hoped that said group will produce a tool that far surpasses this tool's limited features. 
 
 A very basic screenshot is available: [screenshots/BasicDashboardExample.png](screenshots/BasicDashboardExample.png?raw=true).
 
@@ -57,6 +57,7 @@ Example file:
 ```
   dashboard:
     organizations: ['amzn', 'amznlabs']
+    logins: ['hyandell']
     data-directory: /full/path/to/directory/to/store/data
     reports: [ 'DocsReporter', 'LicenseReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'RepoUnownedDbReporter' ]
@@ -70,7 +71,11 @@ Example file:
 
 ### organizations
 
-This lists the organizations that you wish to include in your dashboard. Currently only organization accounts are supported, not user accounts. 
+This lists the organizations that you wish to include in your dashboard. 
+
+### logins
+
+This lists the user logins that you wish to include in your dashboard. Under the hood the dashboard treats these largely the same, storing the data in the same location.
 
 ### data-directory
 

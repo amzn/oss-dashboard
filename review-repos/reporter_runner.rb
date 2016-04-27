@@ -50,7 +50,7 @@ end
 
 def review_source(context)
 
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
   scratch_dir="#{data_directory}/scratch"
 
@@ -59,15 +59,20 @@ def review_source(context)
   unless(File.exists?("#{data_directory}/review-xml/"))
     Dir.mkdir("#{data_directory}/review-xml/")
   end
- 
-  organizations.each do |owner|
+
+  owners.each do |owner|
     context.feedback.print "  #{owner} "
     review_file=File.open("#{data_directory}/review-xml/#{owner}.xml", 'w')
   
     report="<github-review>\n"
     report << " <organization name='#{owner}'>\n"
   
-    repos = context.client.organization_repositories(owner)
+    if(context.login?(owner))
+      repos = context.client.repositories(owner)
+    else
+      repos = context.client.organization_repositories(owner)
+    end
+
     repos.each do |repo|
       if repo.fork
         next

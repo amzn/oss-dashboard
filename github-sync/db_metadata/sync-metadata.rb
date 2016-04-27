@@ -34,8 +34,12 @@ def clear_organization(db, org_login)
   end
 end
 
-def store_organization(db, client, org_login)
-  org=client.organization(org_login)
+def store_organization(context, db, org_login)
+  if(context.login?(org_login))
+    org=context.client.user(org_login)
+  else
+    org=context.client.organization(org_login)
+  end
   
   db.execute(
     "INSERT INTO organization (
@@ -67,9 +71,15 @@ def store_organization_teams(db, client, org)
   end
 end
 
-def store_organization_repositories(db, client, org)
-  client.organization_repositories(org).each do |repo_obj|
-    watchers=client.send('subscribers', "#{org}/#{repo_obj.name}").length
+def store_organization_repositories(context, db, org)
+  if(context.login?(org))
+    repos=context.client.repositories(org)
+  else
+    repos=context.client.organization_repositories(org)
+  end
+  
+  repos.each do |repo_obj|
+    watchers=context.client.send('subscribers', "#{org}/#{repo_obj.name}").length
 
 
     db.execute("INSERT INTO repository 
@@ -157,6 +167,7 @@ end
 def sync_metadata(context, sync_db)
 
   organizations = context.dashboard_config['organizations']
+  logins = context.dashboard_config['logins']
   data_directory = context.dashboard_config['data-directory']
   private_access = context.dashboard_config['private-access']
   unless(private_access)
@@ -165,18 +176,32 @@ def sync_metadata(context, sync_db)
   context.feedback.puts " metadata"
   previous_members=Hash.new
 
-  organizations.each do |org_login|
-    sync_db.execute("BEGIN TRANSACTION")
-    context.feedback.print "  #{org_login} "
-    clear_organization(sync_db, org_login)
-    org=store_organization(sync_db, context.client, org_login)
-    store_organization_repositories(sync_db, context.client, org_login)
-    store_organization_members(sync_db, context.client, org, private_access.include?(org_login), previous_members)
-    if(private_access.include?(org_login))
-      store_organization_teams(sync_db, context.client, org_login)
+  if(organizations)
+    organizations.each do |org_login|
+      sync_db.execute("BEGIN TRANSACTION")
+      context.feedback.print "  #{org_login} "
+      clear_organization(sync_db, org_login)
+      org=store_organization(context, sync_db, org_login)
+      store_organization_repositories(context, sync_db, org_login)
+      store_organization_members(sync_db, context.client, org, private_access.include?(org_login), previous_members)
+      if(private_access.include?(org_login))
+        store_organization_teams(sync_db, context.client, org_login)
+      end
+      sync_db.execute("COMMIT")
+      context.feedback.print "\n"
     end
-    sync_db.execute("COMMIT")
-    context.feedback.print "\n"
+  end
+
+  if(logins)
+    logins.each do |login|
+      sync_db.execute("BEGIN TRANSACTION")
+      context.feedback.print "  #{login} "
+      clear_organization(sync_db, login)
+      org=store_organization(context, sync_db, login)
+      store_organization_repositories(context, sync_db, login)
+      sync_db.execute("COMMIT")
+      context.feedback.print "\n"
+    end
   end
 
   context.feedback.print "  :filling-in-member-data"

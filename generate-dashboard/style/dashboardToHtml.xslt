@@ -24,6 +24,7 @@
   <navigation>
     <organization>org1</organization>
     <organization>org2</organization>
+    <login>login1</login>
   </navigation>
   <user-reports>
     <report>UserReporter</report>
@@ -134,6 +135,20 @@
       </head>
       <body class="inverse">
         <ul class="nav nav-tabs pull-right" role="tablist">
+          <li><a href="AllOrgsLogins.html">All</a></li>
+          <xsl:if test="metadata/navigation/login">
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              Logins <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <xsl:for-each select="metadata/navigation/login">
+                <xsl:variable name="login" select="."/>
+                <li><a href="{$login}.html"><xsl:value-of select="."/></a></li>
+              </xsl:for-each>
+            </ul>
+          </li>
+          </xsl:if>
           <xsl:if test="organization/team">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -159,7 +174,7 @@
             </ul>
           </li>
           </xsl:if>
-          <xsl:if test="organization">
+          <xsl:if test="metadata/navigation/organization">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
               Organizations <span class="caret"></span>
@@ -267,7 +282,7 @@
                 </table>
               </xsl:if>
               <xsl:if test="count(organization)>1">
-                <h4>Organizations:</h4>
+                <h4>Organizations/Logins:</h4>
                 <table class="data-grid">
                  <xsl:for-each select="organization">
                   <xsl:sort select="count(repo)" data-type="number" order="descending"/>

@@ -34,6 +34,31 @@ class DashboardContext < Hash
     @feedback=feedback
     @dashboard_config=dashboard_config
     @client=client
+
+    owners=Array.new
+    if(dashboard_config['organizations'])
+      owners.concat(dashboard_config['organizations'])
+    end
+    if(dashboard_config['logins'])
+      owners.concat(dashboard_config['logins'])
+    end
+    dashboard_config['organizations+logins']=owners
+  end
+
+  def login?(login)
+    if(dashboard_config['logins'])
+      return dashboard_config['logins'].include?(login)
+    else
+      return false
+    end
+  end
+
+  def org?(org)
+    if(dashboard_config['organizations'])
+      return dashboard_config['organizations'].include?(org)
+    else
+      return false
+    end
   end
 
 end
@@ -78,7 +103,6 @@ config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
 www_directory = dashboard_config['www-directory']
-organizations = dashboard_config['organizations']
 
 unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
@@ -125,6 +149,7 @@ end
 
 context=DashboardContext.new(feedback, dashboard_config, client)
 context[:START_TIME]=DateTime.now
+owners = dashboard_config['organizations+logins']
 
 context[:START_RATE_LIMIT]=client.rate_limit.remaining
 unless(options[:quiet])
@@ -177,7 +202,7 @@ run_list.each do |phase|
       generate_dashboard_xml(context)
     end
 
-    if(organizations.length > 1)
+    if(owners.length > 1)
       if(phase=='generate-dashboard' or phase=='generate-dashboard/merge')
         context.feedback.puts " merge"
         merge_dashboard_xml(context)
@@ -209,17 +234,17 @@ run_list.each do |phase|
       end
       context.feedback.print "\n"
 
-      if(organizations.length > 1)
-        context.feedback.puts " AllOrgs"
-
-        stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
-        xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
-        html = stylesheet.apply(xml_doc)
-
-        htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
-        htmlFile.write(html)
-        htmlFile.close
-      end
+#      if(owners.length > 1)
+#        context.feedback.puts " AllOrgs"
+#
+#        stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
+#        xml_doc = LibXML::XML::Document.file("#{data_directory}/dash-xml/AllOrgs.xml")
+#        html = stylesheet.apply(xml_doc)
+#
+#        htmlFile = File.new("#{www_directory}/AllOrgs.html", 'w')
+#        htmlFile.write(html)
+#        htmlFile.close
+#      end
 
       context.feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
     end

@@ -20,7 +20,7 @@ require 'yaml'
 # WORKAROUND: Until then, pass in --private and enter credentials or setup SSH key
 def pull_source(context)
   
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
   scratch_directory="#{data_directory}/scratch"
   unless(File.exist?(scratch_directory))
@@ -33,7 +33,7 @@ def pull_source(context)
 #    privateMode = (ARGV[0] == '--private')
 #  end
   
-  organizations.each do |owner|
+  owners.each do |owner|
 
     context.feedback.print "  #{owner} "
   
@@ -41,7 +41,11 @@ def pull_source(context)
       Dir.mkdir("#{scratch_directory}/#{owner}")
     end
       
-    repos = context.client.organization_repositories(owner)
+    if(context.login?(owner))
+      repos = context.client.repositories(owner)
+    else
+      repos = context.client.organization_repositories(owner)
+    end
     repos.each do |repo|
       if repo.fork
         next

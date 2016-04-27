@@ -54,10 +54,17 @@ end
 
 def sync_events(context, sync_db)
   
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
   context.feedback.puts " events"
   
-  organizations.each do |org|
+  owners.each do |org|
+
+    if(context.login?(org))
+      next
+    end
+
+    repos=context.client.organization_repositories(org)
+
     # TODO: Access db to see if any entries. If none, then use this call. Otherwise use latest.
     #getAllForOrg(client, sync_db, org)
     context.feedback.print "  #{org} "

@@ -49,16 +49,22 @@ require "sqlite3"
 
 def sync_releases(context, sync_db)
   
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
   context.feedback.puts " releases"
   
-  organizations.each do |org|
+  owners.each do |org|
     sync_db.execute("BEGIN TRANSACTION");
     context.feedback.print "  #{org} "
 
+    if(context.login?(org))
+      repos=context.client.repositories(org)
+    else
+      repos=context.client.organization_repositories(org)
+    end
+
     # There's no @since here, so it's removing current data and replacing with all release info from GitHub
     # Could use this for initial load and use the event data stream for updates
-    context.client.organization_repositories(org).each do |repo_obj|
+    repos.each do |repo_obj|
       releases=context.client.releases(repo_obj.full_name)
       db_insert_releases(sync_db, org, repo_obj.name, releases)   # Replaces existing with these
       context.feedback.print '.'

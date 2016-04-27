@@ -86,8 +86,8 @@ end
 #  db_insert_issues(issue_db, issues, org, repo)                   # Insert any new items
 #end
 
-def getLatestForOrgRepos(context, issue_db, org)
-  context.client.organization_repositories(org).each do |repo_obj|
+def getLatestForOrgRepos(context, issue_db, org, repos)
+  repos.each do |repo_obj|
     issue_db.execute("BEGIN TRANSACTION");
     getMilestones(context.client, issue_db, repo_obj.full_name)
     getLabels(context.client, issue_db, repo_obj.full_name)
@@ -110,19 +110,26 @@ end
 
 def sync_issues(context, sync_db)
   
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
   context.feedback.puts " issues"
   
-  organizations.each do |org|
+  owners.each do |org|
+
+    if(context.login?(org))
+      repos=context.client.repositories(org)
+    else
+      repos=context.client.organization_repositories(org)
+    end
+
     context.feedback.print "  #{org} "
-    getLatestForOrgRepos(context, sync_db, org)
+    getLatestForOrgRepos(context, sync_db, org, repos)
     context.feedback.print "\n"
   end
 
 end
 
-def getLatestIssueComments(context, issue_db, org)
-  context.client.organization_repositories(org).each do |repo_obj|
+def getLatestIssueComments(context, issue_db, org, repos)
+  repos.each do |repo_obj|
     issue_db.execute("BEGIN TRANSACTION");
 
     # Get the current max timestamp in the db
@@ -142,12 +149,18 @@ end
 
 def sync_issue_comments(context, sync_db)
 
-  organizations = context.dashboard_config['organizations']
+  owners = context.dashboard_config['organizations+logins']
   context.feedback.puts " issues"
 
-  organizations.each do |org|
+  owners.each do |org|
+    if(context.login?(org))
+      repos=context.client.repositories(org)
+    else
+      repos=context.client.organization_repositories(org)
+    end
+
     context.feedback.print "  #{org} "
-    getLatestIssueComments(context, sync_db, org)
+    getLatestIssueComments(context, sync_db, org, repos)
     context.feedback.print "\n"
   end
 
