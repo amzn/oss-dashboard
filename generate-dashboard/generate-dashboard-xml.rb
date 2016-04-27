@@ -116,7 +116,8 @@ def generate_dashboard_xml(context)
     context.feedback.print "  #{org} "
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
   
-    org_data=sync_db.execute("SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login=?", [org])
+    # the LIKE provides case insensitive selection
+    org_data=sync_db.execute("SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login LIKE ?", [org])
 
     dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{org_data[0][0]}'>"
     dashboard_file.puts metadata
@@ -137,7 +138,7 @@ def generate_dashboard_xml(context)
       dashboard_file.puts "  <name>#{org_data[0][3]}</name>"
     end
     unless(org_data[0][4]=="")
-      dashboard_file.puts "  <location>#{org_data[0][4]}</location>"
+      dashboard_file.puts "  <location>#{escape_for_xml(org_data[0][4])}</location>"
     end
     unless(org_data[0][5]=="")
       dashboard_file.puts "  <email>#{org_data[0][5]}</email>"
