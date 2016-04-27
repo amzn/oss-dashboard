@@ -358,7 +358,7 @@
               <xsl:variable name="orgname2" select="../@name"/>
               <xsl:variable name="homepage" select="@homepage"/>
                 <tr><td>
-                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -402,7 +402,7 @@
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
-                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
