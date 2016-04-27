@@ -393,6 +393,7 @@
                   <th><a href="#" rel="tooltip" title="# of Stars"><span class="octicon octicon-star"></span></a></th>
                   <th><a href="#" rel="tooltip" title="# of Watchers"><span class="octicon octicon-eye"></span></a></th>
                   <th><a href="#" rel="tooltip" title="# of Forks"><span class="octicon octicon-repo-forked"></span></a></th>
+                  <th><a href="#" rel="tooltip" title="# of Commits"><span class="octicon octicon-git-commit"></span></a></th>
               </tr>
               </thead>
               <tbody>
@@ -423,6 +424,7 @@
                   <td><xsl:value-of select='@stars'/></td>
                   <td><xsl:value-of select='@watchers'/></td>
                   <td><xsl:value-of select='@forks'/></td>
+                  <td><xsl:value-of select='@commit_count'/></td>
                 </tr>
               </xsl:for-each>
               </tbody>
