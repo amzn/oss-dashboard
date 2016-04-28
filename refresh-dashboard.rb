@@ -103,6 +103,7 @@ config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
 www_directory = dashboard_config['www-directory']
+OCTOKIT_API_ENDPOINT = ENV['OCTOKIT_API_ENDPOINT']
 
 unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
@@ -151,9 +152,13 @@ context=DashboardContext.new(feedback, dashboard_config, client)
 context[:START_TIME]=DateTime.now
 owners = dashboard_config['organizations+logins']
 
-context[:START_RATE_LIMIT]=client.rate_limit.remaining
-unless(options[:quiet])
-  context.feedback.puts "Remaining GitHub Calls: #{context[:START_RATE_LIMIT]}"
+if(OCTOKIT_API_ENDPOINT)
+  context[:START_RATE_LIMIT]='n/a'
+else
+  context[:START_RATE_LIMIT]=client.rate_limit.remaining
+  unless(options[:quiet])
+    context.feedback.puts "Remaining GitHub Calls: #{context[:START_RATE_LIMIT]}"
+  end
 end
  
 # State to make output cleaner
@@ -184,11 +189,16 @@ run_list.each do |phase|
     review_source(context)
   end
 
-  context[:END_RATE_LIMIT]=client.rate_limit.remaining
-  context[:USED_RATE_LIMIT]=context[:START_RATE_LIMIT]-context[:END_RATE_LIMIT]
-  # TODO: This isn't perfect, you could flip over the hour, but use lots of rate_limit and not be negative
-  if(context[:USED_RATE_LIMIT] < 0)
-    context[:USED_RATE_LIMIT]+=5000
+  if(OCTOKIT_API_ENDPOINT)
+    context[:END_RATE_LIMIT]='n/a'
+    context[:USED_RATE_LIMIT]='n/a'
+  else
+    context[:END_RATE_LIMIT]=client.rate_limit.remaining
+    context[:USED_RATE_LIMIT]=context[:START_RATE_LIMIT]-context[:END_RATE_LIMIT]
+    # TODO: This isn't perfect, you could flip over the hour, but use lots of rate_limit and not be negative
+    if(context[:USED_RATE_LIMIT] < 0)
+      context[:USED_RATE_LIMIT]+=5000
+    end
   end
 
   if(phase.start_with?('generate-dashboard'))
@@ -239,6 +249,8 @@ run_list.each do |phase|
   end
 end
 
-unless(options[:quiet])
-  context.feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+unless(OCTOKIT_API_ENDPOINT)
+  unless(options[:quiet])
+    context.feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
+  end
 end
