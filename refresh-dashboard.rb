@@ -29,6 +29,7 @@ require 'optparse'
 class DashboardContext < Hash
 
   attr_reader :feedback, :dashboard_config, :client
+  OCTOKIT_API_ENDPOINT = ENV['OCTOKIT_API_ENDPOINT']
 
   def initialize(feedback, dashboard_config, client)
     @feedback=feedback
@@ -58,6 +59,14 @@ class DashboardContext < Hash
       return dashboard_config['organizations'].include?(org)
     else
       return false
+    end
+  end
+
+  def github_com?
+    if(OCTOKIT_API_ENDPOINT)
+      return false
+    else
+      return true
     end
   end
 
@@ -103,7 +112,6 @@ config = YAML.load(File.read(config_file))
 dashboard_config = config['dashboard']
 data_directory = dashboard_config['data-directory']
 www_directory = dashboard_config['www-directory']
-OCTOKIT_API_ENDPOINT = ENV['OCTOKIT_API_ENDPOINT']
 
 unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
@@ -152,13 +160,13 @@ context=DashboardContext.new(feedback, dashboard_config, client)
 context[:START_TIME]=DateTime.now
 owners = dashboard_config['organizations+logins']
 
-if(OCTOKIT_API_ENDPOINT)
-  context[:START_RATE_LIMIT]='n/a'
-else
+if(context.github_com?)
   context[:START_RATE_LIMIT]=client.rate_limit.remaining
   unless(options[:quiet])
     context.feedback.puts "Remaining GitHub Calls: #{context[:START_RATE_LIMIT]}"
   end
+else
+  context[:START_RATE_LIMIT]='n/a'
 end
  
 # State to make output cleaner
@@ -189,16 +197,16 @@ run_list.each do |phase|
     review_source(context)
   end
 
-  if(OCTOKIT_API_ENDPOINT)
-    context[:END_RATE_LIMIT]='n/a'
-    context[:USED_RATE_LIMIT]='n/a'
-  else
+  if(context.github_com?)
     context[:END_RATE_LIMIT]=client.rate_limit.remaining
     context[:USED_RATE_LIMIT]=context[:START_RATE_LIMIT]-context[:END_RATE_LIMIT]
     # TODO: This isn't perfect, you could flip over the hour, but use lots of rate_limit and not be negative
     if(context[:USED_RATE_LIMIT] < 0)
       context[:USED_RATE_LIMIT]+=5000
     end
+  else
+    context[:END_RATE_LIMIT]='n/a'
+    context[:USED_RATE_LIMIT]='n/a'
   end
 
   if(phase.start_with?('generate-dashboard'))
@@ -249,7 +257,7 @@ run_list.each do |phase|
   end
 end
 
-unless(OCTOKIT_API_ENDPOINT)
+if(context.github_com?)
   unless(options[:quiet])
     context.feedback.puts "Remaining GitHub Calls: #{client.rate_limit.remaining}"
   end
