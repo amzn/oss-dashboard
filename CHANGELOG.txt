@@ -1,0 +1,6 @@
+This Changelog documents breaking changes, typically plugin API or database changes. 
+
+2016-04-28: CHANGE: Changed the db_reporter API to include a context parameter. 
+                    That is db_report(org, sync_db) became db_report(context, org, sync_db).
+            REASON: This allows db reports access to the github_url context parameter, allowing them to work with private GitHub instances. 
+            ACTION: Users should update any custom db-reporters to include the context parameter. 
