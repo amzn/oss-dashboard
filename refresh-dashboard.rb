@@ -70,6 +70,15 @@ class DashboardContext < Hash
     end
   end
 
+  def github_url
+    if(github_com?)
+      return 'https://github.com'
+    else
+      # https://github.url/api/v3/
+      return OCTOKIT_API_ENDPOINT.sub(%r{/api/v3/?}, '')
+    end
+  end
+
 end
 
 options = {}
