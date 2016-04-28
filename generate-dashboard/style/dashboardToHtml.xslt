@@ -64,6 +64,7 @@
 
   <xsl:template match="github-dashdata">
     <xsl:variable name="dashboardname" select="@dashboard"/>
+    <xsl:variable name="githuburl" select="@github_url"/>
     <xsl:variable name="orgname" select="organization/@name"/>
     <html>
       <head>
@@ -192,7 +193,7 @@
         <div class="well">
           <xsl:variable name="logo" select="@logo"/>
           <xsl:variable name="orgDescription" select="organization/description"/>
-          <h2>GitHub Dashboard: <xsl:if test="@logo"><a rel="tooltip" title="{$orgDescription}" href="https://github.com/{$orgname}"><img width="35" height="35" src="{$logo}&amp;s=35"/></a></xsl:if><xsl:value-of select='@dashboard'/><xsl:if test='@team'> Team</xsl:if></h2><br/>
+          <h2>GitHub Dashboard: <xsl:if test="@logo"><a rel="tooltip" title="{$orgDescription}" href="{$githuburl}/{$orgname}"><img width="35" height="35" src="{$logo}&amp;s=35"/></a></xsl:if><xsl:value-of select='@dashboard'/><xsl:if test='@team'> Team</xsl:if></h2><br/>
           <div class="container" style="padding-left: 0px; padding-right: 0px;">
           <ul id="tabs" class="nav navbar-nav">
             <li class="active"><a href="#overview" data-toggle="tab">Overview</a></li>
@@ -295,7 +296,7 @@
                   <xsl:variable name="logo2" select="@avatar"/>
                   <xsl:variable name="orgDescription2" select="organization/description"/>
                   <tr>
-                    <td><xsl:if test="$logo2"><a rel="tooltip" title="{$orgDescription2}" href="https://github.com/{$orgname2}"><img width="35" height="35" src="{$logo2}&amp;s=35"/></a></xsl:if><a href="{$orgname2}.html"><xsl:value-of select="@name"/> (<xsl:value-of select="count(repo)"/>)</a></td>
+                    <td><xsl:if test="$logo2"><a rel="tooltip" title="{$orgDescription2}" href="{$githuburl}/{$orgname2}"><img width="35" height="35" src="{$logo2}&amp;s=35"/></a></xsl:if><a href="{$orgname2}.html"><xsl:value-of select="@name"/> (<xsl:value-of select="count(repo)"/>)</a></td>
                     <td></td>
                   </tr>
                  </xsl:for-each>
@@ -316,7 +317,7 @@
                   <xsl:variable name='orgname2' select="../@name"/>
                   <xsl:if test="position() &lt;= 5">
                     <tr><td>
-                      <xsl:value-of select='substring(@created_at,1,10)'/> - <a href="https://github.com/{$orgname2}/{$repo_name}"><xsl:value-of select='@name'/></a>
+                      <xsl:value-of select='substring(@created_at,1,10)'/> - <a href="{$githuburl}/{$orgname2}/{$repo_name}"><xsl:value-of select='@name'/></a>
                       <xsl:if test="@private='true'">
                          <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                       </xsl:if>
@@ -358,7 +359,7 @@
               <xsl:variable name="orgname2" select="../@name"/>
               <xsl:variable name="homepage" select="@homepage"/>
                 <tr><td>
-                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -402,7 +403,7 @@
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
-                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -413,7 +414,7 @@
                 <td>
                   <xsl:if test="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]">
                     <xsl:variable name="licenseFile" select="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]/@file"/>
-                    <a href="https://github.com/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]"/> (<xsl:value-of select="round(/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]/@confidence)"/>%)</a>
+                    <a href="{$githuburl}/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]"/> (<xsl:value-of select="round(/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]/@confidence)"/>%)</a>
                   </xsl:if>
                 </td>
                 <td><xsl:value-of select='@language'/></td>
@@ -465,7 +466,7 @@
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
-                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -526,7 +527,7 @@
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
-                <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -567,7 +568,7 @@
                     <xsl:variable name="title" select="title"/>
                     <xsl:variable name="membername" select="@user"/>
                     <tr>
-                      <td><span class="octicon octicon-issue-opened"></span> <a href="https://github.com/{$orgname2}/{$reponame}/issues/{$issuekey}"><xsl:value-of select="$reponame"/>-<xsl:value-of select='@number'/></a></td>
+                      <td><span class="octicon octicon-issue-opened"></span> <a href="{$githuburl}/{$orgname2}/{$reponame}/issues/{$issuekey}"><xsl:value-of select="$reponame"/>-<xsl:value-of select='@number'/></a></td>
                       <td>"<xsl:value-of select='substring(title,1,144)'/>"</td>
                       <td>
                        <xsl:for-each select='label'>
@@ -588,7 +589,7 @@
                         <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
                        </xsl:if>
                       </xsl:if>
-                        <a href="https://github.com/{$membername}"><xsl:value-of select="@user"/></a>
+                        <a href="{$githuburl}/{$membername}"><xsl:value-of select="@user"/></a>
                       </td>
                       <td><xsl:value-of select='@comments'/></td>
                     </tr>
@@ -613,7 +614,7 @@
                     <xsl:variable name="title" select="title"/>
                     <xsl:variable name="membername" select="@user"/>
                     <tr>
-                      <td><span class="octicon octicon-issue-opened"></span> <a href="https://github.com/{$orgname2}/{$reponame}/issues/{$issuekey}"><xsl:value-of select="$reponame"/>-<xsl:value-of select='@number'/></a></td>
+                      <td><span class="octicon octicon-issue-opened"></span> <a href="{$githuburl}/{$orgname2}/{$reponame}/issues/{$issuekey}"><xsl:value-of select="$reponame"/>-<xsl:value-of select='@number'/></a></td>
                       <td>"<xsl:value-of select='substring(title,1,144)'/>"</td>
                       <td>
                        <xsl:for-each select='label'>
@@ -634,7 +635,7 @@
                         <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
                        </xsl:if>
                       </xsl:if>
-                        <a href="https://github.com/{$membername}"><xsl:value-of select="@user"/></a>
+                        <a href="{$githuburl}/{$membername}"><xsl:value-of select="@user"/></a>
                       </td>
                       <td><xsl:value-of select='@comments'/></td>
                       <td><xsl:value-of select='@prFileCount'/></td>
@@ -658,14 +659,14 @@
                 <xsl:for-each select="organization/team">
                   <xsl:variable name="orgname2" select="../@name"/>
                   <xsl:variable name="teamlink" select="@slug"/>
-                  <tr><td><a href="https://github.com/orgs/{$orgname2}/teams/{$teamlink}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a><br/>
+                  <tr><td><a href="{$githuburl}/orgs/{$orgname2}/teams/{$teamlink}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a><br/>
                     <xsl:value-of select="description"/>
                   </td>
                   <td>
                   <ul style='list-style-type: none;'>
                   <xsl:for-each select="repos/repo">
                     <xsl:variable name="reponame" select="."/>
-                    <li><a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="."/></a></li>
+                    <li><a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="."/></a></li>
                   </xsl:for-each>
                   </ul>
                   </td>
@@ -674,7 +675,7 @@
                   <xsl:for-each select="members/member">
                     <xsl:variable name="membername" select="."/>
                     <li>
-                      <a href="https://github.com/{$membername}"><xsl:value-of select="."/></a></li>
+                      <a href="{$githuburl}/{$membername}"><xsl:value-of select="."/></a></li>
                   </xsl:for-each>
                   </ul>
                   </td>
@@ -696,7 +697,7 @@
                 <xsl:for-each select="organization/member[not(@login=preceding::*/@login)]">
                   <xsl:variable name="memberlogin" select="@login"/>
                   <xsl:variable name="avatar" select="@avatar_url"/>
-                  <tr><td><img width="35" height="35" src="{$avatar}&amp;s=35"/><a href="https://github.com/{$memberlogin}"><xsl:value-of select="@login"/></a></td>
+                  <tr><td><img width="35" height="35" src="{$avatar}&amp;s=35"/><a href="{$githuburl}/{$memberlogin}"><xsl:value-of select="@login"/></a></td>
                       <td><xsl:value-of select="name"/></td>
                       <td><xsl:value-of select="@email"/></td>
                       <td><xsl:value-of select="company"/></td>
@@ -731,7 +732,7 @@
                   <tr><td>
                     <xsl:variable name="reponame" select="@name"/>
                     <xsl:variable name="orgname2" select="../@name"/>
-                    <a href="https://github.com/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
+                    <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/></a>
                   </td>
                   <td><ul style='list-style-type: none;'>
                   <xsl:for-each select="collaborators/collaborator">
@@ -746,7 +747,7 @@
                         <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
                        </xsl:if>
                       </xsl:if>
-                      <a href="https://github.com/{$collaborator}"><xsl:value-of select="."/></a>
+                      <a href="{$githuburl}/{$collaborator}"><xsl:value-of select="."/></a>
                     </li>
                   </xsl:for-each></ul></td>
                   </tr>
@@ -784,6 +785,7 @@
                         <xsl:with-param name="columntypes" select="$columntypes"/>
                         <xsl:with-param name="value" select="."/>
                         <xsl:with-param name="index" select="1"/>
+                        <xsl:with-param name="githuburl" select="$githuburl"/>
                       </xsl:call-template>
                      </xsl:if>
                      <xsl:if test="field">
@@ -794,6 +796,7 @@
                          <xsl:with-param name="columntypes" select="$columntypes"/>
                          <xsl:with-param name="value" select="."/>
                          <xsl:with-param name="index" select="position()"/>
+                         <xsl:with-param name="githuburl" select="$githuburl"/>
                        </xsl:call-template>
                       </xsl:for-each>
                      </xsl:if>
@@ -830,6 +833,7 @@
                         <xsl:with-param name="columntypes" select="$columntypes"/>
                         <xsl:with-param name="value" select="."/>
                         <xsl:with-param name="index" select="1"/>
+                        <xsl:with-param name="githuburl" select="$githuburl"/>
                       </xsl:call-template>
                      </xsl:if>
                      <xsl:if test="field">
@@ -840,6 +844,7 @@
                          <xsl:with-param name="columntypes" select="$columntypes"/>
                          <xsl:with-param name="value" select="."/>
                          <xsl:with-param name="index" select="position()"/>
+                         <xsl:with-param name="githuburl" select="$githuburl"/>
                        </xsl:call-template>
                       </xsl:for-each>
                      </xsl:if>
@@ -868,7 +873,7 @@
                 <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(@repo=preceding::reporting[@type=$report]/@repo)]">
                   <xsl:variable name="orgreponame" select="@repo"/>
                     <tr>
-                      <td><a href="https://github.com/{$orgreponame}"><xsl:value-of select="@repo"/></a>
+                      <td><a href="{$githuburl}/{$orgreponame}"><xsl:value-of select="@repo"/></a>
                         <xsl:if test="@private='true'">
                            <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                         </xsl:if>
@@ -879,10 +884,10 @@
                         <xsl:variable name="lineno"><xsl:value-of select="file/@lineno"/></xsl:variable>
                         <xsl:variable name="linetxt">#L<xsl:value-of select="$lineno"/></xsl:variable>
                         <xsl:if test="file and file/@lineno">
-                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgreponame}/tree/master/{$file}{$linetxt}"><xsl:value-of select="$file"/><xsl:value-of select="$linetxt"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
+                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="{$githuburl}/{$orgreponame}/tree/master/{$file}{$linetxt}"><xsl:value-of select="$file"/><xsl:value-of select="$linetxt"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
                         <xsl:if test="file and not(file/@lineno)">
-                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="https://github.com/{$orgreponame}/tree/master/{$file}"><xsl:value-of select="$file"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
+                          <li><xsl:if test="message"><xsl:value-of select="message"/>: </xsl:if><a href="{$githuburl}/{$orgreponame}/tree/master/{$file}"><xsl:value-of select="$file"/></a><xsl:if test="string-length(match)>0"> - <xsl:value-of select="match"/></xsl:if></li>
                         </xsl:if>
                         <xsl:if test="not(file) and file/@lineno">
                           <li>ERROR: Line number and no file. </li>
@@ -914,6 +919,7 @@
                         <xsl:with-param name="columntypes" select="$columntypes"/>
                         <xsl:with-param name="value" select="."/>
                         <xsl:with-param name="index" select="1"/>
+                        <xsl:with-param name="githuburl" select="$githuburl"/>
                       </xsl:call-template>
                      </xsl:if>
                      <xsl:if test="field">
@@ -924,6 +930,7 @@
                          <xsl:with-param name="columntypes" select="$columntypes"/>
                          <xsl:with-param name="value" select="."/>
                          <xsl:with-param name="index" select="position()"/>
+                         <xsl:with-param name="githuburl" select="$githuburl"/>
                        </xsl:call-template>
                       </xsl:for-each>
                      </xsl:if>
@@ -1239,6 +1246,7 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     <xsl:param name="columntypes"/>
     <xsl:param name="value"/>
     <xsl:param name="index"/>
+    <xsl:param name="githuburl"/>
     <xsl:if test="$columntypes[$index]/@type='text'">
      <td><xsl:value-of select="$value"/></td>
     </xsl:if>
@@ -1267,7 +1275,7 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     <xsl:if test="$columntypes[$index]/@type='org/repo'">
      <xsl:variable name="reponame" select="substring-after($value, '/')"/>
      <xsl:variable name="repoorg" select="substring-before($value, '/')"/>
-     <td><a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a>
+     <td><a href="{$githuburl}/{$value}"><xsl:value-of select="$value"/></a>
        <xsl:if test="/github-dashdata/organization[@name=$repoorg]/repo[@name=$reponame and @private='true']">
          <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
        </xsl:if>
@@ -1279,7 +1287,7 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
     <xsl:if test="$columntypes[$index]/@type='org/team'">
      <xsl:variable name="teamname" select="substring-after($value, '/')"/>
      <xsl:variable name="teamorg" select="substring-before($value, '/')"/>
-     <td><a href="https://github.com/orgs/{$teamorg}/teams/{$teamname}"><xsl:value-of select="$value"/></a></td>
+     <td><a href="{$githuburl}/orgs/{$teamorg}/teams/{$teamname}"><xsl:value-of select="$value"/></a></td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='member'">
      <td>
@@ -1292,7 +1300,7 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
         <span style="margin-right: 2px;"><sup>&#x2699;</sup></span>
        </xsl:if>
       </xsl:if>
-      <a href="https://github.com/{$value}"><xsl:value-of select="$value"/></a>
+      <a href="{$githuburl}/{$value}"><xsl:value-of select="$value"/></a>
      </td>
     </xsl:if>
   </xsl:template>

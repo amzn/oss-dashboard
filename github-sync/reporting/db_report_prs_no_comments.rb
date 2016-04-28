@@ -26,7 +26,7 @@ class NoPrCommentsDbReporter < DbReporter
     pr_data=sync_db.execute(pr_query, [org])
     pr_data.each() do |row|
 
-        url="https://github.com/#{org}/#{row[4]}/pull/#{row[1]}"
+        url="#{context.github_url}/#{org}/#{row[4]}/pull/#{row[1]}"
         title=row[2].gsub(/&/, "&amp;").gsub(/</, "&lt;")
 
         label_data=sync_db.execute(label_query, [row[0]])

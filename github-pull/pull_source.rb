@@ -64,7 +64,7 @@ def pull_source(context)
   
       # Checkout or update - use other script if repo.private
       unless(File.exist?(repodir))
-        `git clone -q --depth 1 https://github.com/#{owner}/#{repo.name}.git #{repodir}`
+        `git clone -q --depth 1 #{context.github_url}/#{owner}/#{repo.name}.git #{repodir}`
       else
         # Git 1.8.5 solution
         # `git -C #{repodir} pull -q`

@@ -27,7 +27,7 @@ class NoIssueCommentsDbReporter < DbReporter
     issue_data=sync_db.execute(issue_query, [org])
     issue_data.each() do |row|
 
-        url="https://github.com/#{org}/#{row[4]}/issues/#{row[1]}"
+        url="#{context.github_url}/#{org}/#{row[4]}/issues/#{row[1]}"
         title=row[2].gsub(/&/, "&amp;").gsub(/</, "&lt;")
 
         label_data=sync_db.execute(label_query, [row[0]])

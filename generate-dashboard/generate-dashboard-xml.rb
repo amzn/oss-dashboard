@@ -119,7 +119,7 @@ def generate_dashboard_xml(context)
     # the LIKE provides case insensitive selection
     org_data=sync_db.execute("SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login LIKE ?", [org])
 
-    dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{org_data[0][0]}'>"
+    dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{org_data[0][0]}' github_url='#{context.github_url}'>"
     dashboard_file.puts metadata
 
     account_type="organization"
@@ -127,7 +127,7 @@ def generate_dashboard_xml(context)
       account_type="login"
     end
 
-    dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}' type='#{account_type}'>"
+    dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}' type='#{account_type}'>" 
     unless(org_data[0][1]=="")
       dashboard_file.puts "  <description>#{escape_for_xml(org_data[0][1])}</description>"
     end
@@ -408,7 +408,7 @@ def merge_dashboard_xml_to(context, attribute, xmlfile, title)
 
   dashboard_file=File.open("#{data_directory}/dash-xml/#{xmlfile}", 'w')
   # TODO: Don't hard code includes_private
-  dashboard_file.puts "<github-dashdata dashboard='#{title}' includes_private='true'>"
+  dashboard_file.puts "<github-dashdata dashboard='#{title}' includes_private='true' github_url='#{context.github_url}'>"
 
   dashboard_file.puts(generate_metadata_header(context))
 
@@ -468,7 +468,7 @@ def generate_team_xml(context)
     path="#{data_directory}/dash-xml/team-#{team}.xml"
     f = open(path, 'w')
 
-    f.puts "<github-dashdata dashboard='#{escape_for_xml(teamname)}' team='true'>"
+    f.puts "<github-dashdata dashboard='#{escape_for_xml(teamname)}' team='true' github_url='#{context.github_url}'>"
     f.puts header
 
     # For team, find organizations it appears in

@@ -38,7 +38,7 @@ class WikiOnDbReporter < DbReporter
     wikiOn=sync_db.execute("SELECT r.created_at, r.name FROM repository r WHERE has_wiki='1' AND r.org=?", [org])
     text = ''
     wikiOn.each do |row|
-      text << "  <reporting class='repo-report' repo='#{org}/#{row[1]}' type='WikiOnDbReporter'><field>#{row[0]}</field><field>#{org}/#{row[1]}</field><field>https://github.com/#{org}/#{row[1]}/wiki</field></reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{org}/#{row[1]}' type='WikiOnDbReporter'><field>#{row[0]}</field><field>#{org}/#{row[1]}</field><field>#{context.github_url}/#{org}/#{row[1]}/wiki</field></reporting>\n"
     end
     return text
   end
