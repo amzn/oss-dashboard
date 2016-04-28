@@ -79,7 +79,7 @@ def run_db_reports(context, sync_db)
     report << " <organization name='#{org}'>\n"
   
     report_instances.each do |report_obj|
-      report << report_obj.db_report(org, sync_db).to_s
+      report << report_obj.db_report(context, org, sync_db).to_s
       context.feedback.print '.'
     end
 

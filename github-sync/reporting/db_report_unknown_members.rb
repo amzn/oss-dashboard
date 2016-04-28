@@ -34,7 +34,7 @@ class UnknownMembersDbReporter < DbReporter
     return [ ['login', 'member'] ]
   end
 
-  def db_report(org, sync_db)
+  def db_report(context, org, sync_db)
     unknown=sync_db.execute("SELECT DISTINCT(m.login) FROM member m, repository r, team_to_member ttm, team_to_repository ttr WHERE m.login NOT IN (SELECT login FROM users) AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     text = ''
     unknown.each do |row|

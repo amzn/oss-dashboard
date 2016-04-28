@@ -17,7 +17,7 @@ class NoPrCommentsDbReporter < DbReporter
     return [ ['Created', 'date'], ['Pr', 'url'], 'Title', ['Labels', 'labels'] ]
   end
 
-  def db_report(org, sync_db)
+  def db_report(context, org, sync_db)
 
     text = ""
     pr_query="SELECT pr.id, pr.pr_number, pr.title, pr.org, pr.repo, pr.created_at, pr.updated_at, pr.comment_count FROM pull_requests pr WHERE pr.comment_count=0 AND pr.state='open' AND pr.user_login NOT IN (SELECT m.login FROM member m) AND pr.org=?"

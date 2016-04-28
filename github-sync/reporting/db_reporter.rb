@@ -25,7 +25,7 @@ class DbReporter
   #   <reporting class='report-class' type='ExampleDbReporter'><field>DATA</field><field>DATA2</field></reporting>\n"
   #
   # Where class can be 'user-report' or 'repo-report', and if it's repo-report it should also have repo='$org/$repo' as an attribute
-  def db_report(repo, db)
+  def db_report(context, repo, db)
     raise "No db_report(repo, db) function defined by report subclass"
   end
 

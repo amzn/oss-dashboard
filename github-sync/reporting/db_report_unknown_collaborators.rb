@@ -34,7 +34,7 @@ class UnknownCollaboratorsDbReporter < DbReporter
     return [ ['login', 'member'] ]
   end
 
-  def db_report(org, sync_db)
+  def db_report(context, org, sync_db)
     unknown=sync_db.execute("SELECT DISTINCT(m.login) FROM member m, repository r, repository_to_member rtm WHERE m.login NOT IN (SELECT login FROM users) AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", [org])
 
     text = ''

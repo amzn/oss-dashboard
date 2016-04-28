@@ -34,7 +34,7 @@ class UnchangedDbReporter < DbReporter
     return [ 'Date', ['repository', 'org/repo'] ]
   end
 
-  def db_report(org, sync_db)
+  def db_report(context, org, sync_db)
     unchanged=sync_db.execute("SELECT r.name, r.created_at FROM repository r WHERE created_at=pushed_at AND r.org=?", [org])
     text = ''
     unchanged.each do |row|

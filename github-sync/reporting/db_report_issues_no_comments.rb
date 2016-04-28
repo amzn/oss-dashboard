@@ -17,7 +17,7 @@ class NoIssueCommentsDbReporter < DbReporter
     return [ ['Created', 'date'], ['Issue', 'url'], 'Title', ['Labels', 'labels'] ]
   end
 
-  def db_report(org, sync_db)
+  def db_report(context, org, sync_db)
 
     text = ""
     issue_query="SELECT i.id, i.issue_number, i.title, i.org, i.repo, i.created_at, i.updated_at, i.comment_count FROM issues i WHERE i.comment_count=0 AND i.state='open' AND i.user_login NOT IN (SELECT m.login FROM member m) AND i.org=?"

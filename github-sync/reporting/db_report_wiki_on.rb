@@ -34,7 +34,7 @@ class WikiOnDbReporter < DbReporter
     return [ 'Create Date', ['repository', 'org/repo'], ['Wiki', 'url'] ]
   end
 
-  def db_report(org, sync_db)
+  def db_report(context, org, sync_db)
     wikiOn=sync_db.execute("SELECT r.created_at, r.name FROM repository r WHERE has_wiki='1' AND r.org=?", [org])
     text = ''
     wikiOn.each do |row|

@@ -34,7 +34,7 @@ class LeftEmploymentDbReporter < DbReporter
     return [ ['login', 'url'], 'email' ]
   end
 
-  def db_report(org, sync_db)
+  def db_report(context, org, sync_db)
     unknown=sync_db.execute("SELECT DISTINCT(m.login), u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr, users u WHERE m.login=u.login AND u.is_employee=0 AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
     text = ''
     unknown.each do |row|
