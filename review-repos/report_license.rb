@@ -39,6 +39,8 @@ class LicenseReporter < Reporter
         ignore=project.license # Tests for the error
       rescue ArgumentError
         return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
+      rescue Rugged::ReferenceError
+        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
       end
 
       unless(project.matched_file)
