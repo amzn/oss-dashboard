@@ -31,15 +31,15 @@ class UnknownCollaboratorsDbReporter < DbReporter
   end
 
   def db_columns()
-    return [ ['login', 'member'] ]
+    return [ ['login', 'member'], ['repository', 'org/repo'] ]
   end
 
   def db_report(context, org, sync_db)
-    unknown=sync_db.execute("SELECT DISTINCT(m.login) FROM member m, repository r, repository_to_member rtm WHERE m.login NOT IN (SELECT login FROM users) AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", [org])
+    unknown=sync_db.execute("SELECT DISTINCT(m.login), r.name FROM member m, repository r, repository_to_member rtm WHERE m.login NOT IN (SELECT login FROM users) AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", [org])
 
     text = ''
     unknown.each do |row|
-      text << "  <reporting class='user-report' type='UnknownCollaboratorsDbReporter'>#{row[0]}</reporting>\n"
+      text << "  <reporting class='user-report' type='UnknownCollaboratorsDbReporter'><field>#{row[0]}</field><field>#{org}/#{row[1]}</field></reporting>\n"
     end
     return text
   end
