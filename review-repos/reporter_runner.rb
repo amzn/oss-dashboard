@@ -20,6 +20,7 @@ require_relative 'reporter.rb'
 
 # Standard reporters
 require_relative 'report_docs.rb'
+require_relative 'report_binary_files.rb'
 require_relative 'report_license.rb'
 
 def get_reporter_instances(dashboard_config)
