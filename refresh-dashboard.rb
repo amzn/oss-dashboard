@@ -231,7 +231,6 @@ run_list.each do |phase|
 
     if(owners.length > 1)
       if(phase=='generate-dashboard' or phase=='generate-dashboard/merge')
-        context.feedback.puts " merge"
         merge_dashboard_xml(context)
       end
     end
