@@ -413,7 +413,7 @@ def merge_dashboard_xml_to(context, attribute, xmlfile, title)
 
   dashboard_file.puts(generate_metadata_header(context))
 
-  puts " merge: #{title}"
+  context.feedback.puts " merge: #{title}"
 
   organizations.each do |org|
 
