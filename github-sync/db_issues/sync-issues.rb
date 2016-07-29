@@ -88,7 +88,8 @@ end
 
 def getLatestForOrgRepos(context, issue_db, org, repos)
   repos.each do |repo_obj|
-    issue_db.execute("BEGIN TRANSACTION");
+   issue_db.execute("BEGIN TRANSACTION");
+   begin # Repository access blocked (Octokit::ClientError)
     getMilestones(context.client, issue_db, repo_obj.full_name)
     getLabels(context.client, issue_db, repo_obj.full_name)
     maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo_obj.name)               # Get the current max timestamp in the db
@@ -105,6 +106,10 @@ def getLatestForOrgRepos(context, issue_db, org, repos)
     db_add_pull_request_files(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely the files + their metrics
     issue_db.execute("END TRANSACTION");
     context.feedback.print '.'
+   rescue Octokit::ClientError
+      issue_db.rollback
+      context.feedback.print '!'
+   end
   end
 end
 

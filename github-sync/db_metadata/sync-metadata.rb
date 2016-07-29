@@ -79,13 +79,16 @@ def store_organization_repositories(context, db, org)
   end
   
   repos.each do |repo_obj|
+   begin # Repository access blocked (Octokit::ClientError)
     watchers=context.client.send('subscribers', "#{org}/#{repo_obj.name}").length
-
 
     db.execute("INSERT INTO repository 
       (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? 1 : 0, repo_obj.private ? 1 : 0, repo_obj.has_wiki ? 1 : 0, repo_obj.language, repo_obj.watchers, watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s, repo_obj.size, repo_obj.description])
+   rescue Octokit::ClientError
+      context.feedback.print "!#{$!}!"
+   end
   end
 end
 
@@ -178,6 +181,9 @@ def sync_metadata(context, sync_db)
 
   if(organizations)
     organizations.each do |org_login|
+     begin
+
+      # Repository access blocked (Octokit::ClientError)
       sync_db.execute("BEGIN TRANSACTION")
       context.feedback.print "  #{org_login} "
       clear_organization(sync_db, org_login)
@@ -188,7 +194,11 @@ def sync_metadata(context, sync_db)
         store_organization_teams(sync_db, context.client, org_login)
       end
       sync_db.execute("COMMIT")
-      context.feedback.print "\n"
+     rescue Octokit::ClientError
+        sync_db.rollback
+        context.feedback.print "!#{$!}!"
+     end
+     context.feedback.print "\n"
     end
   end
 
@@ -200,7 +210,7 @@ def sync_metadata(context, sync_db)
       org=store_organization(context, sync_db, login)
       store_organization_repositories(context, sync_db, login)
       sync_db.execute("COMMIT")
-      context.feedback.print "\n"
+     context.feedback.print "\n"
     end
   end
 

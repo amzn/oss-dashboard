@@ -26,15 +26,16 @@ def sync_commits(context, sync_db)
   owners.each do |org|
     context.feedback.print "  #{org} "
 
-  if(context.login?(org))
-    repos=context.client.repositories(org)
-  else
-    repos=context.client.organization_repositories(org)
-  end
+    if(context.login?(org))
+      repos=context.client.repositories(org)
+    else
+      repos=context.client.organization_repositories(org)
+    end
 
 #    context.client.organization_repositories(org).each do |repo_obj|
     repos.each do |repo_obj|
 
+     begin
       if(repo_obj.size==0)
         # if no commits, octokit errors. Size of zero is close enough to no commits 
         # - i.e. the first commit may not get shown for a new repo
@@ -59,6 +60,10 @@ def sync_commits(context, sync_db)
       end
       db_insert_commits(sync_db, commits, org, repo_name)                   # Insert any new items
       context.feedback.print '.'
+     rescue Octokit::ClientError
+       # Repository access blocked (Octokit::ClientError)
+       context.feedback.print "!"
+     end
     end
     context.feedback.print "\n"
   end

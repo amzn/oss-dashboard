@@ -132,6 +132,7 @@ require "date"
   def db_add_pull_request_files(db, client, issues, org, repo)
     issues.each do |item|
       if(item.pull_request)
+       begin
         files=client.pull_request_files("#{org}/#{repo}", item.number.to_i)
         files.each do |file|
           if(db_pull_request_file_stored?(db, item.id, file.filename))
@@ -142,6 +143,10 @@ require "date"
                VALUES (?, ?, ?, ?, ?, ?)",
             [item.id, file.filename, file.additions, file.deletions, file.changes, file.status])
         end
+       rescue Octokit::InternalServerError
+        # 500 - Server Error: Sorry, there was a problem generating this diff. The repository may be missing relevant data. (Octokit::InternalServerError)
+        # Skipping
+       end
       end
     end
   end
