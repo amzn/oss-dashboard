@@ -350,7 +350,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoTable' class='data-grid'>
               <thead>
-              <tr><th>Repo</th><th>Description</th><xsl:if test="organization/team"><th>Teams</th></xsl:if>
+              <tr><th>Repository</th><th>Description</th><xsl:if test="organization/team"><th>Teams</th></xsl:if>
               </tr>
               </thead>
               <tbody>
@@ -386,7 +386,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoMetricsTable' class='data-grid'>
               <thead>
-              <tr><th>Repo</th><th><a href="#" rel="tooltip" title="As Reported by GitHub/Licensee with confidence percentage">Apparent License</a></th><th>Language</th>
+              <tr><th>Repository</th><th><a href="#" rel="tooltip" title="As Reported by GitHub/Licensee with confidence percentage">Apparent License</a></th><th>Language</th>
                   <th>Created</th>
                   <th>Pushed</th>
                   <th>Updated</th>
@@ -453,7 +453,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='issueMetricsTable' class='data-grid'>
               <thead>
-              <tr><th>Repo</th>
+              <tr><th>Repository</th>
                   <th>Issues Opened</th>
                   <th>Issues Closed</th>
                   <th>Issue Total</th>
@@ -514,7 +514,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='prMetricsTable' class='data-grid'>
               <thead>
-              <tr><th>Repo</th>
+              <tr><th>Repository</th>
                   <th>PRs Opened</th>
                   <th>PRs Closed</th>
                   <th>PR Total</th>
