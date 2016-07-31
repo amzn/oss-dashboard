@@ -16,15 +16,6 @@ require "yaml"
 require "sqlite3"
 require "date"
 
-  def gh_to_db_timestamp(timestamp)
-    # Convert format '2014-10-31 23:21:44 UTC' to '2006-03-10T23:33:03+00:00'
-    if(timestamp)
-      return timestamp.to_s.sub(/ /,'T').sub(/ UTC/, '+00:00')
-    else
-      return timestamp
-    end
-  end
-
   def db_insert_commits(db, commits, org, repo)
     db.execute("BEGIN TRANSACTION");
     commits.each do |commit|
