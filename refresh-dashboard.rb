@@ -139,7 +139,7 @@ if(ARGV[1])
   run_list=ARGV[1..-1]
   if(run_list.include?('init-database'))
     if(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
-      context.feedback.puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
+      puts "ERROR: Will not initialize over the top of an existing database file. Please remove the database file if reset desired. "
       exit
     end
   end
