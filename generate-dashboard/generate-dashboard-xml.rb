@@ -21,7 +21,7 @@ require 'rexml/document'
 include REXML
 
 require_relative '../review-repos/reporter_runner'
-require_relative '../github-sync/reporting/db_reporter_runner'
+require_relative '../db/reporting/db_reporter_runner'
 
 def escape_for_xml(text)
   return text ? text.gsub(/&/, '&amp;') : text

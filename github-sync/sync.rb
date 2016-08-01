@@ -22,8 +22,8 @@ require_relative 'db_commits/sync-commits.rb'
 require_relative 'db_events/sync-events.rb'
 require_relative 'db_issues/sync-issues.rb'
 require_relative 'db_releases/sync-releases.rb'
-require_relative 'user_mapping/sync-users.rb'
-require_relative 'reporting/db_reporter_runner.rb'
+require_relative '../db/user_mapping/sync-users.rb'
+require_relative '../db/reporting/db_reporter_runner.rb'
 
 def github_sync(context, run_one)
 

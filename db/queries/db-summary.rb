@@ -33,7 +33,8 @@ queries = [
   ["SELECT COUNT(DISTINCT(m.id)) as MemberData FROM member m", ", team_to_member ttm, team_to_repository ttr, repository r WHERE m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
   ["SELECT COUNT(*) as Team2RepoData FROM team_to_repository ttr", ", repository r WHERE ttr.repository_id=r.id AND r.org=?"],
   ["SELECT COUNT(DISTINCT(ttm.member_id || ttm.team_id)) as Team2MemberData FROM team_to_member ttm", ", team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
-  ["SELECT COUNT(DISTINCT(otm.member_id)) as Organization2MemberData FROM organization_to_member otm", ", organization o WHERE otm.org_id=o.id AND o.login=?"]
+  ["SELECT COUNT(DISTINCT(otm.member_id)) as Organization2MemberData FROM organization_to_member otm", ", organization o WHERE otm.org_id=o.id AND o.login=?"],
+  ["SELECT COUNT(DISTINCT(rtm.member_id)) as Repository2MemberData FROM repository_to_member rtm", ", repository r WHERE rtm.repository_id=r.id AND r.org=?"]
 ]
 
 db_filename = ARGV[0]
