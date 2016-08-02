@@ -31,10 +31,6 @@ class SyncMetadataCommand < BaseCommand
   
     owners = context.dashboard_config['organizations+logins']
     data_directory = context.dashboard_config['data-directory']
-    private_access = context.dashboard_config['private-access']
-    unless(private_access)
-      private_access = []
-    end
     context.feedback.puts " metadata"
   
     owners.each do |org_login|
@@ -48,7 +44,7 @@ class SyncMetadataCommand < BaseCommand
         org_obj=context.client.organization(org_login)
         # TODO: Given we have the org, could just go ahead and store it rather than having SyncOrgMD
 
-        queue.push(SyncOrgMembersMDCommand.new( { 'org' => org_login, 'private' => private_access, 'org_id' => org_obj.id } ) )
+        queue.push(SyncOrgMembersMDCommand.new( { 'org' => org_login, 'private_access' => context.private_access?(org_login), 'org_id' => org_obj.id } ) )
 
         if(private_access.include?(org_login))
           queue.push(SyncOrgTeamsMDCommand.new( { 'org' => org_login } ) )
@@ -221,17 +217,17 @@ class SyncOrgMembersMDCommand < BaseCommand
     sync_db=params[1]
     org=@args['org']
     org_id=@args['org_id']
-    private=@args['private']
+    private_access=@args['private_access']
 
-    store_organization_members(sync_db, context.client, org, org_id, private)
+    store_organization_members(sync_db, context.client, org, org_id, private_access)
   end
 
   # TODO: Get the client parameter out of this API and move to a Library file
-  def store_organization_members(db, client, org, org_id, private)
+  def store_organization_members(db, client, org, org_id, private_access)
   
     # Build a mapping of the individuals in an org who have 2fa disabled
     disabled_2fa=Hash.new
-    if(private)
+    if(private_access)
       client.org_members(org, 'filter' => '2fa_disabled').each do |user|
         disabled_2fa[user.login] = true
       end
@@ -241,7 +237,7 @@ class SyncOrgMembersMDCommand < BaseCommand
       db.execute("BEGIN TRANSACTION")
       member_found=db.execute("SELECT id FROM member WHERE id=?", [member_obj.id])
       
-      if(private == false)
+      if(private_access == false)
         d_2fa='unknown'
       elsif(disabled_2fa[member_obj.login])
         d_2fa='true'

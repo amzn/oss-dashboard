@@ -78,6 +78,14 @@ class DashboardContext < Hash
     end
   end
 
+  def private_access?(org)
+    if(dashboard_config['private_access'])
+      return dashboard_config['private_access'].include?(org)
+    else
+      return false
+    end
+  end
+
 end
 
 options = {}
