@@ -357,11 +357,15 @@ def generate_dashboard_xml(context)
         dashboardXml = Document.new(xmlfile)
       end
   
-      dashboardXml.root.each_element("organization/reporting") do |child|
-        dashboard_file.puts " #{child}"
-      end
-      dashboardXml.root.each_element("organization/license") do |child|
-        dashboard_file.puts " #{child}"
+      if(dashboardXml.root)
+        dashboardXml.root.each_element("organization/reporting") do |child|
+          dashboard_file.puts " #{child}"
+        end
+        dashboardXml.root.each_element("organization/license") do |child|
+          dashboard_file.puts " #{child}"
+        end
+      else
+        context.feedback.print "No root found for #{data_directory}/review-xml/#{org}.xml\n"
       end
   
       xmlfile.close
