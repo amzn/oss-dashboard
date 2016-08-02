@@ -20,7 +20,6 @@ require 'yaml'
 require 'xml'
 require 'xslt'
 require_relative 'db/init-database'
-require_relative 'github-sync/sync'
 require_relative 'github-pull/pull_source'
 require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
@@ -96,8 +95,18 @@ optparse = OptionParser.new do |opts|
   opts.on( '-l', '--light', 'Run in light mode, pull minimum of data' ) do
     options[:light] = true
   end
+  options[:xsync] = false
+  opts.on( '-X', '--xsync', 'Run in experimental sync mode' ) do
+    options[:xsync] = true
+  end
 end
 optparse.parse!
+
+if(options[:xsync])
+  require_relative 'github-sync-tng/sync'
+else
+  require_relative 'github-sync/sync'
+end
 
 # GitHub setup
 if(ENV['GH_ACCESS_TOKEN'])
