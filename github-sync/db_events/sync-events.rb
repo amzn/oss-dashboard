@@ -16,7 +16,7 @@ require 'rubygems'
 require 'octokit'
 require 'date'
 require 'yaml'
-require_relative 'eventStoreLibrary.rb'
+require_relative '../../db/lib/eventStoreLibrary.rb'
 
 # NOTE: This should really use ETags, but as Octokit doesn't provide support 
 # (outside of faraday caches that I've not tried), we'll do extra calls

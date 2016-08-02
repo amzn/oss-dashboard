@@ -16,7 +16,7 @@ require 'rubygems'
 require 'octokit'
 require 'date'
 require 'yaml'
-require_relative 'commitStoreLibrary.rb'
+require_relative '../../db/lib/commitStoreLibrary.rb'
 
 def sync_commits(context, sync_db)
   

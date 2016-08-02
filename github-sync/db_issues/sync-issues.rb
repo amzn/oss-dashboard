@@ -16,7 +16,7 @@ require 'rubygems'
 require 'octokit'
 require 'date'
 require 'yaml'
-require_relative 'issueStoreLibrary.rb'
+require_relative '../../db/lib/issueStoreLibrary.rb'
 
 def getMilestones(client, db, orgrepo)
   milestones=client.milestones(orgrepo)
