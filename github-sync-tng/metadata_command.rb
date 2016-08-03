@@ -46,12 +46,12 @@ class SyncMetadataCommand < BaseCommand
 
         queue.push(SyncOrgMembersMDCommand.new( { 'org' => org_login, 'private_access' => context.private_access?(org_login), 'org_id' => org_obj.id } ) )
 
-        if(private_access.include?(org_login))
+        if(context.private_access?(org_login))
           queue.push(SyncOrgTeamsMDCommand.new( { 'org' => org_login } ) )
         end
 
         # TODO: Need to get collaborators for personal repositories too
-        if(private_access.include?(org_login))
+        if(context.private_access?(org_login))
           queue.push(SyncOrgCollaboratorsMDCommand.new( { 'org' => org_login, 'org_id' => org_obj.id } ) )
         end
       end
@@ -219,19 +219,19 @@ class SyncOrgMembersMDCommand < BaseCommand
     org_id=@args['org_id']
     private_access=@args['private_access']
 
-    store_organization_members(sync_db, context.client, org, org_id, private_access)
-  end
-
-  # TODO: Get the client parameter out of this API and move to a Library file
-  def store_organization_members(db, client, org, org_id, private_access)
-  
     # Build a mapping of the individuals in an org who have 2fa disabled
     disabled_2fa=Hash.new
     if(private_access)
-      client.org_members(org, 'filter' => '2fa_disabled').each do |user|
+      context.client.org_members(org, 'filter' => '2fa_disabled').each do |user|
         disabled_2fa[user.login] = true
       end
     end
+  
+    store_organization_members(sync_db, context.client, org, org_id, private_access, disabled_2fa)
+  end
+
+  # TODO: Get the client parameter out of this API and move to a Library file
+  def store_organization_members(db, client, org, org_id, private_access, disabled_2fa)
   
     client.organization_members(org).each do |member_obj|
       db.execute("BEGIN TRANSACTION")
