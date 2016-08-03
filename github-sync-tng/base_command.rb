@@ -31,10 +31,10 @@ class BaseCommand
     return "#{self.class.name}(" + @args.map{|k,v| "#{k}='#{v}'"}.join(',') + ')'
   end
 
-  # the queue assumes you can call match on the stored object
+  # the queue assumes you can call match on the stored object so it can 
+  # check whether its record separator is in the data
   def match(regexp)
-    # TODO - it's looking to make sure that there are no newlines in the content
-    return false
+    return regexp.match(pickle_format)
   end
 
   # the queue assumes you can call + on the stored object
