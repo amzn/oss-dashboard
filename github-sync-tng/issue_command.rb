@@ -43,7 +43,6 @@ class SyncIssuesCommand < BaseCommand
         queue.push(SyncMilestonesCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncLabelsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncItemsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
-        queue.push(SyncItemCommentsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
       context.feedback.print "\n"
     end
@@ -159,31 +158,3 @@ end
   #end
   
   
-# [GitHub Client Calls = 1]
-class SyncItemCommentsCommand < BaseCommand
-
-  # params=(context, sync_db)
-  def run(queue, *params)
-    sync_item_comments(params[0], params[1], @args['org'], @args['repo'])
-  end
-
-  def sync_item_comments(context, issue_db, org, repo)
-    orgrepo="#{org}/#{repo}"
-
-    issue_db.execute("BEGIN TRANSACTION");
-    # Get the current max timestamp in the db
-    maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo)
-    if(maxTimestamp)
-      # Increment the timestamp by a second to avoid getting repeats
-      ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
-      comments=context.client.issues_comments(orgrepo, { 'since' => ts } )
-    else
-      comments=context.client.issues_comments(orgrepo)
-    end
-    db_insert_comments(issue_db, comments, org, repo)
-    issue_db.execute("COMMIT");
-    context.feedback.print '.'
-  end
-
-end
-

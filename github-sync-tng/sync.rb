@@ -19,6 +19,7 @@ require_relative 'base_command'
 require_relative 'release_command'
 require_relative 'event_command'
 require_relative 'issue_command'
+require_relative 'issue_comment_command'
 require_relative 'commit_command'
 require_relative 'metadata_command'
 
@@ -29,7 +30,6 @@ def eval_queue(queue, context, sync_db)
   while(not queue.empty?)
     cmd=BaseCommand.instantiate(queue.pop)
 
-    ### GET <URL>: 403 - API rate limit exceeded for <USER>. // See: https://developer.github.com/v3/#rate-limiting (Octokit::TooManyRequests)
     begin
       passed=cmd.run(queue, context, sync_db)
       if(passed==false)
@@ -40,10 +40,12 @@ def eval_queue(queue, context, sync_db)
       puts "Out of requests, pushing command back on queue"
       queue.push(cmd)
       break
+    rescue Faraday::TimeoutError => msg
+      puts "GitHub API timing out, pushing command back on queue"
+      queue.push(cmd)
+      break
     end
 
-    # TODO: Support more errors. For example this:
-    # `initialize': Connection timed out - connect(2) for "api.github.com" port 443 (Faraday::TimeoutError)
   end
 end
 
@@ -77,8 +79,7 @@ def github_sync(context, run_one)
     queue.push(SyncIssuesCommand.new(Hash.new))
   end
   if(not(run_one) or run_one=='github-sync/issue-comments')
-#    sync_issue_comments(context, sync_db)
-puts "TODO: Need to support issue-comments as a separate invocation"
+    queue.push(SyncIssueCommentsCommand.new(Hash.new))
   end
   if(not(run_one) or run_one=='github-sync/releases')
     queue.push(SyncReleasesCommand.new(Hash.new))
