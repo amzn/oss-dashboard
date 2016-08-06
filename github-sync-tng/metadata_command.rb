@@ -31,11 +31,9 @@ class SyncMetadataCommand < BaseCommand
   
     owners = context.dashboard_config['organizations+logins']
     data_directory = context.dashboard_config['data-directory']
-    context.feedback.puts " metadata"
   
     owners.each do |org_login|
       # Repository access blocked (Octokit::ClientError)
-      context.feedback.print "  #{org_login} "
 
       queue.push(SyncOrgMDCommand.new( { 'org' => org_login } ) )
       queue.push(SyncOrgReposMDCommand.new( { 'org' => org_login } ) )
@@ -56,12 +54,9 @@ class SyncMetadataCommand < BaseCommand
         end
       end
 
-      context.feedback.print "\n"
     end
   
-    context.feedback.print " members"
     queue.push(SyncMembersMDCommand.new( Hash.new ) )
-    context.feedback.print "\n"
   
   end
 end
@@ -187,6 +182,7 @@ class SyncOrgReposMDCommand < BaseCommand
       begin # Repository access blocked (Octokit::ClientError)
         watchers=context.client.send('subscribers', "#{org}/#{repo_obj.name}").length
         store_organization_repositories(context, sync_db, org, watchers, repo_obj)
+      # TODO: Let this throw upwards?
       rescue Octokit::ClientError
         context.feedback.print "!#{$!}!"
       end

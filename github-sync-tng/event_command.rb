@@ -27,7 +27,6 @@ class SyncEventsCommand < BaseCommand
   def sync_events(queue, context, sync_db)
   
     owners = context.dashboard_config['organizations+logins']
-    context.feedback.puts " events"
   
     owners.each do |org|
 
@@ -38,9 +37,7 @@ class SyncEventsCommand < BaseCommand
 
       ##repos=context.client.organization_repositories(org)
 
-      context.feedback.print "  #{org} "
       queue.push(SyncEventCommand.new( { 'org' => org } ) )   ##, 'repo' => repo_obj.name } ) )
-      context.feedback.print "\n"
     end
 
   end
@@ -63,7 +60,6 @@ class SyncEventCommand < BaseCommand
   # TODO: If no access to org, use organization_public_events
   # NOTE: BUG: It seems that this does not pull WatchEvents (i.e. stars). Repo calls do.  
   def getLatestForOrg(client, sync_db, org)
-  #  puts "Getting events for #{org}"
     maxId=db_getMaxIdForOrg(sync_db, org)               # Get the current max id in the db
     # TODO: Would be nice to simply ask GitHub API if this access token can call this
     begin
@@ -85,7 +81,6 @@ end
 ##  def getAllForOrg(client, sync_db, org)
 ##    client.organization_repositories(org).each do |repo_obj|
 ##      repo=repo_obj.full_name
-##  #    puts "Getting events for #{repo}"
 ##      maxId=db_getMaxIdForRepo(sync_db, repo)           # Get the current max id in the db
 ##      events=client.repository_events(repo)              # Get the events for the Repo
 ##      if(maxId)

@@ -28,7 +28,6 @@ class SyncIssuesCommand < BaseCommand
 
   def sync_issues(queue, context, sync_db)
     owners = context.dashboard_config['organizations+logins']
-    context.feedback.puts " issues"
 
     owners.each do |org|
 
@@ -38,13 +37,11 @@ class SyncIssuesCommand < BaseCommand
         repos=context.client.organization_repositories(org)
       end
  
-      context.feedback.print "  #{org} "
       repos.each do |repo_obj|
         queue.push(SyncMilestonesCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncLabelsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncItemsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
-      context.feedback.print "\n"
     end
   
   end
@@ -138,7 +135,6 @@ class SyncItemsCommand < BaseCommand
     db_fix_merged_at(issue_db, context.client, issues, org, repo)           # Put in PR specific data - namely merged_at
     db_add_pull_request_files(issue_db, context.client, issues, org, repo)  # Put in PR specific data - namely the files + their metrics
     issue_db.execute("END TRANSACTION");
-    context.feedback.print '.'
   end
 
 end

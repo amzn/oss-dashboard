@@ -28,7 +28,6 @@ class SyncIssueCommentsCommand < BaseCommand
 
   def sync_issue_comments(queue, context, sync_db)
     owners = context.dashboard_config['organizations+logins']
-    context.feedback.puts " issue-comments"
 
     owners.each do |org|
 
@@ -38,11 +37,9 @@ class SyncIssueCommentsCommand < BaseCommand
         repos=context.client.organization_repositories(org)
       end
  
-      context.feedback.print "  #{org} "
       repos.each do |repo_obj|
         queue.push(SyncItemCommentsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
-      context.feedback.print "\n"
     end
   
   end
@@ -72,7 +69,6 @@ class SyncItemCommentsCommand < BaseCommand
     end
     db_insert_comments(issue_db, comments, org, repo)
     issue_db.execute("COMMIT");
-    context.feedback.print '.'
   end
 
 end

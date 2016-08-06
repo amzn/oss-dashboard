@@ -30,11 +30,9 @@ class SyncReleasesCommand < BaseCommand
   def sync_releases(queue, context, sync_db)
     
     owners = context.dashboard_config['organizations+logins']
-    context.feedback.puts " releases"
     
     # GH COST = owners.length
     owners.each do |org|
-      context.feedback.print "  #{org} "
   
       if(context.login?(org))
         repos=context.client.repositories(org)
@@ -48,7 +46,6 @@ class SyncReleasesCommand < BaseCommand
         queue.push(SyncReleaseCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
   
-      context.feedback.print "\n"
     end
   
   end
@@ -65,7 +62,6 @@ class SyncReleaseCommand < BaseCommand
     orgrepo="#{@args['org']}/#{@args['repo']}"
     releases=context.client.releases(orgrepo)
     db_insert_releases(sync_db, @args['org'], @args['repo'], releases)   # Replaces existing with these
-    context.feedback.print '.'
 
   end
 

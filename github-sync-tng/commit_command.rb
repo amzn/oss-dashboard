@@ -29,9 +29,7 @@ class SyncCommitsCommand < BaseCommand
     
     owners = context.dashboard_config['organizations+logins']
   
-    context.feedback.puts " commits"
     owners.each do |org|
-      context.feedback.print "  #{org} "
   
       if(context.login?(org))
         repos=context.client.repositories(org)
@@ -41,12 +39,11 @@ class SyncCommitsCommand < BaseCommand
   
       repos.each do |repo_obj|
   
-       begin
         if(repo_obj.size==0)
           # if no commits, octokit errors. Size of zero is close enough to no commits 
           # - i.e. the first commit may not get shown for a new repo
           # TODO: Catch the error?
-          context.feedback.print '!'
+          # context.feedback.print '!'
           next
         end
 
@@ -55,7 +52,6 @@ class SyncCommitsCommand < BaseCommand
       end
 
     end
-    context.feedback.print "\n"
   
   end
 
@@ -88,11 +84,6 @@ class SyncCommitCommand < BaseCommand
       commits=context.client.commits(repo_full_name)
     end
     db_insert_commits(sync_db, commits, org, repo_name)                   # Insert any new items
-    context.feedback.print '.'
-   rescue Octokit::ClientError
-     # Repository access blocked (Octokit::ClientError)
-     context.feedback.print "!"
-   end
   end
 
 end

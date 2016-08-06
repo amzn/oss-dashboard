@@ -27,26 +27,35 @@ require_relative '../db/user_mapping/sync-users.rb'
 require_relative '../db/reporting/db_reporter_runner.rb'
 
 def eval_queue(queue, context, sync_db)
+  context.feedback.print "\n evaluating queue\n  "
   while(not queue.empty?)
     cmd=BaseCommand.instantiate(queue.pop)
 
     begin
       passed=cmd.run(queue, context, sync_db)
       if(passed==false)
-        puts "COMMAND DID NOT SUCCEED. BREAKING. "
+        context.feedback.puts "!"
         break
+      else
+        context.feedback.print "."
       end
     rescue Octokit::TooManyRequests => msg
-      puts "Out of requests, pushing command back on queue"
+      puts "Out of requests, pushing command back on queue: #{msg}"
       queue.push(cmd)
       break
     rescue Faraday::TimeoutError => msg
-      puts "GitHub API timing out, pushing command back on queue"
+      puts "GitHub API timing out, pushing command back on queue: #{msg}"
+      queue.push(cmd)
+      break
+    rescue Octokit::ClientError => msg
+      # Repository access blocked (Octokit::ClientError)
+      puts "Client error, pushing command back on queue: #{msg}"
       queue.push(cmd)
       break
     end
 
   end
+  context.feedback.puts
 end
 
 def github_sync(context, run_one)
@@ -67,30 +76,38 @@ def github_sync(context, run_one)
   end
 
   if(not(run_one) or run_one=='github-sync/metadata')
+    context.feedback.puts "  github-sync/metadata: queueing"
     queue.push(SyncMetadataCommand.new(Hash.new))
   end
   if(not(run_one) or run_one=='github-sync/commits')
+    context.feedback.puts "  github-sync/commits: queueing"
     queue.push(SyncCommitsCommand.new(Hash.new))
   end
   if(not(run_one) or run_one=='github-sync/events')
+    context.feedback.puts "  github-sync/events: queueing"
     queue.push(SyncEventsCommand.new(Hash.new))
   end
   if(not(run_one) or run_one=='github-sync/issues')
+    context.feedback.puts "  github-sync/issues: queueing"
     queue.push(SyncIssuesCommand.new(Hash.new))
   end
   if(not(run_one) or run_one=='github-sync/issue-comments')
+    context.feedback.puts "  github-sync/issue-comments: queueing"
     queue.push(SyncIssueCommentsCommand.new(Hash.new))
   end
   if(not(run_one) or run_one=='github-sync/releases')
+    context.feedback.puts "  github-sync/releases: queueing"
     queue.push(SyncReleasesCommand.new(Hash.new))
   end
 
   eval_queue(queue, context, sync_db)
 
   if(not(run_one) or run_one=='github-sync/user-mapping')
+    context.feedback.puts "  github-sync/user-mapping"
     sync_user_mapping(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/reporting')
+    context.feedback.puts "  github-sync/reporting"
     run_db_reports(context, sync_db)
   end
 
