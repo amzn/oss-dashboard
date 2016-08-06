@@ -27,7 +27,6 @@ require_relative '../db/user_mapping/sync-users.rb'
 require_relative '../db/reporting/db_reporter_runner.rb'
 
 def eval_queue(queue, context, sync_db)
-  context.feedback.print "\n evaluating queue\n  "
   while(not queue.empty?)
     cmd=BaseCommand.instantiate(queue.pop)
 
@@ -35,7 +34,7 @@ def eval_queue(queue, context, sync_db)
       passed=cmd.run(queue, context, sync_db)
       if(passed==false)
         context.feedback.puts "!"
-        break
+        return false
       else
         context.feedback.print "."
       end
@@ -56,6 +55,7 @@ def eval_queue(queue, context, sync_db)
 
   end
   context.feedback.puts
+  return true
 end
 
 def github_sync(context, run_one)
@@ -72,7 +72,11 @@ def github_sync(context, run_one)
   sync_db=SQLite3::Database.new db_filename
 
   unless(queue.empty?)
-    eval_queue(queue, context, sync_db)
+    context.feedback.print "\n flushing queue\n  "
+    flushed=eval_queue(queue, context, sync_db)
+    unless(flushed)
+      return
+    end
   end
 
   if(not(run_one) or run_one=='github-sync/metadata')
@@ -100,6 +104,7 @@ def github_sync(context, run_one)
     queue.push(SyncReleasesCommand.new(Hash.new))
   end
 
+  context.feedback.print "\n evaluating queue\n  "
   eval_queue(queue, context, sync_db)
 
   if(not(run_one) or run_one=='github-sync/user-mapping')
