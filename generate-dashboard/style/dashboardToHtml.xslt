@@ -144,6 +144,7 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select="metadata/navigation/login">
+                <xsl:sort select="."/>
                 <xsl:variable name="login" select="."/>
                 <li><a href="{$login}.html"><xsl:value-of select="."/></a></li>
               </xsl:for-each>
@@ -182,6 +183,7 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <xsl:for-each select="metadata/navigation/organization">
+                <xsl:sort select="."/>
                 <xsl:variable name="org" select="."/>
                 <li><a href="{$org}.html"><xsl:value-of select="."/></a></li>
               </xsl:for-each>
