@@ -217,7 +217,7 @@ class SyncOrgMembersMDCommand < BaseCommand
 
     # Build a mapping of the individuals in an org who have 2fa disabled
     disabled_2fa=Hash.new
-    if(private_access)
+    if(private_access=='true')
       context.client.org_members(org, 'filter' => '2fa_disabled').each do |user|
         disabled_2fa[user.login] = true
       end
