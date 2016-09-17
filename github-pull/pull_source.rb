@@ -15,6 +15,7 @@
 require 'rubygems'
 require 'octokit'
 require 'yaml'
+require 'open3'
 
 # TODO: Need to use the GitHub API to check the code out, or at the least the private code
 # WORKAROUND: Until then, pass in --private and enter credentials or setup SSH key
@@ -64,7 +65,15 @@ def pull_source(context)
   
       # Checkout or update - use other script if repo.private
       unless(File.exist?(repodir))
-        `git clone -q --depth 1 #{context.github_url}/#{owner}/#{repo.name}.git #{repodir}`
+        cmd="git clone -q --depth 1 #{context.github_url}/#{owner}/#{repo.name}.git #{repodir}"
+        Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
+          if(stderr.read.match('warning: You appear to have cloned an empty repository'))
+            context.feedback.print "!"
+            `rm -r #{repodir}`
+          else
+            context.feedback.print "."
+          end
+        end
       else
         # Git 1.8.5 solution
         # `git -C #{repodir} pull -q`
@@ -74,9 +83,9 @@ def pull_source(context)
           remote=`cat .git/config | grep 'remote = ' | sed 's/^.*remote = //'`.strip
           branch=`cat .git/config | grep 'merge = ' | sed 's/^.*merge = refs\\\/heads\\\///'`.strip
           `git fetch -q && git reset -q --hard #{remote}/#{branch}`
-         end
+        end
+        context.feedback.print "."
       end
-      context.feedback.print "."
     end
     context.feedback.print "\n"
   end
