@@ -13,7 +13,7 @@ class LabelDbReporter < DbReporter
   end
 
   def db_columns()
-    return [ 'Label', 'PR/Issue Count']
+    return [ ['Label', 'labels'], 'PR/Issue Count']
   end
 
   def db_report(context, org, sync_db)
