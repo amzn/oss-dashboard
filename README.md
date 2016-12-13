@@ -60,7 +60,7 @@ Example file:
     logins: ['hyandell']
     data-directory: /full/path/to/directory/to/store/data
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
-    db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'RepoUnownedDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter' ]
+    db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'RepoUnownedDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
     www-directory: /full/path/to/generate/html/to
 
     private-access: ['amznlabs']     # Optional

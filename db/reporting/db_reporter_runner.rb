@@ -33,6 +33,8 @@ require_relative 'db_report_repo_unowned.rb'
 require_relative 'db_report_labels.rb'
 require_relative 'db_report_average_time_close_issue.rb'
 require_relative 'db_report_average_time_close_pr.rb'
+require_relative 'db_report_average_time_open_issue.rb'
+require_relative 'db_report_average_time_open_pr.rb'
  
 # TODO: Consider merging this code with the similar review-source function
 def get_db_reporter_instances(dashboard_config)
