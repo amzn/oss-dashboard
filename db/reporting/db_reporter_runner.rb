@@ -30,6 +30,7 @@ require_relative 'db_report_unchanged.rb'
 require_relative 'db_report_issues_no_comments.rb'
 require_relative 'db_report_prs_no_comments.rb'
 require_relative 'db_report_repo_unowned.rb'
+require_relative 'db_report_labels.rb'
  
 # TODO: Consider merging this code with the similar review-source function
 def get_db_reporter_instances(dashboard_config)
