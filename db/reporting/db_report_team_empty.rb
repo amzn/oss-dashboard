@@ -35,7 +35,7 @@ class TeamEmptyDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
-    empty=sync_db.execute("SELECT DISTINCT(t.slug) FROM team t, team_to_repository ttr, repository r WHERE t.id NOT IN (SELECT DISTINCT(team_id) FROM team_to_member) AND t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
+    empty=sync_db["SELECT DISTINCT(t.slug) FROM team t, team_to_repository ttr, repository r WHERE t.id NOT IN (SELECT DISTINCT(team_id) FROM team_to_member) AND t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org]]
     text = ''
     empty.each do |row|
       text << "  <reporting class='user-report' type='TeamEmptyDbReporter'><field>#{org}/#{row[0]}</field></reporting>\n"

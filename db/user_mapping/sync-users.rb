@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "sqlite3"
-
 def loadUserTable(db, users)
   db.execute("BEGIN TRANSACTION");
   db.execute("DELETE FROM users")
   users.each do |login, email|
-      db.execute(
+      db[
        "INSERT INTO users (
           login, email
         )
         VALUES ( ?, ? )",
-        [ login, email ] )
+        [ login, email ]]
   end
   db.execute("END TRANSACTION");
 end

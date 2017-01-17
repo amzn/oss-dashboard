@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "sqlite3"
+require 'yaml'
+require_relative '../../util.rb'
 
 queries = [
   ["SELECT COUNT(*) as EventData FROM events", " WHERE org=?"],
@@ -37,15 +38,15 @@ queries = [
   ["SELECT COUNT(DISTINCT(rtm.member_id)) as Repository2MemberData FROM repository_to_member rtm", ", repository r WHERE rtm.repository_id=r.id AND r.org=?"]
 ]
 
-db_filename = ARGV[0]
-org = ARGV[1]
+config = YAML.load_file(DB_CONFIG)
+org = ARGV[0]
 
-unless(File.exists?(db_filename))
-  puts "Database does not exist: #{db_filename}"
+unless db_exists?(config)
+  puts 'Database does not exist'
   exit
 end
 
-sync_db=SQLite3::Database.new db_filename
+sync_db = get_db_handle(config)
 
 if(org)
   puts "#{org} Table Size"
@@ -67,5 +68,5 @@ queries.each do |query, clause|
     result=sync_db.query(query)
   end
   puts "#{result.columns[0]}: #{result.next[0]}"
-  result.close
+  result.close # CHK TODO need to see what we're getting here
 end

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 require "yaml"
-require "sqlite3"
 require "date"
 
   # Need to double-check that the hash YAML is simple enough to also be legal JSON. 
@@ -74,25 +73,25 @@ require "date"
     db.execute("BEGIN TRANSACTION");
     events.each do |event|
         flatPayload=flatten_event_payload(event)
-        db.execute(
+        db[
          "INSERT INTO events (
             id, type, actor, org, repo, public, created_at, payload
           )
           VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)",
-          [event.id, event.type, event.actor.login, event.org.login, event.repo.name, event.public.to_s, event.created_at.to_s, flatPayload] )
+          [event.id, event.type, event.actor.login, event.org.login, event.repo.name, event.public.to_s, event.created_at.to_s, flatPayload]]
 #        puts "  Inserted: #{event.id}"
     end
     db.execute("END TRANSACTION");
   end
 
   def db_getMaxIdForOrg(db, org)
-    db.execute( "select max(id) from events where org='#{org}'" ) do |row|
+    db["select max(id) from events where org='#{org}'"].each do |row|
       return row[0]
     end
   end
 
   def db_getMaxIdForRepo(db, repo)
-    db.execute( "select max(id) from events where repo='#{repo}'" ) do |row|
+    db["select max(id) from events where repo='#{repo}'"].each do |row|
       return row[0]
     end
   end

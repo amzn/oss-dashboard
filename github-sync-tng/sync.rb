@@ -25,6 +25,7 @@ require_relative 'metadata_command'
 
 require_relative '../db/user_mapping/sync-users.rb'
 require_relative '../db/reporting/db_reporter_runner.rb'
+require_relative '../util.rb'
 
 def eval_queue(queue, context, sync_db)
   while(not queue.empty?)
@@ -68,8 +69,7 @@ def github_sync(context, run_one)
   queue_filename=File.join(context.dashboard_config['data-directory'], 'db', 'oss-dashboard.queue');
   queue = FileQueue.new queue_filename
 
-  db_filename=File.join(context.dashboard_config['data-directory'], 'db', 'gh-sync.db');
-  sync_db=SQLite3::Database.new db_filename
+  sync_db = get_db_handle(context.dashboard_config)
 
   unless(queue.empty?)
     context.feedback.print "\n flushing queue\n  "
@@ -116,7 +116,7 @@ def github_sync(context, run_one)
     run_db_reports(context, sync_db)
   end
 
-  sync_db.close
+  sync_db.disconnect
 
 end
 

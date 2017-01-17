@@ -22,7 +22,7 @@ class AverageIssueCloseDbReporter < DbReporter
     text = ""
     issue_query="SELECT repo, COUNT(id), ROUND(AVG( julianday(closed_at) - julianday(created_at) ), 1) as mttr FROM issues WHERE state='closed' AND org=? GROUP BY org, repo ORDER BY mttr"
 
-    issue_data=sync_db.execute(issue_query, [org])
+    issue_data=sync_db[issue_query, [org]]
     issue_data.each() do |row|
         text << "  <reporting class='issue-report' repo='#{org}/#{row[0]}' type='AverageIssueCloseDbReporter'><field>#{org}/#{row[0]}</field><field>#{row[1]}</field><field>#{row[2]}</field></reporting>\n"
     end

@@ -63,14 +63,14 @@ class SyncMilestonesCommand < BaseCommand
     end
     db.execute("BEGIN TRANSACTION")
     # Wipe Milestones
-    db.execute("DELETE FROM milestones WHERE orgrepo=?", [orgrepo])
+    db["DELETE FROM milestones WHERE orgrepo=?", [orgrepo]]
     # Fill Milestones again
     milestones.each do |milestone|
-      db.execute(
+      db[
         "INSERT INTO milestones " + 
         "(orgrepo, id, html_url, title, state, number, description, creator, open_issues, closed_issues, created_at, updated_at, closed_at, due_on) " +
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)])
+        [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)]]
     end
     db.execute("COMMIT")
   end
@@ -93,10 +93,10 @@ class SyncLabelsCommand < BaseCommand
     end
     db.execute("BEGIN TRANSACTION")
     # Wipe Labels
-    db.execute("DELETE FROM labels WHERE orgrepo=?", [orgrepo])
+    db["DELETE FROM labels WHERE orgrepo=?", [orgrepo]]
     # Fill Labels again
     labels.each do |label|
-      db.execute("INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color])
+      db["INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color]]
     end
     db.execute("COMMIT")
   end

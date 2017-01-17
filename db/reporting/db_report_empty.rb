@@ -35,7 +35,7 @@ class EmptyDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
-    empty=sync_db.execute("SELECT r.name, r.created_at FROM repository r WHERE size=0 AND r.org=?", [org])
+    empty=sync_db["SELECT r.name, r.created_at FROM repository r WHERE size=0 AND r.org=?", [org]]
     text = ''
     empty.each do |row|
       text << "  <reporting class='repo-report' repo='#{org}/#{row[0]}' type='EmptyDbReporter'><field>#{row[1]}</field><field>#{org}/#{row[0]}</field></reporting>\n"

@@ -17,35 +17,32 @@ require 'octokit'
 require 'date'
 require 'yaml'
 
-require "sqlite3"
+def db_insert_releases(db, org, repo, releases)
+  releases.each do |release|
+      db[
+       "DELETE FROM releases WHERE org=? AND repo=? AND id=?", [org, repo, release.id] ]
 
-  def db_insert_releases(db, org, repo, releases)
-    releases.each do |release|
-        db.execute(
-         "DELETE FROM releases WHERE org=? AND repo=? AND id=?", [org, repo, release.id] )
-
-        # Sometimes there is no author. Instead, fill in the data with the first file's uploader
-        if(release.author)
-            author=release.author.login
-        else
-            if(release.assets and release.assets[0] and release.assets[0].uploader)
-                author=release.assets[0].uploader.login
+      # Sometimes there is no author. Instead, fill in the data with the first file's uploader
+      if(release.author)
+          author=release.author.login
+      else
+          if(release.assets and release.assets[0] and release.assets[0].uploader)
+              author=release.assets[0].uploader.login
 #                puts "Unable to find an author for #{release.html_url}; using uploader: #{author}"
-            else
-                author=nil
+          else
+              author=nil
 #                puts "Unable to find an author or uploader for #{release.html_url}"
-            end
-        end
+          end
+      end
 
-
-        db.execute(
-         "INSERT INTO releases (
-            org, repo, id, html_url, tarball_url, zipball_url, tag_name, name, body, created_at, published_at, author
-          )
-          VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
-          [ org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s, release.published_at.to_s, author] )
-    end
+      db[
+       "INSERT INTO releases (
+          org, repo, id, html_url, tarball_url, zipball_url, tag_name, name, body, created_at, published_at, author
+        )
+        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
+        [ org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s, release.published_at.to_s, author]]
   end
+end
 
 def sync_releases(context, sync_db)
   

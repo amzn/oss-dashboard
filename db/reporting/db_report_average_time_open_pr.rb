@@ -22,7 +22,7 @@ class AveragePrOpenedDbReporter < DbReporter
     text = ""
     issue_query="SELECT repo, COUNT(id), ROUND(AVG( julianday('now') - julianday(created_at) ), 1) as age FROM pull_requests WHERE state='open' AND org=? GROUP BY org, repo ORDER BY age"
 
-    issue_data=sync_db.execute(issue_query, [org])
+    issue_data=sync_db[issue_query, [org]]
     issue_data.each() do |row|
         text << "  <reporting class='issue-report' repo='#{org}/#{row[0]}' type='AveragePrOpenedDbReporter'><field>#{org}/#{row[0]}</field><field>#{row[1]}</field><field>#{row[2]}</field></reporting>\n"
     end

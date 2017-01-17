@@ -24,13 +24,13 @@ class NoIssueCommentsDbReporter < DbReporter
 
     label_query='SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?'
 
-    issue_data=sync_db.execute(issue_query, [org])
+    issue_data=sync_db[issue_query, [org]]
     issue_data.each() do |row|
 
         url="#{context.github_url}/#{org}/#{row[4]}/issues/#{row[1]}"
         title=row[2].gsub(/&/, "&amp;").gsub(/</, "&lt;")
 
-        label_data=sync_db.execute(label_query, [row[0]])
+        label_data=sync_db[label_query, [row[0]]]
         labels=""
         if(label_data)
           label_data.each do |label|

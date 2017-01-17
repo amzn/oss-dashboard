@@ -35,7 +35,7 @@ class No2faDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
-    no2fa=sync_db.execute("SELECT DISTINCT(m.login) FROM member m, repository r, team_to_member ttm, team_to_repository ttr WHERE m.two_factor_disabled='true' AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org])
+    no2fa=sync_db["SELECT DISTINCT(m.login) FROM member m, repository r, team_to_member ttm, team_to_repository ttr WHERE m.two_factor_disabled='true' AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org]]
     text = ''
     no2fa.each do |row|
       text << "  <reporting class='user-report' type='No2faDbReporter'>#{row[0]}</reporting>\n"

@@ -75,17 +75,23 @@ def run_db_reports(context, sync_db)
   end
 
   context.feedback.puts " reporting"
-  
+
   owners.each do |org|
     context.feedback.print "  #{org} "
     review_file=File.open("#{data_directory}/db-report-xml/#{org}.xml", 'w')
-  
+
     report="<github-db-report>\n"
     report << " <organization name='#{org}'>\n"
-  
+
     report_instances.each do |report_obj|
-      report << report_obj.db_report(context, org, sync_db).to_s
-      context.feedback.print '.'
+      begin
+        report << report_obj.db_report(context, org, sync_db).to_s
+        context.feedback.print '.'
+      rescue => e
+        context.feedback.puts sprintf('report_obj[%s] threw[%s], moving on', report_obj, e.message)
+        p 'DBGZ' if nil?
+      end
+
     end
 
     report << " </organization>\n"
@@ -94,5 +100,7 @@ def run_db_reports(context, sync_db)
     review_file.close
     context.feedback.print "\n"
   end
+
+
   
 end

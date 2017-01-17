@@ -14,15 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "sqlite3"
 require_relative '../reporting/db_reporter.rb'
+require_relative '../../util.rb'
 
-db_filename = ARGV[0]
-org = ARGV[1]
-report_file = ARGV[2]
-reporter = ARGV[3]
+config = YAML.load_file(DB_CONFIG)
+org = ARGV[0]
+report_file = ARGV[1]
+reporter = ARGV[2]
 
-unless(File.exists?(db_filename))
+if config.nil? || org.nil? || report_file.nil? || ARGV.first.match(/\-+h(?:elp)/)
+  puts sprintf('USAGE: %s <db_config_file> <org> <report_file> [reporter]', __FILE__)
+  exit 1
+end
+
+unless db_exists?(config)
   puts "Database does not exist: #{db_filename}"
   exit
 end
@@ -38,7 +43,7 @@ require "#{report_file}"
 clazz = Object.const_get(reporter)
 report_obj=clazz.new
 
-sync_db=SQLite3::Database.new db_filename
+sync_db = get_db_handle(config)
 
 report="<github-db-report>\n"
 report << " <organization name='#{org}'>\n"
@@ -50,5 +55,5 @@ report << "</github-db-report>\n"
 
 puts report
   
-sync_db.close
+sync_db.disconnect
 

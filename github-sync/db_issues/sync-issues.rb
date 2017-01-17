@@ -24,14 +24,14 @@ def getMilestones(client, db, orgrepo)
     return
   end
   # Wipe Milestones
-  db.execute("DELETE FROM milestones WHERE orgrepo=?", [orgrepo])
+  db["DELETE FROM milestones WHERE orgrepo=?", [orgrepo]]
   # Fill Milestones again
   milestones.each do |milestone|
-    db.execute(
+    db[
       "INSERT INTO milestones " + 
       "(orgrepo, id, html_url, title, state, number, description, creator, open_issues, closed_issues, created_at, updated_at, closed_at, due_on) " +
       "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)])
+      [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)]]
   end
 end
 
@@ -41,10 +41,10 @@ def getLabels(client, db, orgrepo)
     return
   end
   # Wipe Labels
-  db.execute("DELETE FROM labels WHERE orgrepo=?", [orgrepo])
+  db["DELETE FROM labels WHERE orgrepo=?", [orgrepo]]
   # Fill Labels again
   labels.each do |label|
-    db.execute("INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color])
+    db["INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color]]
   end
 end
 
@@ -52,21 +52,21 @@ def db_link_issues(db, issues, org, repo)
   # For each issue
   issues.each do |issue|
     # Remove from item_to_milestone
-    db.execute("DELETE FROM item_to_milestone WHERE item_id=?", [issue.id])
+    db["DELETE FROM item_to_milestone WHERE item_id=?", [issue.id]]
     # For each milestone
     if(issue.milestones)
       issue.milestones.each do |milestone|
         # Insert into item_to_milestone
-        db.execute("INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", [item.id, milestone.id])
+        db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", [item.id, milestone.id]]
       end
     end
     # Remove from item_to_label
-    db.execute("DELETE FROM item_to_label WHERE item_id=?", [issue.id])
+    db["DELETE FROM item_to_label WHERE item_id=?", [issue.id]]
     # For each label
     if(issue.labels)
       issue.labels.each do |label|
         # Insert into item_to_label
-        db.execute("INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", [issue.id, label.url])
+        db["INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", [issue.id, label.url]]
       end
     end
   end

@@ -14,7 +14,6 @@
 
 require 'rubygems'
 require 'octokit'
-require 'sqlite3'
 require 'date'
 require 'yaml'
 
@@ -30,7 +29,7 @@ def clear_organization(db, org_login)
   ]
 
   queries.each do |query|
-    db.execute(query, [org_login])
+    db[query, org_login]
   end
 end
 
@@ -41,31 +40,31 @@ def store_organization(context, db, org_login)
     org=context.client.organization(org_login)
   end
   
-  db.execute(
+  db[
     "INSERT INTO organization (
       login, id, url, avatar_url, description, name, company, blog, location, email, public_repos, public_gists, followers, following, html_url, created_at, type
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [org.login, org.id, org.url, org.avatar_url, org.description, org.name, org.company, org.blog, org.location, org.email, org.public_repos, org.public_gists, org.followers, org.following, org.html_url, org.created_at.to_s, org.type]
-    )
+    ]
     return org
 end
 
 def store_organization_teams(db, client, org)
   client.organization_teams(org).each do |team_obj|
 
-    db.execute(
+    db[
       "INSERT INTO team (id, org, name, slug, description) VALUES (?, ?, ?, ?, ?)",
-      [team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description])
+      [team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description]]
 
     repos=client.team_repositories(team_obj.id)
     repos.each do |repo_obj|
-      db.execute("INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", [team_obj.id, repo_obj.id])
+      db["INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", [team_obj.id, repo_obj.id]]
     end
   
     members=client.team_members(team_obj.id)
     members.each do |member_obj|
-      db.execute("INSERT INTO team_to_member (team_id, member_id) VALUES(?, ?)", [team_obj.id, member_obj.id])
+      db["INSERT INTO team_to_member (team_id, member_id) VALUES(?, ?)", [team_obj.id, member_obj.id]]
     end
   
   end
@@ -82,10 +81,10 @@ def store_organization_repositories(context, db, org)
    begin # Repository access blocked (Octokit::ClientError)
     watchers=context.client.send('subscribers', "#{org}/#{repo_obj.name}").length
 
-    db.execute("INSERT INTO repository 
+    db["INSERT INTO repository
       (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? 1 : 0, repo_obj.private ? 1 : 0, repo_obj.has_wiki ? 1 : 0, repo_obj.language, repo_obj.watchers, watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s, repo_obj.size, repo_obj.description])
+      [repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? 1 : 0, repo_obj.private ? 1 : 0, repo_obj.has_wiki ? 1 : 0, repo_obj.language, repo_obj.watchers, watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s, repo_obj.size, repo_obj.description]]
    rescue Octokit::ClientError
       context.feedback.print "!#{$!}!"
    end
@@ -108,7 +107,7 @@ def store_organization_members(db, client, org_obj, private, previous_members)
   client.organization_members(org_obj.login).each do |member_obj|
     org_members[member_obj.id]=true
     unless(previous_members[member_obj.id])
-      db.execute("DELETE FROM member WHERE id=?", [member_obj.id])
+      db["DELETE FROM member WHERE id=?", [member_obj.id]]
 
       if(private == false)
         d_2fa='unknown'
@@ -118,13 +117,13 @@ def store_organization_members(db, client, org_obj, private, previous_members)
         d_2fa='false'
       end
 
-      db.execute("INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                  VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url] )
+      db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
+                  VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url]]
 
       previous_members[member_obj.id]=true
     end
 
-    db.execute("INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", [org_obj.id, member_obj.id])
+    db["INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", [org_obj.id, member_obj.id]]
   end
 
   # Get collaborators too - no organization API :(
@@ -133,16 +132,16 @@ def store_organization_members(db, client, org_obj, private, previous_members)
       collaborators=client.collaborators(repo_obj.full_name)
       collaborators.each do |collaborator|
         unless(previous_members[collaborator.id])
-          db.execute("DELETE FROM member WHERE id=?", [collaborator.id])
-          db.execute("INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                      VALUES(?, ?, ?, ?)", [collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url] )
+          db["DELETE FROM member WHERE id=?", [collaborator.id]]
+          db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
+                      VALUES(?, ?, ?, ?)", [collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url] ]
           previous_members[collaborator.id]=true
         end
         unless(org_members[collaborator.id])
           # This isn't quite accurate. You can be an outside collaborator to a project and also a member. In reality I should be looking for 
           # those who have access to a repository but are not in a Team with access to the repository. This will, for now, highlight the 
           # the real _outside_ collaborators though, which is the initial requirement. 
-          db.execute("INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)", [org_obj.id, repo_obj.id, collaborator.id])
+          db["INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)", [org_obj.id, repo_obj.id, collaborator.id]]
         end
       end
     end
@@ -151,7 +150,7 @@ end
 
 def update_member_data(db, client)
     # Select members in the db and update with their latest data
-    members=db.execute("SELECT id FROM member")
+    members=db["SELECT id FROM member"]
 
     members.each do |member|
       memberId=member[0]
@@ -161,8 +160,8 @@ def update_member_data(db, client)
         # puts "ERROR: Unavailable to find user with id: #{memberId}"
         next
       end
-      db.execute("UPDATE member SET name=?, company=?, email=? WHERE id=?",
-                [user.name, user.company, user.email, user.id] )
+      db["UPDATE member SET name=?, company=?, email=? WHERE id=?",
+                [user.name, user.company, user.email, user.id]]
     end
 end
 
@@ -194,6 +193,8 @@ def sync_metadata(context, sync_db)
         store_organization_teams(sync_db, context.client, org_login)
       end
       sync_db.execute("COMMIT")
+     rescue => e
+       p 'DBGZ' if nil?
      rescue Octokit::ClientError
         sync_db.rollback
         context.feedback.print "!#{$!}!"
