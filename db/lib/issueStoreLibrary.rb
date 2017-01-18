@@ -24,7 +24,7 @@ require "date"
     end
   end
 
-  # Inserts new issues. If any exist already, it replaces them. 
+  # Inserts new issues. If any exist already, it replaces them.
   def db_insert_issues(db, issues, org, repo)
     issues.each do |item|
         db["DELETE FROM items WHERE id=?", item.id]
@@ -33,13 +33,13 @@ require "date"
         pr=item.pull_request ? item.pull_request.html_url : nil
         db[
          "INSERT INTO items (
-               id, item_number, assignee_login, user_login, state, title, body, 
-               org, repo, created_at, updated_at, comment_count, 
+               id, item_number, assignee_login, user_login, state, title, body,
+               org, repo, created_at, updated_at, comment_count,
                pull_request_url, merged_at, closed_at
           )
           VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
           [item.id, item.number, assignee, user, item.state, item.title, item.body,
-           org, repo, gh_to_db_timestamp(item.created_at), gh_to_db_timestamp(item.updated_at), item.comments, 
+           org, repo, gh_to_db_timestamp(item.created_at), gh_to_db_timestamp(item.updated_at), item.comments,
            pr, gh_to_db_timestamp(item.merged_at), gh_to_db_timestamp(item.closed_at)]]
     end
   end
@@ -112,7 +112,7 @@ require "date"
     issues.each do |item|
       if(item.pull_request)
         # sqlite queries much cheaper than github requests, so protect from unnecessary github requests
-        count=db["SELECT COUNT(id) FROM pull_requests WHERE org=? AND repo=? AND pr_number=? AND merged_at IS NOT NULL", org, "#{org}/#{repo}", item.number].to_a.first.first.last
+        count=db["SELECT COUNT(id) FROM pull_requests WHERE org=? AND repo=? AND pr_number::integer=? AND merged_at IS NOT NULL", org, "#{org}/#{repo}", item.number].to_a.first.first.last
         if(count == 0)
             pr=client.pull_request( "#{org}/#{repo}", item.number )
             if(pr.merged_at)
@@ -138,7 +138,7 @@ require "date"
             db["DELETE FROM pull_request_files WHERE pull_request_id=? AND filename=?", item.id, file.filename]
           end
           db[
-            "INSERT INTO pull_request_files (pull_request_id, filename, additions, deletions, changes, status) 
+            "INSERT INTO pull_request_files (pull_request_id, filename, additions, deletions, changes, status)
                VALUES (?, ?, ?, ?, ?, ?)",
             item.id, file.filename, file.additions, file.deletions, file.changes, file.status]
         end

@@ -1,6 +1,7 @@
 # util.rb - shared static methods/constants
 require 'sequel'
 
+# AH TODO we should read from options instead of hardcodeing
 GIT_CONFIG = File.join(File.dirname(__FILE__), 'git-config.yaml')
 DB_CONFIG  = File.join(File.dirname(__FILE__), 'dashboard-config.yaml')
 

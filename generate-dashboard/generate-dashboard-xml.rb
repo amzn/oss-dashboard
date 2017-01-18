@@ -55,7 +55,7 @@ end
 def generate_metadata_header(context)
   organizations = context.dashboard_config['organizations']
   logins = context.dashboard_config['logins']
-  
+
   metadata = " <metadata>\n"
   metadata << "  <navigation>\n"
   if(organizations)
@@ -75,10 +75,10 @@ def generate_metadata_header(context)
     end
   end
   metadata << "  </navigation>\n"
-  
+
   # Which User Management Reports are configured?
   generate_report_metadata(context, metadata, 'user-report')
-  
+
   # Which Repo Reports are configured?
   generate_report_metadata(context, metadata, 'repo-report')
 
@@ -86,7 +86,7 @@ def generate_metadata_header(context)
   generate_report_metadata(context, metadata, 'issue-report')
 
   metadata << "  <run-metrics refreshTime='#{context[:START_TIME]}' generationTime='#{DateTime.now}' startRateLimit='#{context[:START_RATE_LIMIT]}' endRateLimit='#{context[:END_RATE_LIMIT]}' usedRateLimit='#{context[:USED_RATE_LIMIT]}'/>\n"
-  
+
   metadata << " </metadata>\n"
   return metadata
 end
@@ -94,28 +94,28 @@ end
 # Generate a data file for a GitHub organizations.
 # It contains the metadata for the organization, and the metrics.
 def generate_dashboard_xml(context)
-  
+
   organizations = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
   private_access = context.dashboard_config['private-access']
   unless(private_access)
     private_access = []
   end
-  
+
   sync_db = get_db_handle(context.dashboard_config)
-  
+
   unless(File.exists?("#{data_directory}/dash-xml/"))
     Dir.mkdir("#{data_directory}/dash-xml/")
   end
-  
+
   # First, generate the metadata needed to build navigation
   # Which other orgs form a part of this site?
   metadata=generate_metadata_header(context)
-  
+
   organizations.each do |org|
     context.feedback.print "  #{org} "
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
-  
+
     # the LIKE provides case insensitive selection
     org_data=sync_db["SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login LIKE ?", [org]]
 
@@ -152,7 +152,7 @@ def generate_dashboard_xml(context)
       p 'DBGZ' if nil?
     end
 
-  
+
     # Generate XML for Team data if available
     teams=sync_db["SELECT DISTINCT(t.id), t.name, t.slug, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org]]
     teams.each do |teamRow|
@@ -163,7 +163,7 @@ def generate_dashboard_xml(context)
         desc=desc.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
       end
       dashboard_file.puts "    <description>#{desc}</description>"
-  
+
       # Load the ids for repos team has access to
       repos=sync_db["SELECT r.name FROM team_to_repository ttr, repository r WHERE ttr.team_id=? AND ttr.repository_id=r.id AND r.fork=0", [teamRow[0]]]
       dashboard_file.puts "    <repos>"
@@ -171,7 +171,7 @@ def generate_dashboard_xml(context)
         dashboard_file.puts "        <repo>#{teamRepoRow[0]}</repo>"
       end
       dashboard_file.puts "    </repos>"
-  
+
       # Load the ids for the members of the team
       members=sync_db["SELECT m.login FROM team_to_member ttm, member m WHERE ttm.team_id=? AND ttm.member_id=m.id", [teamRow[0]]]
       dashboard_file.puts "    <members>"
@@ -181,8 +181,8 @@ def generate_dashboard_xml(context)
       dashboard_file.puts "    </members>"
       dashboard_file.puts "  </team>"
     end
-  
-  
+
+
     # Generate XML for Repo data, including time-indexed metrics and collaborators
     # TODO: How to integrate internal ticketing mapping
     repos=sync_db["SELECT id, name, homepage, private, fork, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description FROM repository WHERE org=?", [org]]
@@ -208,8 +208,8 @@ def generate_dashboard_xml(context)
         end
         dashboard_file.puts "    </collaborators>"
       end
-  
-  
+
+
         # Get the issues specifically
         issues=sync_db["SELECT id, item_number, assignee_login, user_login, state, title, body, org, repo, created_at, updated_at, comment_count, pull_request_url, merged_at, closed_at FROM items WHERE org=? AND repo=? AND state='open'", [org, repoRow[1]]]
         dashboard_file.puts "    <issues count='#{issues.length}'>"
@@ -233,7 +233,7 @@ def generate_dashboard_xml(context)
           dashboard_file.puts "      </issue>"
         end
         dashboard_file.puts "    </issues>"
-    
+
         # Issue + PR Reports
         dashboard_file.puts "  <issue-data id='#{repoRow[1]}'>"
         # Yearly Issues Opened
@@ -245,8 +245,8 @@ def generate_dashboard_xml(context)
      closedIssues.each do |issuecount|
           dashboard_file.puts "    <issues-closed id='#{repoRow[1]}' year='#{issuecount[0]}' count='#{issuecount[1]}'/>"
         end
-      
-        # Yearly Pull Requests 
+
+        # Yearly Pull Requests
         openedPrs=sync_db["SELECT strftime('%Y',created_at) as year, COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='open' GROUP BY year ORDER BY year DESC"]
         openedPrs.each do |prcount|
           dashboard_file.puts "    <prs-opened id='#{repoRow[1]}' year='#{prcount[0]}' count='#{prcount[1]}'/>"
@@ -255,64 +255,64 @@ def generate_dashboard_xml(context)
         closedPrs.each do |prcount|
           dashboard_file.puts "    <prs-closed id='#{repoRow[1]}' year='#{prcount[0]}' count='#{prcount[1]}'/>"
         end
-    
+
         # Time to Close
         # TODO: Get rid of the copy and paste here
         dashboard_file.puts "    <age-count>"
         # 1 hour  = 0.0417
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) < 0.0417 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer < 0.0417 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='1 hour'>#{ageCount[0][0]}</issue-count>"
         # 3 hours = 0.125
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 0.0417 AND julianday(closed_at) - julianday(created_at) <= 0.125 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.0417 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.125 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='3 hours'>#{ageCount[0][0]}</issue-count>"
         # 9 hours = 0.375
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 0.125 AND julianday(closed_at) - julianday(created_at) <= 0.375 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.125 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.375 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='9 hours'>#{ageCount[0][0]}</issue-count>"
         # 1 day
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 0.375 AND julianday(closed_at) - julianday(created_at) <= 1 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.375 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 1 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='1 day'>#{ageCount[0][0]}</issue-count>"
         # 7 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 1 AND julianday(closed_at) - julianday(created_at) <= 7 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 1 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 7 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='1 week'>#{ageCount[0][0]}</issue-count>"
         # 30 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 7 AND julianday(closed_at) - julianday(created_at) <= 30 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 7 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 30 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='1 month'>#{ageCount[0][0]}</issue-count>"
         # 90 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 30 AND julianday(closed_at) - julianday(created_at) <= 90 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 30 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 90 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='1 quarter'>#{ageCount[0][0]}</issue-count>"
         # 355 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 90 AND julianday(closed_at) - julianday(created_at) <= 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 90 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='1 year'>#{ageCount[0][0]}</issue-count>"
         # over a year
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE julianday(closed_at) - julianday(created_at) > 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <issue-count age='over 1 year'>#{ageCount[0][0]}</issue-count>"
         # REPEATING FOR PRs
         # 1 hour  = 0.0417
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) < 0.0417 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer < 0.0417 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='1 hour'>#{ageCount[0][0]}</pr-count>"
         # 3 hours = 0.125
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 0.0417 AND julianday(closed_at) - julianday(created_at) <= 0.125 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.0417 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.125 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='3 hours'>#{ageCount[0][0]}</pr-count>"
         # 9 hours = 0.375
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 0.125 AND julianday(closed_at) - julianday(created_at) <= 0.375 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.125 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.375 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='9 hours'>#{ageCount[0][0]}</pr-count>"
         # 1 day
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 0.375 AND julianday(closed_at) - julianday(created_at) <= 1 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.375 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 1 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='1 day'>#{ageCount[0][0]}</pr-count>"
         # 7 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 1 AND julianday(closed_at) - julianday(created_at) <= 7 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 1 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 7 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='1 week'>#{ageCount[0][0]}</pr-count>"
         # 30 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 7 AND julianday(closed_at) - julianday(created_at) <= 30 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 7 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 30 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='1 month'>#{ageCount[0][0]}</pr-count>"
         # 90 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 30 AND julianday(closed_at) - julianday(created_at) <= 90 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 30 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 90 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='1 quarter'>#{ageCount[0][0]}</pr-count>"
         # 355 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 90 AND julianday(closed_at) - julianday(created_at) <= 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 90 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='1 year'>#{ageCount[0][0]}</pr-count>"
         # over a year
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE julianday(closed_at) - julianday(created_at) > 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
         dashboard_file.puts "      <pr-count age='over 1 year'>#{ageCount[0][0]}</pr-count>"
         dashboard_file.puts "    </age-count>"
 
@@ -327,23 +327,24 @@ def generate_dashboard_xml(context)
         dashboard_file.puts "      <pr-count type='community'>#{communityPrCount[0][0]}</pr-count>"
         dashboard_file.puts "      <pr-count type='project'>#{projectPrCount[0][0]}</pr-count>"
         dashboard_file.puts "    </community-balance>"
-    
+
         dashboard_file.puts "  </issue-data>"
-    
+
         dashboard_file.puts "  <release-data>"
         releases=sync_db["SELECT DISTINCT(id), html_url, name, published_at, author FROM releases WHERE org='#{org}' AND repo='#{repoRow[1]}' ORDER BY published_at DESC"]
         releases.each do |release|
           dashboard_file.puts "    <release id='#{release[0]}' url='#{release[1]}' published_at='#{release[3]}' author='#{release[4]}'>#{escape_for_xml(release[2])}</release>"
         end
         dashboard_file.puts "  </release-data>"
-    
-    
+
+
       dashboard_file.puts "  </repo>"
     end
-  
+
     # Generate XML for Member data
-    members=sync_db["SELECT DISTINCT(m.login), m.two_factor_disabled, u.email, m.name, m.avatar_url, m.company, m.email FROM member m, organization o, organization_to_member otm LEFT OUTER JOIN users u ON m.login=u.login WHERE m.id=otm.member_id AND otm.org_id=o.id AND o.login=?", [org]]
-    members.each do |memberRow|  
+    # AH TODO Need to revisit
+    members=sync_db["SELECT DISTINCT(m.login), m.two_factor_disabled, u.email, m.name, m.avatar_url, m.company, m.email FROM organization o JOIN organization_to_member otm ON otm.org_id=o.id JOIN member m ON m.id = otm.member_id LEFT OUTER JOIN users u ON u.login=m.login WHERE o.login=?", [org]]
+    members.each do |memberRow|
       # TODO: Include whether the individual is in ldap
       internalLogin=""
       if(memberRow[2])
@@ -352,7 +353,7 @@ def generate_dashboard_xml(context)
       end
       dashboard_file.puts "  <member login='#{memberRow[0]}' avatar_url='#{memberRow[4]}' email='#{memberRow[6]}' disabled_2fa='#{memberRow[1]}'#{internalText}><company>#{escape_for_xml(memberRow[5])}</company><name>#{memberRow[3]}</name></member>"
     end
-  
+
     # Copy the review xml into the dashboard xml
     # TODO: This is clunky, but simpler than having xslt talk to more than one file at a time. Replace this, possibly along with XSLT.
     #       Quite possible that there's no need for the review xml file to be separate in the first place.
@@ -362,7 +363,7 @@ def generate_dashboard_xml(context)
       begin
         dashboardXml = Document.new(xmlfile)
       end
-  
+
       if(dashboardXml.root)
         dashboardXml.root.each_element("organization/reporting") do |child|
           dashboard_file.puts " #{child}"
@@ -373,7 +374,7 @@ def generate_dashboard_xml(context)
       else
         context.feedback.print "No root found for #{data_directory}/review-xml/#{org}.xml\n"
       end
-  
+
       xmlfile.close
     end
     if(File.exists?("#{data_directory}/db-report-xml/#{org}.xml"))
@@ -381,21 +382,21 @@ def generate_dashboard_xml(context)
       begin
         dashboardXml = Document.new(xmlfile)
       end
-  
+
       dashboardXml.root.each_element("organization/reporting") do |child|
         dashboard_file.puts " #{child}"
       end
       dashboardXml.root.each_element("organization/license") do |child|
         dashboard_file.puts " #{child}"
       end
-  
+
       xmlfile.close
     end
     dashboard_file.puts " </reports>"
-  
+
     dashboard_file.puts " </organization>"
     dashboard_file.puts "</github-dashdata>"
-    
+
     dashboard_file.close
     context.feedback.print "\n"
   end
