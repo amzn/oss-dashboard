@@ -27,7 +27,7 @@ require "date"
   # Inserts new issues. If any exist already, it replaces them.
   def db_insert_issues(db, issues, org, repo)
     issues.each do |item|
-        db["DELETE FROM items WHERE id=?", item.id]
+        db["DELETE FROM items WHERE id=?", item.id.to_s].delete
         assignee=item.assignee ? item.assignee.login : nil
         user=item.user ? item.user.login : nil
         pr=item.pull_request ? item.pull_request.html_url : nil
@@ -38,16 +38,16 @@ require "date"
                pull_request_url, merged_at, closed_at
           )
           VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
-          [item.id, item.number, assignee, user, item.state, item.title, item.body,
-           org, repo, gh_to_db_timestamp(item.created_at), gh_to_db_timestamp(item.updated_at), item.comments,
-           pr, gh_to_db_timestamp(item.merged_at), gh_to_db_timestamp(item.closed_at)]]
+            item.id, item.number, assignee, user, item.state, item.title, item.body,
+            org, repo, gh_to_db_timestamp(item.created_at), gh_to_db_timestamp(item.updated_at), item.comments,
+            pr, gh_to_db_timestamp(item.merged_at), gh_to_db_timestamp(item.closed_at)].insert
     end
   end
 
   # Inserts new comments. If any exist already, it replaces them.
   def db_insert_comments(db, comments, org, repo)
     comments.each do |comment|
-        db["DELETE FROM item_comments WHERE id=?", comment.id]
+        db["DELETE FROM item_comments WHERE id=?", comment.id].delete
         # eg: https://github.com/amznlabs/oss-dashboard/issues/13#issuecomment-155591520
         itemNumber=comment.html_url.sub(/^.*\/([0-9]*)#issuecomment-[0-9]*$/, '\1')
         user=comment.user ? comment.user.login : nil
@@ -56,8 +56,8 @@ require "date"
                id, org, repo, item_number, user_login, body, created_at, updated_at
           )
           VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )",
-          [comment.id, org, repo, itemNumber, user, comment.body, gh_to_db_timestamp(comment.created_at), gh_to_db_timestamp(comment.updated_at)]
-        ]
+          comment.id, org, repo, itemNumber, user, comment.body, gh_to_db_timestamp(comment.created_at),
+          gh_to_db_timestamp(comment.updated_at)].insert
     end
   end
 
@@ -104,7 +104,7 @@ require "date"
   def db_update_pull_request(db, pr, org, repo)
     db[
        "UPDATE items SET merged_at=? WHERE org=? AND repo=? AND item_number=?",
-        [gh_to_db_timestamp(pr.merged_at), org, "#{org}/#{repo}", pr.number]]
+        gh_to_db_timestamp(pr.merged_at), org, "#{org}/#{repo}", pr.number.to_s].update
   end
 
   # Given a list of issues, fix the merged_at for any prs in that list
@@ -135,12 +135,12 @@ require "date"
         files=client.pull_request_files("#{org}/#{repo}", item.number.to_i)
         files.each do |file|
           if(db_pull_request_file_stored?(db, item.id, file.filename))
-            db["DELETE FROM pull_request_files WHERE pull_request_id=? AND filename=?", item.id, file.filename]
+            db["DELETE FROM pull_request_files WHERE pull_request_id=? AND filename=?", item.id.to_s, file.filename].delete
           end
           db[
             "INSERT INTO pull_request_files (pull_request_id, filename, additions, deletions, changes, status)
                VALUES (?, ?, ?, ?, ?, ?)",
-            item.id, file.filename, file.additions, file.deletions, file.changes, file.status]
+            item.id, file.filename, file.additions, file.deletions, file.changes, file.status].insert
         end
        rescue Octokit::InternalServerError
         # 500 - Server Error: Sorry, there was a problem generating this diff. The repository may be missing relevant data. (Octokit::InternalServerError)
@@ -154,21 +154,21 @@ require "date"
     # For each issue
     issues.each do |issue|
       # Remove from item_to_milestone
-      db["DELETE FROM item_to_milestone WHERE item_id=?", [issue.id]]
+      db["DELETE FROM item_to_milestone WHERE item_id=?", issue.id].delete
       # For each milestone
       if(issue.milestones)
         issue.milestones.each do |milestone|
           # Insert into item_to_milestone
-          db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", [item.id, milestone.id]]
+          db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", item.id, milestone.id].insert
         end
       end
       # Remove from item_to_label
-      db["DELETE FROM item_to_label WHERE item_id=?", [issue.id]]
+      db["DELETE FROM item_to_label WHERE item_id=?", issue.id].delete
       # For each label
       if(issue.labels)
         issue.labels.each do |label|
           # Insert into item_to_label
-          db["INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", [issue.id, label.url]]
+          db["INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", issue.id, label.url].insert
         end
       end
     end

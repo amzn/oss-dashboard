@@ -24,14 +24,17 @@ def getMilestones(client, db, orgrepo)
     return
   end
   # Wipe Milestones
-  db["DELETE FROM milestones WHERE orgrepo=?", [orgrepo]]
+  db["DELETE FROM milestones WHERE orgrepo=?", orgrepo].delete
   # Fill Milestones again
   milestones.each do |milestone|
     db[
-      "INSERT INTO milestones " + 
+      "INSERT INTO milestones " +
       "(orgrepo, id, html_url, title, state, number, description, creator, open_issues, closed_issues, created_at, updated_at, closed_at, due_on) " +
       "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)]]
+      orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number,
+      milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues,
+      gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at),
+      gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)].insert
   end
 end
 
@@ -41,10 +44,11 @@ def getLabels(client, db, orgrepo)
     return
   end
   # Wipe Labels
-  db["DELETE FROM labels WHERE orgrepo=?", [orgrepo]]
+  db["DELETE FROM labels WHERE orgrepo=?", orgrepo].delete
   # Fill Labels again
   labels.each do |label|
-    db["INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color]]
+    db["INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)",
+      orgrepo, label.url, label.name, label.color].insert
   end
 end
 
@@ -52,21 +56,21 @@ def db_link_issues(db, issues, org, repo)
   # For each issue
   issues.each do |issue|
     # Remove from item_to_milestone
-    db["DELETE FROM item_to_milestone WHERE item_id=?", [issue.id]]
+    db["DELETE FROM item_to_milestone WHERE item_id=?", issue.id].delete
     # For each milestone
     if(issue.milestones)
       issue.milestones.each do |milestone|
         # Insert into item_to_milestone
-        db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", [item.id, milestone.id]]
+        db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", item.id, milestone.id].insert
       end
     end
     # Remove from item_to_label
-    db["DELETE FROM item_to_label WHERE item_id=?", [issue.id]]
+    db["DELETE FROM item_to_label WHERE item_id=?", issue.id].delete
     # For each label
     if(issue.labels)
       issue.labels.each do |label|
         # Insert into item_to_label
-        db["INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", [issue.id, label.url]]
+        db["INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", issue.id, label.url].insert
       end
     end
   end
@@ -74,7 +78,7 @@ end
 
 # This should speed things up
 # TODO: Needs to a) do all the db things that are done below in addition to plain inserting
-#       and b) to figure out the repo from each issue returned. Frustratingly it's not in the API of an issue, 
+#       and b) to figure out the repo from each issue returned. Frustratingly it's not in the API of an issue,
 #       so it seems that one must parse the issue url.
 #def getLatestForOrg(client, issue_db, org)
 #  maxTimestamp=db_getMaxTimestampForOrg(issue_db, org)               # Get the current max timestamp in the db
@@ -88,24 +92,28 @@ end
 
 def getLatestForOrgRepos(context, issue_db, org, repos)
   repos.each do |repo_obj|
-   issue_db.execute("BEGIN TRANSACTION");
+
    begin # Repository access blocked (Octokit::ClientError)
-    getMilestones(context.client, issue_db, repo_obj.full_name)
-    getLabels(context.client, issue_db, repo_obj.full_name)
-    maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo_obj.name)               # Get the current max timestamp in the db
-    if(maxTimestamp)
-      # Increment the timestamp by a second to avoid getting repeats
-      ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
-      issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'since' => ts } )
-    else
-      issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all' } )
+    issue_db.transaction do
+      getMilestones(context.client, issue_db, repo_obj.full_name)
+      getLabels(context.client, issue_db, repo_obj.full_name)
+      maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo_obj.name)               # Get the current max timestamp in the db
+      if(maxTimestamp)
+        # Increment the timestamp by a second to avoid getting repeats
+        ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+        issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'since' => ts } )
+      else
+        issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all' } )
+      end
+      db_insert_issues(issue_db, issues, org, repo_obj.name)                   # Insert any new items
+      db_link_issues(issue_db, issues, org, repo_obj.name)
+      db_fix_merged_at(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely merged_at
+      db_add_pull_request_files(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely the files + their metrics
     end
-    db_insert_issues(issue_db, issues, org, repo_obj.name)                   # Insert any new items
-    db_link_issues(issue_db, issues, org, repo_obj.name)
-    db_fix_merged_at(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely merged_at
-    db_add_pull_request_files(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely the files + their metrics
-    issue_db.execute("END TRANSACTION");
     context.feedback.print '.'
+   rescue => e
+      puts "Error during processing: #{$!}"
+      puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
    rescue Octokit::ClientError
       issue_db.rollback
       context.feedback.print '!'
@@ -114,10 +122,10 @@ def getLatestForOrgRepos(context, issue_db, org, repos)
 end
 
 def sync_issues(context, sync_db)
-  
+
   owners = context.dashboard_config['organizations+logins']
   context.feedback.puts " issues"
-  
+
   owners.each do |org|
 
     if(context.login?(org))
@@ -135,20 +143,21 @@ end
 
 def getLatestIssueComments(context, issue_db, org, repos)
   repos.each do |repo_obj|
-    issue_db.execute("BEGIN TRANSACTION");
-
-    # Get the current max timestamp in the db
-    maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo_obj.name)
-    if(maxTimestamp)
-      # Increment the timestamp by a second to avoid getting repeats
-      ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
-      comments=context.client.issues_comments(repo_obj.full_name, { 'since' => ts } )
-    else
-      comments=context.client.issues_comments(repo_obj.full_name)
+    begin
+      issue_db.transaction do
+        # Get the current max timestamp in the db
+        maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo_obj.name)
+        if(maxTimestamp)
+          # Increment the timestamp by a second to avoid getting repeats
+          ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+          comments=context.client.issues_comments(repo_obj.full_name, { 'since' => ts } )
+        else
+          comments=context.client.issues_comments(repo_obj.full_name)
+        end
+        db_insert_comments(issue_db, comments, org, repo_obj.name)
+      end
+      context.feedback.print '.'
     end
-    db_insert_comments(issue_db, comments, org, repo_obj.name)
-    issue_db.execute("END TRANSACTION");
-    context.feedback.print '.'
   end
 end
 

@@ -23,7 +23,7 @@ CREATE TABLE items (
 DROP VIEW IF EXISTS issues;
 
 CREATE VIEW issues AS
-SELECT id, item_number AS issue_number, assignee_login, user_login, state, 
+SELECT id, item_number AS issue_number, assignee_login, user_login, state,
        title, body, org, repo, created_at, updated_at, comment_count, closed_at
 FROM items
 WHERE pull_request_url IS NULL;
@@ -31,7 +31,7 @@ WHERE pull_request_url IS NULL;
 DROP VIEW IF EXISTS pull_requests;
 
 CREATE VIEW pull_requests AS
-SELECT id, item_number AS pr_number, assignee_login, user_login, state, 
+SELECT id, item_number AS pr_number, assignee_login, user_login, state,
        title, body, org, repo, created_at, updated_at, comment_count, closed_at,
        pull_request_url, merged_at
 FROM items
@@ -75,7 +75,7 @@ CREATE TABLE milestones (
   state VARCHAR,
   number INTEGER,
   description VARCHAR,
-  creator INTEGER,
+  creator VARCHAR,
   open_issues INTEGER,
   closed_issues INTEGER,
   created_at TIMESTAMP,
