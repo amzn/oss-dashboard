@@ -29,7 +29,7 @@ def clear_organization(db, org_login)
   ]
 
   queries.each do |query|
-    db[query, org_login]
+    db[query, org_login].delete
   end
 end
 
@@ -39,14 +39,14 @@ def store_organization(context, db, org_login)
   else
     org=context.client.organization(org_login)
   end
-  
+
   db[
     "INSERT INTO organization (
       login, id, url, avatar_url, description, name, company, blog, location, email, public_repos, public_gists, followers, following, html_url, created_at, type
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [org.login, org.id, org.url, org.avatar_url, org.description, org.name, org.company, org.blog, org.location, org.email, org.public_repos, org.public_gists, org.followers, org.following, org.html_url, org.created_at.to_s, org.type]
-    ]
+      org.login, org.id, org.url, org.avatar_url, org.description, org.name, org.company, org.blog, org.location, org.email, org.public_repos, org.public_gists, org.followers, org.following, org.html_url, org.created_at.to_s, org.type
+    ].insert
     return org
 end
 
@@ -55,18 +55,18 @@ def store_organization_teams(db, client, org)
 
     db[
       "INSERT INTO team (id, org, name, slug, description) VALUES (?, ?, ?, ?, ?)",
-      [team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description]]
+      team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description ].insert
 
     repos=client.team_repositories(team_obj.id)
     repos.each do |repo_obj|
-      db["INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", [team_obj.id, repo_obj.id]]
+      db["INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", team_obj.id, repo_obj.id ].insert
     end
-  
+
     members=client.team_members(team_obj.id)
     members.each do |member_obj|
-      db["INSERT INTO team_to_member (team_id, member_id) VALUES(?, ?)", [team_obj.id, member_obj.id]]
+      db["INSERT INTO team_to_member (team_id, member_id) VALUES(?, ?)", team_obj.id, member_obj.id].insert
     end
-  
+
   end
 end
 
@@ -76,7 +76,7 @@ def store_organization_repositories(context, db, org)
   else
     repos=context.client.organization_repositories(org)
   end
-  
+
   repos.each do |repo_obj|
    begin # Repository access blocked (Octokit::ClientError)
     watchers=context.client.send('subscribers', "#{org}/#{repo_obj.name}").length
@@ -84,7 +84,10 @@ def store_organization_repositories(context, db, org)
     db["INSERT INTO repository
       (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? 1 : 0, repo_obj.private ? 1 : 0, repo_obj.has_wiki ? 1 : 0, repo_obj.language, repo_obj.watchers, watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s, repo_obj.size, repo_obj.description]]
+      repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? true : false, repo_obj.private ? true : false,
+      repo_obj.has_wiki ? true : false, repo_obj.language, repo_obj.watchers,
+      watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s,
+      repo_obj.size, repo_obj.description].insert
    rescue Octokit::ClientError
       context.feedback.print "!#{$!}!"
    end
@@ -107,23 +110,23 @@ def store_organization_members(db, client, org_obj, private, previous_members)
   client.organization_members(org_obj.login).each do |member_obj|
     org_members[member_obj.id]=true
     unless(previous_members[member_obj.id])
-      db["DELETE FROM member WHERE id=?", [member_obj.id]]
+      db["DELETE FROM member WHERE id=?", member_obj.id].delete
 
       if(private == false)
-        d_2fa='unknown'
+        d_2fa=false
       elsif(disabled_2fa[member_obj.login])
-        d_2fa='true'
+        d_2fa=true
       else
-        d_2fa='false'
+        d_2fa=false
       end
 
       db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                  VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url]]
+                  VALUES(?, ?, ?, ?)", member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url].insert
 
       previous_members[member_obj.id]=true
     end
 
-    db["INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", [org_obj.id, member_obj.id]]
+    db["INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", org_obj.id, member_obj.id].insert
   end
 
   # Get collaborators too - no organization API :(
@@ -132,16 +135,17 @@ def store_organization_members(db, client, org_obj, private, previous_members)
       collaborators=client.collaborators(repo_obj.full_name)
       collaborators.each do |collaborator|
         unless(previous_members[collaborator.id])
-          db["DELETE FROM member WHERE id=?", [collaborator.id]]
+          db["DELETE FROM member WHERE id=?", collaborator.id].delete
           db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                      VALUES(?, ?, ?, ?)", [collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url] ]
+                      VALUES(?, ?, ?, ?)", collaborator.id, collaborator.login, false, collaborator.avatar_url].insert
           previous_members[collaborator.id]=true
         end
         unless(org_members[collaborator.id])
-          # This isn't quite accurate. You can be an outside collaborator to a project and also a member. In reality I should be looking for 
-          # those who have access to a repository but are not in a Team with access to the repository. This will, for now, highlight the 
-          # the real _outside_ collaborators though, which is the initial requirement. 
-          db["INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)", [org_obj.id, repo_obj.id, collaborator.id]]
+          # This isn't quite accurate. You can be an outside collaborator to a project and also a member. In reality I should be looking for
+          # those who have access to a repository but are not in a Team with access to the repository. This will, for now, highlight the
+          # the real _outside_ collaborators though, which is the initial requirement.
+          db["INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)",
+            org_obj.id, repo_obj.id, collaborator.id].insert
         end
       end
     end
@@ -160,8 +164,7 @@ def update_member_data(db, client)
         # puts "ERROR: Unavailable to find user with id: #{memberId}"
         next
       end
-      db["UPDATE member SET name=?, company=?, email=? WHERE id=?",
-                [user.name, user.company, user.email, user.id]]
+      db["UPDATE member SET name=?, company=?, email=? WHERE id=?",user.name, user.company, user.email, user.id].update
     end
 end
 
@@ -183,34 +186,36 @@ def sync_metadata(context, sync_db)
      begin
 
       # Repository access blocked (Octokit::ClientError)
-      sync_db.execute("BEGIN TRANSACTION")
-      context.feedback.print "  #{org_login} "
-      clear_organization(sync_db, org_login)
-      org=store_organization(context, sync_db, org_login)
-      store_organization_repositories(context, sync_db, org_login)
-      store_organization_members(sync_db, context.client, org, private_access.include?(org_login), previous_members)
-      if(private_access.include?(org_login))
-        store_organization_teams(sync_db, context.client, org_login)
+      sync_db.transaction do
+        context.feedback.print "  #{org_login} "
+        clear_organization(sync_db, org_login)
+        org=store_organization(context, sync_db, org_login)
+        store_organization_repositories(context, sync_db, org_login)
+        store_organization_members(sync_db, context.client, org, private_access.include?(org_login), previous_members)
+        if(private_access.include?(org_login))
+          store_organization_teams(sync_db, context.client, org_login)
+        end
       end
-      sync_db.execute("COMMIT")
      rescue => e
-       p 'DBGZ' if nil?
+        puts "Error during processing: #{$!}"
+        puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
      rescue Octokit::ClientError
-        sync_db.rollback
         context.feedback.print "!#{$!}!"
      end
      context.feedback.print "\n"
     end
   end
 
+
+
   if(logins)
     logins.each do |login|
-      sync_db.execute("BEGIN TRANSACTION")
-      context.feedback.print "  #{login} "
-      clear_organization(sync_db, login)
-      org=store_organization(context, sync_db, login)
-      store_organization_repositories(context, sync_db, login)
-      sync_db.execute("COMMIT")
+      sync_db.transaction do
+        context.feedback.print "  #{login} "
+        clear_organization(sync_db, login)
+        org=store_organization(context, sync_db, login)
+        store_organization_repositories(context, sync_db, login)
+      end
      context.feedback.print "\n"
     end
   end
