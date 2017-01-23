@@ -22,9 +22,9 @@ class AverageIssueCloseDbReporter < DbReporter
     text = ""
     issue_query="SELECT repo, COUNT(id), ROUND(AVG(to_char(closed_at::date, 'J')::integer - to_char(created_at::date,'J')::integer), 1) as mttr FROM issues WHERE state='closed' AND org=? GROUP BY org, repo ORDER BY mttr"
 
-    issue_data=sync_db[issue_query, [org]]
-    issue_data.each() do |row|
-        text << "  <reporting class='issue-report' repo='#{org}/#{row[0]}' type='AverageIssueCloseDbReporter'><field>#{org}/#{row[0]}</field><field>#{row[1]}</field><field>#{row[2]}</field></reporting>\n"
+    issue_data=sync_db[issue_query, org]
+    issue_data.each do |row|
+        text << "  <reporting class='issue-report' repo='#{org}/#{row[:repo]}' type='AverageIssueCloseDbReporter'><field>#{org}/#{row[:repo]}</field><field>#{row[:count]}</field><field>#{row[:mttr]}</field></reporting>\n"
     end
 
     return text

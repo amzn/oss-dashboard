@@ -35,7 +35,9 @@ def get_db_handle(config)
 end
 
 def db_exists?(config)
+  puts config
   db_config = config[:database.to_s]
+  puts db_config
   engine    = db_config[:engine.to_s]
 
   if engine.eql?('postgres')

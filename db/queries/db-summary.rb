@@ -33,20 +33,23 @@ queries = [
   ["SELECT COUNT(*) as RepositoryData FROM repository", " WHERE org=?"],
   ["SELECT COUNT(DISTINCT(m.id)) as MemberData FROM member m", ", team_to_member ttm, team_to_repository ttr, repository r WHERE m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
   ["SELECT COUNT(*) as Team2RepoData FROM team_to_repository ttr", ", repository r WHERE ttr.repository_id=r.id AND r.org=?"],
-  ["SELECT COUNT(DISTINCT(ttm.member_id || ttm.team_id)) as Team2MemberData FROM team_to_member ttm", ", team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
+  # AH Need to FIX THIS
+  #["SELECT COUNT(DISTINCT(ttm.member_id || ttm.team_id)) as Team2MemberData FROM team_to_member ttm", ", team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
   ["SELECT COUNT(DISTINCT(otm.member_id)) as Organization2MemberData FROM organization_to_member otm", ", organization o WHERE otm.org_id=o.id AND o.login=?"],
-  ["SELECT COUNT(DISTINCT(rtm.member_id)) as Repository2MemberData FROM repository_to_member rtm", ", repository r WHERE rtm.repository_id=r.id AND r.org=?"]
+  ["SELECT COUNT(DISTINCT(rtm.member_id)) as Repository2MemberData FROM repository_to_member rtm", ", repository r WHERE rtm.repo_id=r.id AND r.org=?"]
 ]
 
-config = YAML.load_file(DB_CONFIG)
-org = ARGV[0]
+config_file = ARGV[0]
+config = YAML.load(File.read(config_file))
+dashboard_config = config['dashboard']
+org = ARGV[1]
 
-unless db_exists?(config)
+unless db_exists?(dashboard_config)
   puts 'Database does not exist'
   exit
 end
 
-sync_db = get_db_handle(config)
+sync_db = get_db_handle(dashboard_config)
 
 if(org)
   puts "#{org} Table Size"
@@ -60,13 +63,12 @@ queries.each do |query, clause|
   if(org)
     # Assumed that LIKE clauses are starts-with
     if(clause.include?('LIKE'))
-      result=sync_db.query(query+clause, [org+'%'])
+      result=sync_db[query+clause, org+'%']
     else
-      result=sync_db.query(query+clause, [org])
+      result=sync_db[query+clause, org]
     end
   else
-    result=sync_db.query(query)
+    result=sync_db[query]
   end
-  puts "#{result.columns[0]}: #{result.next[0]}"
-  result.close # CHK TODO need to see what we're getting here
+  result.each{|r| puts r}
 end

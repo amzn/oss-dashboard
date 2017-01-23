@@ -65,7 +65,7 @@ require "date"
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db["select max(updated_at) from item_comments where repo='#{repo}'"].each do |row|
-      timestamp=row[0]
+      timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
       else
@@ -78,7 +78,7 @@ require "date"
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db["select max(updated_at) from items where repo='#{repo}'"].each do |row|
-      timestamp=row[0]
+      timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
       else
@@ -91,7 +91,7 @@ require "date"
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db["select max(updated_at) from items where org='#{org}'"].each do |row|
-      timestamp=row[0]
+      timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
       else
@@ -124,7 +124,7 @@ require "date"
   end
 
   def db_pull_request_file_stored?(db, id, filename)
-    return db["SELECT pull_request_id FROM pull_request_files WHERE pull_request_id=? AND filename=?", [id, filename]] != 0
+    return db["SELECT pull_request_id FROM pull_request_files WHERE pull_request_id=? AND filename=?", id, filename] != 0
   end
 
   # Add the list of files included in a pull request, and more importantly the stats

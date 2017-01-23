@@ -91,12 +91,12 @@ require "date"
 
   def db_getMaxIdForOrg(db, org)
     db["select max(id) from events where org='#{org}'"].each do |row|
-      return row[0]
+      return row[:max]
     end
   end
 
   def db_getMaxIdForRepo(db, repo)
     db["select max(id) from events where repo='#{repo}'"].each do |row|
-      return row[0]
+      return row[:max]
     end
   end

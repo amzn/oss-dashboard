@@ -25,22 +25,21 @@ class NoIssueCommentsDbReporter < DbReporter
 
     label_query='SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?'
 
-    issue_data=sync_db[issue_query, [org]]
-    issue_data.each() do |row|
+    issue_data=sync_db[issue_query, org]
+    issue_data.each do |row|
+        url="#{context.github_url}/#{org}/#{row[:repo]}/issues/#{row[:issue_number]}"
+        title=row[:title].gsub(/&/, "&amp;").gsub(/</, "&lt;")
 
-        url="#{context.github_url}/#{org}/#{row[4]}/issues/#{row[1]}"
-        title=row[2].gsub(/&/, "&amp;").gsub(/</, "&lt;")
-
-        label_data=sync_db[label_query, [row[0]]]
+        label_data=sync_db[label_query, row[:id]]
         labels=""
         if(label_data)
           label_data.each do |label|
-            labelName=label[1].gsub(/ /, '&#xa0;')
-            labels << "<label url=\"#{label[0]}\" color='#{label[2]}'>#{labelName}</label>"
+            labelName=label[:name].gsub(/ /, '&#xa0;')
+            labels << "<label url=\"#{label[:url]}\" color='#{label[:color]}'>#{labelName}</label>"
           end
         end
 
-        text << "  <reporting class='issue-report' repo='#{org}/#{row[4]}' type='NoIssueCommentsDbReporter'><field>#{row[5]}</field><field>#{url}</field><field>#{title}</field><field>#{labels}</field></reporting>\n"
+        text << "  <reporting class='issue-report' repo='#{org}/#{row[:repo]}' type='NoIssueCommentsDbReporter'><field>#{row[:created_at]}</field><field>#{url}</field><field>#{title}</field><field>#{labels}</field></reporting>\n"
     end
 
     return text

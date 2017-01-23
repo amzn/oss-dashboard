@@ -35,11 +35,11 @@ class LeftEmploymentDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
-    unknown=sync_db["SELECT DISTINCT(m.login), u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr, users u WHERE m.login=u.login AND u.is_employee=0 AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org]]
+    unknown=sync_db["SELECT DISTINCT(m.login) as login, u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr, users u WHERE m.login=u.login AND u.is_employee=0 AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", org]
     text = ''
     unknown.each do |row|
-      url="#{context.github_url}/orgs/#{org}/people?utf8=%E2%9C%93&amp;query=#{row[0]}"
-      text << "  <reporting class='user-report' type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[0]}</field><field>#{row[1]}</field></reporting>\n"
+      url="#{context.github_url}/orgs/#{org}/people?utf8=%E2%9C%93&amp;query=#{row[:login]}"
+      text << "  <reporting class='user-report' type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[:login]}</field><field>#{row[:email]}</field></reporting>\n"
     end
     return text
   end

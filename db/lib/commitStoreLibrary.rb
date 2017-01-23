@@ -57,7 +57,7 @@ require "date"
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db["select max(committed_at) from commits where org='#{org}' and repo='#{repo}'"].each do |row|
-      timestamp=row[0]
+      timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
       else
@@ -70,7 +70,7 @@ require "date"
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db["select max(committed_at) from commits where org='#{org}'"].each do |row|
-      timestamp=row[0]
+      timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
       else
