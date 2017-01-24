@@ -104,7 +104,7 @@ require "date"
   def db_update_pull_request(db, pr, org, repo)
     db[
        "UPDATE items SET merged_at=? WHERE org=? AND repo=? AND item_number=?",
-        gh_to_db_timestamp(pr.merged_at), org, "#{org}/#{repo}", pr.number.to_s].update
+        gh_to_db_timestamp(pr.merged_at), org, repo, pr.number.to_s].update
   end
 
   # Given a list of issues, fix the merged_at for any prs in that list
@@ -112,7 +112,7 @@ require "date"
     issues.each do |item|
       if(item.pull_request)
         # sqlite queries much cheaper than github requests, so protect from unnecessary github requests
-        countRow = db["SELECT COUNT(id) FROM pull_requests WHERE org=? AND repo=? AND pr_number=? AND merged_at IS NOT NULL", org, "#{org}/#{repo}", item.number.to_s]
+        countRow = db["SELECT COUNT(id) FROM pull_requests WHERE org=? AND repo=? AND pr_number=? AND merged_at IS NOT NULL", org, "#{repo}", item.number.to_s]
         count = countRow.first[:count]
         if(count == 0)
             pr=client.pull_request( "#{org}/#{repo}", item.number )
@@ -125,7 +125,7 @@ require "date"
   end
 
   def db_pull_request_file_stored?(db, id, filename)
-    return db["SELECT pull_request_id FROM pull_request_files WHERE pull_request_id=? AND filename=?", id, filename] != 0
+    return db["SELECT pull_request_id FROM pull_request_files WHERE pull_request_id=? AND filename=?", id.to_s, filename].first
   end
 
   # Add the list of files included in a pull request, and more importantly the stats

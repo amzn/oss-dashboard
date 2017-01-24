@@ -20,7 +20,7 @@ class AveragePrOpenedDbReporter < DbReporter
   def db_report(context, org, sync_db)
 
     text = ""
-    issue_query="SELECT repo, COUNT(id), AVG(now()::date - created_at::date)::numeric as age FROM pull_requests WHERE state='open' AND org=? GROUP BY org, repo ORDER BY age"
+    issue_query="SELECT repo, COUNT(id), ROUND(AVG(now()::date - created_at::date)::numeric, 2) as age FROM pull_requests WHERE state='open' AND org=? GROUP BY org, repo ORDER BY age"
 
     issue_data=sync_db[issue_query, org]
     issue_data.each() do |row|

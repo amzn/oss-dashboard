@@ -20,7 +20,7 @@ class AverageIssueCloseDbReporter < DbReporter
   def db_report(context, org, sync_db)
 
     text = ""
-    issue_query="SELECT repo, COUNT(id), AVG(closed_at::date - created_at::date)::numeric as mttr FROM issues WHERE state='closed' AND org=? GROUP BY org, repo ORDER BY mttr"
+    issue_query="SELECT repo, COUNT(id), ROUND(AVG(closed_at::date - created_at::date)::numeric, 2) as mttr FROM issues WHERE state='closed' AND org=? GROUP BY org, repo ORDER BY mttr"
 
     issue_data=sync_db[issue_query, org]
     issue_data.each do |row|

@@ -52,29 +52,30 @@ def getLabels(client, db, orgrepo)
   end
 end
 
-def db_link_issues(db, issues, org, repo)
-  # For each issue
-  issues.each do |issue|
-    # Remove from item_to_milestone
-    db["DELETE FROM item_to_milestone WHERE item_id=?", issue.id].delete
-    # For each milestone
-    if(issue.milestones)
-      issue.milestones.each do |milestone|
-        # Insert into item_to_milestone
-        db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", item.id, milestone.id].insert
-      end
-    end
-    # Remove from item_to_label
-    db["DELETE FROM item_to_label WHERE item_id=?", issue.id].delete
-    # For each label
-    if(issue.labels)
-      issue.labels.each do |label|
-        # Insert into item_to_label
-        db["INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", issue.id, label.url].insert
-      end
-    end
-  end
-end
+# AH Duplicate code already present under issueStoreLibrary.rb
+# def db_link_issues(db, issues, org, repo)
+#   # For each issue
+#   issues.each do |issue|
+#     # Remove from item_to_milestone
+#     db["DELETE FROM item_to_milestone WHERE item_id=?", issue.id].delete
+#     # For each milestone
+#     if(issue.milestones)
+#       issue.milestones.each do |milestone|
+#         # Insert into item_to_milestone
+#         db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", item.id, milestone.id].insert
+#       end
+#     end
+#     # Remove from item_to_label
+#     db["DELETE FROM item_to_label WHERE item_id=?", issue.id].delete
+#     # For each label
+#     if(issue.labels)
+#       issue.labels.each do |label|
+#         # Insert into item_to_label
+#         db["INSERT INTO item_to_label (item_id, url) VALUES(?, ?)", issue.id, label.url].insert
+#       end
+#     end
+#   end
+# end
 
 # This should speed things up
 # TODO: Needs to a) do all the db things that are done below in addition to plain inserting
@@ -93,31 +94,31 @@ end
 def getLatestForOrgRepos(context, issue_db, org, repos)
   repos.each do |repo_obj|
 
-   begin # Repository access blocked (Octokit::ClientError)
-    issue_db.transaction do
-      getMilestones(context.client, issue_db, repo_obj.full_name)
-      getLabels(context.client, issue_db, repo_obj.full_name)
-      maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo_obj.name)               # Get the current max timestamp in the db
-      if(maxTimestamp)
-        # Increment the timestamp by a second to avoid getting repeats
-        ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
-        issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'since' => ts } )
-      else
-        issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all' } )
+    begin # Repository access blocked (Octokit::ClientError)
+      issue_db.transaction do
+        getMilestones(context.client, issue_db, repo_obj.full_name)
+        getLabels(context.client, issue_db, repo_obj.full_name)
+        maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo_obj.name)               # Get the current max timestamp in the db
+        if(maxTimestamp)
+          # Increment the timestamp by a second to avoid getting repeats
+          ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
+          issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'since' => ts } )
+        else
+          issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all' } )
+        end
+        db_insert_issues(issue_db, issues, org, repo_obj.name)                   # Insert any new items
+        db_link_issues(issue_db, issues, org, repo_obj.name)
+        db_fix_merged_at(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely merged_at
+        db_add_pull_request_files(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely the files + their metrics
       end
-      db_insert_issues(issue_db, issues, org, repo_obj.name)                   # Insert any new items
-      db_link_issues(issue_db, issues, org, repo_obj.name)
-      db_fix_merged_at(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely merged_at
-      db_add_pull_request_files(issue_db, context.client, issues, org, repo_obj.name)      # Put in PR specific data - namely the files + their metrics
-    end
-    context.feedback.print '.'
-   rescue => e
+      context.feedback.print '.'
+    rescue => e
       puts "Error during processing: #{$!}"
       puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
-   rescue Octokit::ClientError
+    rescue Octokit::ClientError
       issue_db.rollback
       context.feedback.print '!'
-   end
+    end
   end
 end
 
