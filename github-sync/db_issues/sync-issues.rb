@@ -100,7 +100,7 @@ def getLatestForOrgRepos(context, issue_db, org, repos)
       maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo_obj.name)               # Get the current max timestamp in the db
       if(maxTimestamp)
         # Increment the timestamp by a second to avoid getting repeats
-        ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+        ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
         issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'since' => ts } )
       else
         issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all' } )
@@ -149,7 +149,7 @@ def getLatestIssueComments(context, issue_db, org, repos)
         maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo_obj.name)
         if(maxTimestamp)
           # Increment the timestamp by a second to avoid getting repeats
-          ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+          ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
           comments=context.client.issues_comments(repo_obj.full_name, { 'since' => ts } )
         else
           comments=context.client.issues_comments(repo_obj.full_name)

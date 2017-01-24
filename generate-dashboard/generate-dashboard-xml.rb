@@ -117,10 +117,18 @@ def generate_dashboard_xml(context)
     dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
 
     # the LIKE provides case insensitive selection
-    org_data=sync_db["SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login LIKE ?", [org]]
+    org_data=sync_db["SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login LIKE ?", org]
+    org_data_row = org_data.first
+    avatar = org_data_row[:avatar_url]
+    description = org_data_row[:description]
+    blog = org_data_row[:blog]
+    name = org_data_row[:name]
+    location = org_data_row[:location]
+    email = org_data_row[:email]
+    created_at = org_data_row[:created_at]
 
     begin
-      dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{org_data[0][0]}' github_url='#{context.github_url}'>"
+      dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{avatar}' github_url='#{context.github_url}'>"
       dashboard_file.puts metadata
 
       account_type="organization"
@@ -129,54 +137,55 @@ def generate_dashboard_xml(context)
       end
 
 
-      dashboard_file.puts " <organization name='#{org}' avatar='#{org_data[0][0]}' type='#{account_type}'>"
-      unless(org_data[0][1]=="")
-        dashboard_file.puts "  <description>#{escape_for_xml(org_data[0][1])}</description>"
+      dashboard_file.puts " <organization name='#{org}' avatar='#{avatar}' type='#{account_type}'>"
+      unless(description=="")
+        dashboard_file.puts "  <description>#{escape_for_xml(description)}</description>"
       end
-      unless(org_data[0][2]=="")
-        dashboard_file.puts "  <url>#{org_data[0][2]}</url>"
+      unless(blog=="")
+        dashboard_file.puts "  <url>#{blog}</url>"
       end
-      unless(org_data[0][3]=="")
-        dashboard_file.puts "  <name>#{org_data[0][3]}</name>"
+      unless(name=="")
+        dashboard_file.puts "  <name>#{name}</name>"
       end
-      unless(org_data[0][4]=="")
-        dashboard_file.puts "  <location>#{escape_for_xml(org_data[0][4])}</location>"
+      unless(location=="")
+        dashboard_file.puts "  <location>#{escape_for_xml(location)}</location>"
       end
-      unless(org_data[0][5]=="")
-        dashboard_file.puts "  <email>#{org_data[0][5]}</email>"
+      unless(email=="")
+        dashboard_file.puts "  <email>#{email}</email>"
       end
-      unless(org_data[0][6]=="")
-        dashboard_file.puts "  <created_at>#{org_data[0][6]}</created_at>"
+      unless(created_at=="")
+        dashboard_file.puts "  <created_at>#{created_at}</created_at>"
       end
     rescue => e
+      puts "Error during processing: #{$!}"
       p 'DBGZ' if nil?
     end
 
 
     # Generate XML for Team data if available
-    teams=sync_db["SELECT DISTINCT(t.id), t.name, t.slug, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", [org]]
+    teams=sync_db["SELECT DISTINCT(t.id) as id, t.name, t.slug, t.description FROM team t, repository r, team_to_repository ttr WHERE t.id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", org]
     teams.each do |teamRow|
       # TODO: Indicate if a team has read-only access to a repo, not write.
-      dashboard_file.puts "  <team slug='#{teamRow[2]}' name='#{escape_for_xml(teamRow[1])}'>"
-      desc=teamRow[3]
+      dashboard_file.puts "  <team slug='#{teamRow[:slug]}' name='#{escape_for_xml(teamRow[:name])}'>"
+      desc=teamRow[:description]
       if(desc)
         desc=desc.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
       end
       dashboard_file.puts "    <description>#{desc}</description>"
 
       # Load the ids for repos team has access to
-      repos=sync_db["SELECT r.name FROM team_to_repository ttr, repository r WHERE ttr.team_id=? AND ttr.repository_id=r.id AND r.fork=0", [teamRow[0]]]
+      repos=sync_db["SELECT r.name FROM team_to_repository ttr, repository r WHERE ttr.team_id=? AND ttr.repository_id=r.id AND r.fork=0", teamRow[:id]]
       dashboard_file.puts "    <repos>"
       repos.each do |teamRepoRow|
-        dashboard_file.puts "        <repo>#{teamRepoRow[0]}</repo>"
+        dashboard_file.puts "        <repo>#{teamRepoRow[:name]}</repo>"
       end
       dashboard_file.puts "    </repos>"
 
       # Load the ids for the members of the team
-      members=sync_db["SELECT m.login FROM team_to_member ttm, member m WHERE ttm.team_id=? AND ttm.member_id=m.id", [teamRow[0]]]
+      members=sync_db["SELECT m.login FROM team_to_member ttm, member m WHERE ttm.team_id=? AND ttm.member_id=m.id", teamRow[:id]]
       dashboard_file.puts "    <members>"
       members.each do |teamMemberRow|
-        dashboard_file.puts "      <member>#{teamMemberRow[0]}</member>"
+        dashboard_file.puts "      <member>#{teamMemberRow[:login]}</member>"
       end
       dashboard_file.puts "    </members>"
       dashboard_file.puts "  </team>"
@@ -185,155 +194,163 @@ def generate_dashboard_xml(context)
 
     # Generate XML for Repo data, including time-indexed metrics and collaborators
     # TODO: How to integrate internal ticketing mapping
-    repos=sync_db["SELECT id, name, homepage, private, fork, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description FROM repository WHERE org=?", [org]]
+    repos=sync_db["SELECT id, name, homepage, private, fork, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description FROM repository WHERE org=?", org]
     repos.each do |repoRow|
-      closedIssueCount=sync_db["SELECT COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'" ][0][0]
-      openIssueCount=sync_db["SELECT COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state!='closed'" ][0][0]
-      privateRepo=(repoRow[3]==1)
-      isFork=(repoRow[4]==1)
-      hasWiki=(repoRow[5]==1)
-      closedPullRequestCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"][0][0]
-      openPullRequestCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state!='closed'"][0][0]
-      commitCount=sync_db["SELECT COUNT(*) FROM commits WHERE org='#{org}' AND repo='#{repoRow[1]}'"][0][0]
-      dashboard_file.puts "  <repo name='#{repoRow[1]}' homepage='#{repoRow[2]}' private='#{privateRepo}' fork='#{isFork}' closed_issue_count='#{closedIssueCount}' closed_pr_count='#{closedPullRequestCount}' open_issue_count='#{openIssueCount}' open_pr_count='#{openPullRequestCount}' has_wiki='#{hasWiki}' language='#{repoRow[6]}' stars='#{repoRow[7]}' watchers='#{repoRow[8]}' forks='#{repoRow[9]}' created_at='#{repoRow[10]}' updated_at='#{repoRow[11]}' pushed_at='#{repoRow[12]}' size='#{repoRow[13]}' commit_count='#{commitCount}'>"
-      desc=repoRow[14]?repoRow[14].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;"):repoRow[14]
+      repoName = repoRow[:name]
+      closedIssueCountRow = sync_db["SELECT COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoName}'"]
+      closedIssueCount = closedIssueCountRow.first[:count]
+      openIssueCountRow = sync_db["SELECT COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoName}' AND state!='closed'" ]
+      openIssueCount = openIssueCountRow.first[:count]
+      privateRepo=repoRow[:private]
+      isFork=repoRow[:fork]
+      hasWiki=repoRow[:has_wiki]
+      closedPullRequestCountRow = sync_db["SELECT COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+      closedPullRequestCount = closedPullRequestCountRow.first[:count]
+      openPullRequestCountRow = sync_db["SELECT COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoName}' AND state!='closed'"]
+      openPullRequestCount = openPullRequestCountRow.first[:count]
+      commitCountRow = sync_db["SELECT COUNT(*) FROM commits WHERE org='#{org}' AND repo='#{repoName}'"]
+      commitCount = commitCountRow.first[:count]
+
+      dashboard_file.puts "  <repo name='#{repoName}' homepage='#{repoRow[:homepage]}' private='#{privateRepo}' fork='#{isFork}' closed_issue_count='#{closedIssueCount}' closed_pr_count='#{closedPullRequestCount}' open_issue_count='#{openIssueCount}' open_pr_count='#{openPullRequestCount}' has_wiki='#{hasWiki}' language='#{repoRow[:language]}' stars='#{repoRow[:stars]}' watchers='#{repoRow[:watchers]}' forks='#{repoRow[:forks]}' created_at='#{repoRow[:created_at]}' updated_at='#{repoRow[:updated_at]}' pushed_at='#{repoRow[:pushed_at]}' size='#{repoRow[:size]}' commit_count='#{commitCount}'>"
+      desc = repoRow[:description] ? repoRow[:description].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;") : repoRow[:description]
       dashboard_file.puts "    <description>#{desc}</description>"
 
-      collaborators=sync_db["SELECT m.login FROM member m, repository_to_member rtm WHERE rtm.member_id=m.id AND rtm.repo_id=?", [repoRow[0]]]
+      collaborators = sync_db["SELECT m.login FROM member m, repository_to_member rtm WHERE rtm.member_id=m.id AND rtm.repo_id=?", repoRow[:id]]
+
       # TODO: This check is incorrect, needs to check for emptiness in the response, not nil
       if(collaborators)
         dashboard_file.puts "    <collaborators>"
         collaborators.each do |collaborator|
-          dashboard_file.puts "      <collaborator>#{collaborator[0]}</collaborator>"
+          dashboard_file.puts "      <collaborator>#{collaborator[:login]}</collaborator>"
         end
         dashboard_file.puts "    </collaborators>"
       end
 
-
         # Get the issues specifically
-        issues=sync_db["SELECT id, item_number, assignee_login, user_login, state, title, body, org, repo, created_at, updated_at, comment_count, pull_request_url, merged_at, closed_at FROM items WHERE org=? AND repo=? AND state='open'", [org, repoRow[1]]]
-        dashboard_file.puts "    <issues count='#{issues.length}'>"
-        issues.each do |issueRow|
-          isPR=(issueRow[12] != nil)
+        issuesRows = sync_db["SELECT id, item_number, assignee_login, user_login, state, title, body, org, repo, created_at, updated_at, comment_count, pull_request_url, merged_at, closed_at FROM items WHERE org=? AND repo=? AND state='open'", org, repoName]
+        dashboard_file.puts "    <issues count='#{issuesRows.all.length}'>"
+        issuesRows.each do |issueRow|
+          isPR=(issueRow[:pull_request_url] != nil)
           prText=''
           if(isPR)
-            changes=sync_db["SELECT COUNT(filename), SUM(additions), SUM(deletions) FROM pull_request_files WHERE pull_request_id=?", [issueRow[0]]]
-            prText=" prFileCount='#{changes[0][0]}' prAdditions='#{changes[0][1]}' prDeletions='#{changes[0][2]}'"
+            changes=sync_db["SELECT COUNT(filename), SUM(additions) as add , SUM(deletions) as del FROM pull_request_files WHERE pull_request_id=?", issueRow[:id]]
+            prText=" prFileCount='#{changes.first[:count]}' prAdditions='#{changes.first[:add]}' prDeletions='#{changes.first[:del]}'"
           end
           # TMP: Replace backspace because of #71 of aws-fluent-plugin-kinesis
-          title=issueRow[5].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/[\b]/, '')
-          age=((Time.now - Time.parse(issueRow[9])) / (60 * 60 * 24)).round
+          title=issueRow[:title].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/[\b]/, '')
+
+          age=((Time.now - Time.parse(issueRow[:created_at].to_s)) / (60 * 60 * 24)).round
           # TODO: Add labels as a child of issue.
-          dashboard_file.puts "      <issue id='#{issueRow[0]}' number='#{issueRow[1]}' user='#{issueRow[3]}' state='#{issueRow[4]}' created_at='#{issueRow[9]}' age='#{age}' updated_at='#{issueRow[10]}' pull_request='#{isPR}' comments='#{issueRow[11]}'#{prText}><title>#{title}</title>"
-          labels=sync_db["SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?", [issueRow[0]]]
+          dashboard_file.puts "      <issue id='#{issueRow[:id]}' number='#{issueRow[:item_number]}' user='#{issueRow[:user_login]}' state='#{issueRow[:state]}' created_at='#{issueRow[:created_at]}' age='#{age}' updated_at='#{issueRow[:updated_at]}' pull_request='#{isPR}' comments='#{issueRow[:comment_count]}'#{prText}><title>#{title}</title>"
+          labels=sync_db["SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?", issueRow[:id]]
           labels.each do |label|
-            labelName=label[1].gsub(/ /, '&#xa0;')
-            dashboard_file.puts "        <label url=\"#{label[0]}\" color='#{label[2]}'>#{labelName}</label>"
+            labelName=label[:name].gsub(/ /, '&#xa0;')
+            dashboard_file.puts "        <label url=\"#{label[:url]}\" color='#{label[:color]}'>#{labelName}</label>"
           end
           dashboard_file.puts "      </issue>"
         end
         dashboard_file.puts "    </issues>"
 
         # Issue + PR Reports
-        dashboard_file.puts "  <issue-data id='#{repoRow[1]}'>"
+        dashboard_file.puts "  <issue-data id='#{repoName}'>"
         # Yearly Issues Opened
-        openedIssues=sync_db["SELECT strftime('%Y',created_at) as year, COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='open' GROUP BY year ORDER BY year DESC"]
+        openedIssues=sync_db["SELECT EXTRACT(YEAR FROM created_at) as year, COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoName}' AND state='open' GROUP BY year ORDER BY year DESC"]
         openedIssues.each do |issuecount|
-          dashboard_file.puts "    <issues-opened id='#{repoRow[1]}' year='#{issuecount[0]}' count='#{issuecount[1]}'/>"
+          dashboard_file.puts "    <issues-opened id='#{repoName}' year='#{issuecount[:year]}' count='#{issuecount[:count]}'/>"
         end
-        closedIssues=sync_db["SELECT strftime('%Y',closed_at) as year, COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='closed' GROUP BY year ORDER BY year DESC"]
+        closedIssues=sync_db["SELECT EXTRACT(YEAR FROM closed_at) as year, COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoName}' AND state='closed' GROUP BY year ORDER BY year DESC"]
      closedIssues.each do |issuecount|
-          dashboard_file.puts "    <issues-closed id='#{repoRow[1]}' year='#{issuecount[0]}' count='#{issuecount[1]}'/>"
+          dashboard_file.puts "    <issues-closed id='#{repoName}' year='#{issuecount[:year]}' count='#{issuecount[:count]}'/>"
         end
 
         # Yearly Pull Requests
-        openedPrs=sync_db["SELECT strftime('%Y',created_at) as year, COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='open' GROUP BY year ORDER BY year DESC"]
+        openedPrs=sync_db["SELECT EXTRACT(YEAR FROM created_at) as year, COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoName}' AND state='open' GROUP BY year ORDER BY year DESC"]
         openedPrs.each do |prcount|
-          dashboard_file.puts "    <prs-opened id='#{repoRow[1]}' year='#{prcount[0]}' count='#{prcount[1]}'/>"
+          dashboard_file.puts "    <prs-opened id='#{repoName}' year='#{prcount[:year]}' count='#{prcount[:count]}'/>"
         end
-        closedPrs=sync_db["SELECT strftime('%Y',closed_at) as year, COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoRow[1]}' AND state='closed' GROUP BY year ORDER BY year DESC"]
+        closedPrs=sync_db["SELECT EXTRACT(YEAR FROM closed_at) as year, COUNT(*) FROM pull_requests WHERE org='#{org}' AND repo='#{repoName}' AND state='closed' GROUP BY year ORDER BY year DESC"]
         closedPrs.each do |prcount|
-          dashboard_file.puts "    <prs-closed id='#{repoRow[1]}' year='#{prcount[0]}' count='#{prcount[1]}'/>"
+          dashboard_file.puts "    <prs-closed id='#{repoName}' year='#{prcount[:year]}' count='#{prcount[:count]}'/>"
         end
 
         # Time to Close
         # TODO: Get rid of the copy and paste here
         dashboard_file.puts "    <age-count>"
         # 1 hour  = 0.0417
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer < 0.0417 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='1 hour'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer < 0.0417 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='1 hour'>#{ageCount.first[:count]}</issue-count>"
         # 3 hours = 0.125
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.0417 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.125 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='3 hours'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.0417 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.125 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='3 hours'>#{ageCount.first[:count]}</issue-count>"
         # 9 hours = 0.375
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.125 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.375 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='9 hours'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.125 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.375 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='9 hours'>#{ageCount.first[:count]}</issue-count>"
         # 1 day
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.375 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 1 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='1 day'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.375 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 1 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='1 day'>#{ageCount.first[:count]}</issue-count>"
         # 7 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 1 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 7 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='1 week'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 1 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 7 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='1 week'>#{ageCount.first[:count]}</issue-count>"
         # 30 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 7 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 30 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='1 month'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 7 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 30 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='1 month'>#{ageCount.first[:count]}</issue-count>"
         # 90 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 30 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 90 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='1 quarter'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 30 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 90 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='1 quarter'>#{ageCount.first[:count]}</issue-count>"
         # 355 days
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 90 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='1 year'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 90 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 365 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='1 year'>#{ageCount.first[:count]}</issue-count>"
         # over a year
-        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <issue-count age='over 1 year'>#{ageCount[0][0]}</issue-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM issues WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 365 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <issue-count age='over 1 year'>#{ageCount.first[:count]}</issue-count>"
         # REPEATING FOR PRs
         # 1 hour  = 0.0417
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer < 0.0417 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='1 hour'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer < 0.0417 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='1 hour'>#{ageCount.first[:count]}</pr-count>"
         # 3 hours = 0.125
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.0417 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.125 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='3 hours'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.0417 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.125 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='3 hours'>#{ageCount.first[:count]}</pr-count>"
         # 9 hours = 0.375
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.125 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.375 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='9 hours'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.125 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 0.375 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='9 hours'>#{ageCount.first[:count]}</pr-count>"
         # 1 day
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.375 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 1 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='1 day'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 0.375 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 1 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='1 day'>#{ageCount.first[:count]}</pr-count>"
         # 7 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 1 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 7 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='1 week'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 1 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 7 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='1 week'>#{ageCount.first[:count]}</pr-count>"
         # 30 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 7 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 30 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='1 month'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 7 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 30 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='1 month'>#{ageCount.first[:count]}</pr-count>"
         # 90 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 30 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 90 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='1 quarter'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 30 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 90 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='1 quarter'>#{ageCount.first[:count]}</pr-count>"
         # 355 days
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 90 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='1 year'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 90 AND to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer <= 365 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='1 year'>#{ageCount.first[:count]}</pr-count>"
         # over a year
-        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 365 AND org='#{org}' AND repo='#{repoRow[1]}' AND state='closed'"]
-        dashboard_file.puts "      <pr-count age='over 1 year'>#{ageCount[0][0]}</pr-count>"
+        ageCount=sync_db["SELECT COUNT(*) FROM pull_requests WHERE to_char(closed_at::date,'J')::integer - to_char(created_at::date,'J')::integer > 365 AND org='#{org}' AND repo='#{repoName}' AND state='closed'"]
+        dashboard_file.puts "      <pr-count age='over 1 year'>#{ageCount.first[:count]}</pr-count>"
         dashboard_file.puts "    </age-count>"
 
-        projectIssueCount=sync_db["SELECT COUNT(DISTINCT(i.id)) FROM issues i LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON i.org=o.login LEFT OUTER JOIN member m ON otm.member_id=m.id WHERE i.org=? AND i.repo=? AND m.login=i.user_login", [org, repoRow[1]]]
-        communityIssueCount=sync_db["SELECT COUNT(DISTINCT(i.id)) FROM issues i LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON i.org=o.login WHERE i.org=? AND i.repo=? AND i.user_login NOT IN (SELECT m.login FROM member m)", [org, repoRow[1]]]
-        projectPrCount=sync_db["SELECT COUNT(DISTINCT(pr.id)) FROM pull_requests pr LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON pr.org=o.login LEFT OUTER JOIN member m ON otm.member_id=m.id WHERE pr.org=? AND pr.repo=? AND m.login=pr.user_login", [org, repoRow[1]]]
-        communityPrCount=sync_db["SELECT COUNT(DISTINCT(pr.id)) FROM pull_requests pr LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN organization o ON pr.org=o.login WHERE pr.org=? AND pr.repo=? AND pr.user_login NOT IN (SELECT m.login FROM member m)", [org, repoRow[1]]]
+        projectIssueCount=sync_db["SELECT COUNT(DISTINCT(i.id)) FROM issues i LEFT OUTER JOIN organization o ON i.org=o.login LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN member m ON otm.member_id=m.id WHERE i.org=? AND i.repo=? AND m.login=i.user_login", org, repoName]
+        communityIssueCount=sync_db["SELECT COUNT(DISTINCT(i.id)) FROM issues i LEFT OUTER JOIN organization o ON i.org=o.login LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id WHERE i.org=? AND i.repo=? AND i.user_login NOT IN (SELECT m.login FROM member m)", org, repoName]
+        projectPrCount=sync_db["SELECT COUNT(DISTINCT(pr.id)) FROM pull_requests pr LEFT OUTER JOIN organization o ON pr.org=o.login LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id LEFT OUTER JOIN member m ON otm.member_id=m.id WHERE pr.org=? AND pr.repo=? AND m.login=pr.user_login", org, repoName]
+        communityPrCount=sync_db["SELECT COUNT(DISTINCT(pr.id)) FROM pull_requests pr LEFT OUTER JOIN organization o ON pr.org=o.login LEFT OUTER JOIN organization_to_member otm ON otm.org_id=o.id WHERE pr.org=? AND pr.repo=? AND pr.user_login NOT IN (SELECT m.login FROM member m)", org, repoName]
 
         dashboard_file.puts "    <community-balance>"
-        dashboard_file.puts "      <issue-count type='community'>#{communityIssueCount[0][0]}</issue-count>"
-        dashboard_file.puts "      <issue-count type='project'>#{projectIssueCount[0][0]}</issue-count>"
-        dashboard_file.puts "      <pr-count type='community'>#{communityPrCount[0][0]}</pr-count>"
-        dashboard_file.puts "      <pr-count type='project'>#{projectPrCount[0][0]}</pr-count>"
+        dashboard_file.puts "      <issue-count type='community'>#{communityIssueCount.first[:count]}</issue-count>"
+        dashboard_file.puts "      <issue-count type='project'>#{projectIssueCount.first[:count]}</issue-count>"
+        dashboard_file.puts "      <pr-count type='community'>#{communityPrCount.first[:count]}</pr-count>"
+        dashboard_file.puts "      <pr-count type='project'>#{projectPrCount.first[:count]}</pr-count>"
         dashboard_file.puts "    </community-balance>"
 
         dashboard_file.puts "  </issue-data>"
 
         dashboard_file.puts "  <release-data>"
-        releases=sync_db["SELECT DISTINCT(id), html_url, name, published_at, author FROM releases WHERE org='#{org}' AND repo='#{repoRow[1]}' ORDER BY published_at DESC"]
+        releases=sync_db["SELECT DISTINCT(id), html_url, name, published_at, author FROM releases WHERE org='#{org}' AND repo='#{repoName}' ORDER BY published_at DESC"]
         releases.each do |release|
-          dashboard_file.puts "    <release id='#{release[0]}' url='#{release[1]}' published_at='#{release[3]}' author='#{release[4]}'>#{escape_for_xml(release[2])}</release>"
+          dashboard_file.puts "    <release id='#{release[:id]}' url='#{release[:html_url]}' published_at='#{release[:published_at]}' author='#{release[:author]}'>#{escape_for_xml(release[:name])}</release>"
         end
         dashboard_file.puts "  </release-data>"
 
@@ -343,15 +360,15 @@ def generate_dashboard_xml(context)
 
     # Generate XML for Member data
     # AH TODO Need to revisit
-    members=sync_db["SELECT DISTINCT(m.login), m.two_factor_disabled, u.email, m.name, m.avatar_url, m.company, m.email FROM organization o JOIN organization_to_member otm ON otm.org_id=o.id JOIN member m ON m.id = otm.member_id LEFT OUTER JOIN users u ON u.login=m.login WHERE o.login=?", [org]]
+    members=sync_db["SELECT DISTINCT(m.login), m.two_factor_disabled, u.email as uemail, m.name, m.avatar_url, m.company, m.email as memail FROM organization o JOIN organization_to_member otm ON otm.org_id=o.id JOIN member m ON m.id = otm.member_id LEFT OUTER JOIN users u ON u.login=m.login WHERE o.login=?", org]
     members.each do |memberRow|
       # TODO: Include whether the individual is in ldap
       internalLogin=""
-      if(memberRow[2])
-        internalLogin=memberRow[2].split('@')[0]
-        internalText=" internal='#{internalLogin}' employee_email='#{memberRow[2]}'"
+      if(memberRow[:uemail])
+        internalLogin=memberRow[:uemail].split('@')[0]
+        internalText=" internal='#{internalLogin}' employee_email='#{memberRow[:uemail]}'"
       end
-      dashboard_file.puts "  <member login='#{memberRow[0]}' avatar_url='#{memberRow[4]}' email='#{memberRow[6]}' disabled_2fa='#{memberRow[1]}'#{internalText}><company>#{escape_for_xml(memberRow[5])}</company><name>#{memberRow[3]}</name></member>"
+      dashboard_file.puts "  <member login='#{memberRow[:login]}' avatar_url='#{memberRow[:avatar_url]}' email='#{memberRow[:memail]}' disabled_2fa='#{memberRow[:two_factor_disabled]}'#{internalText}><company>#{escape_for_xml(memberRow[:company])}</company><name>#{memberRow[:name]}</name></member>"
     end
 
     # Copy the review xml into the dashboard xml

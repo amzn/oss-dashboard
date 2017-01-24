@@ -112,7 +112,8 @@ require "date"
     issues.each do |item|
       if(item.pull_request)
         # sqlite queries much cheaper than github requests, so protect from unnecessary github requests
-        count=db["SELECT COUNT(id) FROM pull_requests WHERE org=? AND repo=? AND pr_number::integer=? AND merged_at IS NOT NULL", org, "#{org}/#{repo}", item.number].to_a.first.first.last
+        countRow = db["SELECT COUNT(id) FROM pull_requests WHERE org=? AND repo=? AND pr_number=? AND merged_at IS NOT NULL", org, "#{org}/#{repo}", item.number.to_s]
+        count = countRow.first[:count]
         if(count == 0)
             pr=client.pull_request( "#{org}/#{repo}", item.number )
             if(pr.merged_at)

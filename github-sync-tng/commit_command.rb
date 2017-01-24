@@ -26,21 +26,21 @@ class SyncCommitsCommand < BaseCommand
   end
 
   def sync_commits(queue, context, sync_db)
-    
+
     owners = context.dashboard_config['organizations+logins']
-  
+
     owners.each do |org|
-  
+
       if(context.login?(org))
         repos=context.client.repositories(org)
       else
         repos=context.client.organization_repositories(org)
       end
-  
+
       repos.each do |repo_obj|
-  
+
         if(repo_obj.size==0)
-          # if no commits, octokit errors. Size of zero is close enough to no commits 
+          # if no commits, octokit errors. Size of zero is close enough to no commits
           # - i.e. the first commit may not get shown for a new repo
           # TODO: Catch the error?
           # context.feedback.print '!'
@@ -52,7 +52,7 @@ class SyncCommitsCommand < BaseCommand
       end
 
     end
-  
+
   end
 
 end
@@ -78,7 +78,7 @@ class SyncCommitCommand < BaseCommand
     end
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
-      ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+      ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
       commits=context.client.commits_since(repo_full_name, ts)
     else
       commits=context.client.commits(repo_full_name)

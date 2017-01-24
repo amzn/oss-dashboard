@@ -55,7 +55,7 @@ def github_sync(context, run_one)
     run_db_reports(context, sync_db)
   end
 
-  #sync_db.disconnect
+  sync_db.disconnect
 
 end
 

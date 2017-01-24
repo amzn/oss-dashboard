@@ -19,7 +19,7 @@ require 'yaml'
 require_relative '../../db/lib/commitStoreLibrary.rb'
 
 def sync_commits(context, sync_db)
-  
+
   owners = context.dashboard_config['organizations+logins']
 
   context.feedback.puts " commits"
@@ -37,7 +37,7 @@ def sync_commits(context, sync_db)
 
      begin
       if(repo_obj.size==0)
-        # if no commits, octokit errors. Size of zero is close enough to no commits 
+        # if no commits, octokit errors. Size of zero is close enough to no commits
         # - i.e. the first commit may not get shown for a new repo
         # TODO: Catch the error?
         context.feedback.print '!'
@@ -53,7 +53,7 @@ def sync_commits(context, sync_db)
       end
       if(maxTimestamp)
         # Increment the timestamp by a second to avoid getting repeats
-        ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+        ts = DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
         commits=context.client.commits_since(repo_full_name, ts)
       else
         commits=context.client.commits(repo_full_name)

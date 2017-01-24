@@ -36,12 +36,12 @@ class SyncIssueCommentsCommand < BaseCommand
       else
         repos=context.client.organization_repositories(org)
       end
- 
+
       repos.each do |repo_obj|
         queue.push(SyncItemCommentsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
     end
-  
+
   end
 
 end
@@ -62,7 +62,7 @@ class SyncItemCommentsCommand < BaseCommand
     maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo)
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
-      ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+      ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
       comments=context.client.issues_comments(orgrepo, { 'since' => ts } )
     else
       comments=context.client.issues_comments(orgrepo)

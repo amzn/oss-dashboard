@@ -157,7 +157,7 @@ def update_member_data(db, client)
     members=db["SELECT id FROM member"]
 
     members.each do |member|
-      memberId=member[0]
+      memberId = member[:id]
       begin
         user=client.user(memberId)
       rescue Octokit::NotFound => msg
