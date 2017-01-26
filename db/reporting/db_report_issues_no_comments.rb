@@ -21,7 +21,7 @@ class NoIssueCommentsDbReporter < DbReporter
 
     text = ""
     count = 0
-    issue_query="SELECT i.id, i.issue_number, i.title, i.org, i.repo, i.created_at, i.updated_at, i.comment_count FROM issues i WHERE i.comment_count::integer=0 AND i.state='open' AND i.user_login NOT IN (SELECT m.login FROM member m) AND i.org=?"
+    issue_query="SELECT i.id, i.issue_number, i.title, i.org, i.repo, i.created_at, i.updated_at, i.comment_count FROM issues i WHERE i.comment_count='0' AND i.state='open' AND i.user_login NOT IN (SELECT m.login FROM member m) AND i.org=?"
 
     label_query='SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?'
 
