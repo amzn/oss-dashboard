@@ -174,7 +174,7 @@ def generate_dashboard_xml(context)
       dashboard_file.puts "    <description>#{desc}</description>"
 
       # Load the ids for repos team has access to
-      repos=sync_db["SELECT r.name FROM team_to_repository ttr, repository r WHERE ttr.team_id=? AND ttr.repository_id=r.id AND r.fork=0", teamRow[:id]]
+      repos=sync_db["SELECT r.name FROM team_to_repository ttr, repository r WHERE ttr.team_id=? AND ttr.repository_id=r.id AND r.fork='false'", teamRow[:id]]
       dashboard_file.puts "    <repos>"
       repos.each do |teamRepoRow|
         dashboard_file.puts "        <repo>#{teamRepoRow[:name]}</repo>"
