@@ -48,7 +48,7 @@ def eval_queue(queue, context, sync_db)
       break
     rescue Octokit::ClientError => msg
       # Repository access blocked (Octokit::ClientError)
-      puts "Client error, pushing command back on queue: #{msg}"
+      puts "GitHub client error, pushing command back on queue: #{msg}"
       queue.push(cmd)
       break
     end
