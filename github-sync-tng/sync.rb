@@ -79,6 +79,12 @@ def github_sync(context, run_one)
     end
   end
 
+  if(context[:flushonly])
+    context.feedback.print "\n flushing queue\n  "
+    flushed=eval_queue(queue, context, sync_db)
+    return
+  end
+
   if(not(run_one) or run_one=='github-sync/metadata')
     context.feedback.puts "  github-sync/metadata: queueing"
     queue.push(SyncMetadataCommand.new(Hash.new))
@@ -104,8 +110,10 @@ def github_sync(context, run_one)
     queue.push(SyncReleasesCommand.new(Hash.new))
   end
 
-  context.feedback.print "\n evaluating queue\n  "
-  eval_queue(queue, context, sync_db)
+  unless(context[:queueonly])
+    context.feedback.print "\n evaluating queue\n  "
+    eval_queue(queue, context, sync_db)
+  end
 
   if(not(run_one) or run_one=='github-sync/user-mapping')
     context.feedback.puts "  github-sync/user-mapping"
