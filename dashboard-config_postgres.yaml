@@ -1,4 +1,3 @@
----
   dashboard:
     database:
       engine: postgres
@@ -8,23 +7,14 @@
       password: postgres
       database: oss-dashboard
 
-    data-directory: /tmp/oss-dashboard/db # used for both DB and computed data
-    www-directory: /tmp/oss-dashboard/www
+    data-directory: /Users/ahetawal/pton/data # used for both DB and computed data
+    www-directory: /Users/ahetawal/pton/html
 
-    organizations: [ ]
-    #organizations: [ 'forcedotcom' ]
-
-    #logins: [ 'chorankates', 'chorankates-sfdc' ]
-    logins: [ 'chorankates-sfdc' ]
-
-    #reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
-    reports: [ 'DocsReporter' ]
-
-    #db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'RepoUnownedDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
-    #db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
+    organizations: ['salesforce']
+    logins: ['ahetawal-p']
+    reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
-
-#    private-access: ['amznlabs']     # Optional
-#    report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
-#    db-report-path: ['/full/path/to/directory/of/custom/db-reports']  # Optional
-#    map-user-script: /full/path/to/script   # Optional
+    #private-access: ['amznlabs']     # Optional
+    #report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
+    #db-report-path: ['/full/path/to/directory/of/custom/db-reports']  # Optional
+    #map-user-script: /full/path/to/script   # Optional

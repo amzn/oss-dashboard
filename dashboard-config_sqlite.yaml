@@ -1,4 +1,3 @@
----
   dashboard:
     database:
       engine: sqlite
@@ -7,13 +6,10 @@
     data-directory: /tmp/oss-dashboard/db # used for both DB and computed data
     www-directory: /tmp/oss-dashboard/www
 
-    #organizations: [ 'forcedotcom' ]
     organizations: [ ]
-    #logins: [ 'chorankates', 'chorankates-sfdc' ]
-    logins: [ 'chorankates-sfdc' ]
+    logins: [ ]
 
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
-    #db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'RepoUnownedDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
 
 #    private-access: ['amznlabs']     # Optional
