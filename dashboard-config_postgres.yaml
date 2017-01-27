@@ -7,10 +7,10 @@
       password: postgres
       database: oss-dashboard
 
-    data-directory: /Users/ahetawal/pton/data # used for both DB and computed data
-    www-directory: /Users/ahetawal/pton/html
+    data-directory: data # used for both DB and computed data
+    www-directory: html
 
-    organizations: ['salesforce']
+    organizations: []
     logins: ['ahetawal-p']
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]

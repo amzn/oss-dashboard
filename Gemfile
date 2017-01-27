@@ -2,6 +2,8 @@
 
 source 'https://rubygems.org'
 
+gem 'rack'
+
 gem 'octokit', '~> 4.6'
 gem 'libxml-ruby', '> 0'
 gem 'libxslt-ruby', '> 0'
