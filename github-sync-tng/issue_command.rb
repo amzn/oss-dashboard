@@ -124,13 +124,12 @@ class SyncItemsCommand < BaseCommand
     else
       issues=context.client.list_issues(orgrepo, { 'state' => 'all' } )
     end
-    if(issues.empty?)
-      return
+    unless(issues.empty?)
+      db_insert_issues(issue_db, issues, org, repo)                           # Insert any new items
+      db_link_issues(issue_db, issues, org, repo)
+      db_fix_merged_at(issue_db, context.client, issues, org, repo)           # Put in PR specific data - namely merged_at
+      db_add_pull_request_files(issue_db, context.client, issues, org, repo)  # Put in PR specific data - namely the files + their metrics
     end
-    db_insert_issues(issue_db, issues, org, repo)                           # Insert any new items
-    db_link_issues(issue_db, issues, org, repo)
-    db_fix_merged_at(issue_db, context.client, issues, org, repo)           # Put in PR specific data - namely merged_at
-    db_add_pull_request_files(issue_db, context.client, issues, org, repo)  # Put in PR specific data - namely the files + their metrics
     issue_db.execute("END TRANSACTION");
   end
 
