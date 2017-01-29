@@ -27,6 +27,7 @@ require_relative '../db/user_mapping/sync-users.rb'
 require_relative '../db/reporting/db_reporter_runner.rb'
 
 def eval_queue(queue, context, sync_db)
+  return_code=true
   while(not queue.empty?)
     cmd=BaseCommand.instantiate(queue.pop)
 
@@ -41,21 +42,24 @@ def eval_queue(queue, context, sync_db)
     rescue Octokit::TooManyRequests => msg
       puts "Out of requests, pushing command back on queue: #{msg}"
       queue.push(cmd)
+      return_code=false
       break
     rescue Faraday::TimeoutError => msg
       puts "GitHub API timing out, pushing command back on queue: #{msg}"
       queue.push(cmd)
+      return_code=false
       break
     rescue Octokit::ClientError => msg
       # Repository access blocked (Octokit::ClientError)
       puts "GitHub client error, pushing command back on queue: #{msg}"
       queue.push(cmd)
+      return_code=false
       break
     end
 
   end
   context.feedback.puts
-  return true
+  return return_code
 end
 
 def github_sync(context, run_one)
