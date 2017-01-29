@@ -18,7 +18,8 @@ require_relative '../db/lib/issueStoreLibrary.rb'
 
 require_relative 'base_command'
 
-# [GitHub Client Calls = COUNT(Repos)]
+# [GitHub Client Calls = COUNT(All Org Repos)]
+#   Though its effect is larger as it kicks off three more commands
 class SyncIssuesCommand < BaseCommand
 
   # params=(context, sync_db)
@@ -48,7 +49,7 @@ class SyncIssuesCommand < BaseCommand
 
 end
 
-# [GitHub Client Calls = COUNT(Repos)]
+# [GitHub Client Calls = 1]
 class SyncMilestonesCommand < BaseCommand
 
   # params=(context, sync_db)
@@ -78,7 +79,7 @@ class SyncMilestonesCommand < BaseCommand
 end
 
 ##### Every repo has default labels, so this leads to a lot of repeated replacements #####
-# [GitHub Client Calls = COUNT(Repos)]
+# [GitHub Client Calls = 1]
 class SyncLabelsCommand < BaseCommand
 
   # params=(context, sync_db)
@@ -103,20 +104,13 @@ class SyncLabelsCommand < BaseCommand
 
 end
 
-# [GitHub Client Calls = Complex]
+# [GitHub Client Calls = Count(Repo's Updated Issues + Repo's Updated Pull Requests (1 (for data) + 1 (for fix-merged-at) + pr-files) ]
 class SyncItemsCommand < BaseCommand
 
   # params=(context, sync_db)
   def run(queue, *params)
     sync_items(queue, params[0], params[1], @args['org'], @args['repo'])
   end
-
-# TODO: Move this to the engine?
-##     begin # Repository access blocked (Octokit::ClientError)
-##     rescue Octokit::ClientError
-##        issue_db.rollback
-##        context.feedback.print '!'
-##     end
 
   def sync_items(queue, context, issue_db, org, repo)
     orgrepo="#{org}/#{repo}"
