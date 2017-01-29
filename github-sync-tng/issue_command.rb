@@ -73,7 +73,7 @@ class SyncMilestonesCommand < BaseCommand
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)])
     end
-    db.execute("COMMIT")
+    db.execute("END TRANSACTION")
   end
 
 end
@@ -99,7 +99,7 @@ class SyncLabelsCommand < BaseCommand
     labels.each do |label|
       db.execute("INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color])
     end
-    db.execute("COMMIT")
+    db.execute("END TRANSACTION")
   end
 
 end

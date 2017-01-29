@@ -68,7 +68,7 @@ class SyncItemCommentsCommand < BaseCommand
       comments=context.client.issues_comments(orgrepo)
     end
     db_insert_comments(issue_db, comments, org, repo)
-    issue_db.execute("COMMIT");
+    issue_db.execute("END TRANSACTION");
   end
 
 end
