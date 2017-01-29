@@ -59,7 +59,7 @@ class SyncItemCommentsCommand < BaseCommand
 
     issue_db.execute("BEGIN TRANSACTION");
     # Get the current max timestamp in the db
-    maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo)
+    maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, org, repo)
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
       ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
