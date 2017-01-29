@@ -75,11 +75,13 @@ def github_sync(context, run_one)
   db_filename=File.join(context.dashboard_config['data-directory'], 'db', 'gh-sync.db');
   sync_db=SQLite3::Database.new db_filename
 
-  unless(queue.empty?)
-    context.feedback.print "\n flushing queue\n  "
-    flushed=eval_queue(queue, context, sync_db)
-    unless(flushed)
-      return
+  unless(context[:queueonly])
+    unless(queue.empty?)
+      context.feedback.print "\n flushing queue\n  "
+      flushed=eval_queue(queue, context, sync_db)
+      unless(flushed)
+        return
+      end
     end
   end
 
