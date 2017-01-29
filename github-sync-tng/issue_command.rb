@@ -116,13 +116,16 @@ class SyncItemsCommand < BaseCommand
     orgrepo="#{org}/#{repo}"
 
     issue_db.execute("BEGIN TRANSACTION");
-    maxTimestamp=db_getMaxTimestampForRepo(issue_db, orgrepo)               # Get the current max timestamp in the db
+    maxTimestamp=db_getMaxTimestampForRepo(issue_db, org, repo)               # Get the current max timestamp in the db
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
       ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
       issues=context.client.list_issues(orgrepo, { 'state' => 'all', 'since' => ts } )
     else
       issues=context.client.list_issues(orgrepo, { 'state' => 'all' } )
+    end
+    if(issues.empty?)
+      return
     end
     db_insert_issues(issue_db, issues, org, repo)                           # Insert any new items
     db_link_issues(issue_db, issues, org, repo)

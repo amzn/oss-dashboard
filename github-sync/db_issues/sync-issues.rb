@@ -92,7 +92,7 @@ def getLatestForOrgRepos(context, issue_db, org, repos)
    begin # Repository access blocked (Octokit::ClientError)
     getMilestones(context.client, issue_db, repo_obj.full_name)
     getLabels(context.client, issue_db, repo_obj.full_name)
-    maxTimestamp=db_getMaxTimestampForRepo(issue_db, repo_obj.name)               # Get the current max timestamp in the db
+    maxTimestamp=db_getMaxTimestampForRepo(issue_db, org, repo_obj.name)               # Get the current max timestamp in the db
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
       ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
