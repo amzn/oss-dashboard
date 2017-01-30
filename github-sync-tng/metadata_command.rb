@@ -13,7 +13,6 @@
 # limitations under the License.
 
 require 'octokit'
-require 'sqlite3'
 require 'date'
 
 require_relative 'base_command'
@@ -106,14 +105,14 @@ class SyncOrgMDCommand < BaseCommand
 
   def store_organization(db, gh_org)
     db.execute("BEGIN TRANSACTION")
-    db.execute("DELETE FROM organization WHERE login=?", gh_org.login)
-    db.execute(
+    db["DELETE FROM organization WHERE login=?", gh_org.login]
+    db[
       "INSERT INTO organization (
         login, id, url, avatar_url, description, name, company, blog, location, email, public_repos, public_gists, followers, following, html_url, created_at, type
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [gh_org.login, gh_org.id, gh_org.url, gh_org.avatar_url, gh_org.description, gh_org.name, gh_org.company, gh_org.blog, gh_org.location, gh_org.email, gh_org.public_repos, gh_org.public_gists, gh_org.followers, gh_org.following, gh_org.html_url, gh_org.created_at.to_s, gh_org.type]
-      )
+      ]
     db.execute("COMMIT")
   end
 
@@ -139,21 +138,21 @@ class SyncOrgTeamsMDCommand < BaseCommand
     client.organization_teams(org).each do |team_obj|
       db.execute("BEGIN TRANSACTION")
   
-      db.execute("DELETE FROM team WHERE id=?", team_obj.id)
-      db.execute(
+      db["DELETE FROM team WHERE id=?", team_obj.id]
+      db[
         "INSERT INTO team (id, org, name, slug, description) VALUES (?, ?, ?, ?, ?)",
-        [team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description])
+        [team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description]]
   
       repos=client.team_repositories(team_obj.id)
-      db.execute("DELETE FROM team_to_repository WHERE team_id=?", team_obj.id)
+      db["DELETE FROM team_to_repository WHERE team_id=?", team_obj.id]
       repos.each do |repo_obj|
-        db.execute("INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", [team_obj.id, repo_obj.id])
+        db["INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", [team_obj.id, repo_obj.id]]
       end
     
       members=client.team_members(team_obj.id)
-      db.execute("DELETE FROM team_to_member WHERE team_id=?", team_obj.id)
+      db["DELETE FROM team_to_member WHERE team_id=?", team_obj.id]
       members.each do |member_obj|
-        db.execute("INSERT INTO team_to_member (team_id, member_id) VALUES(?, ?)", [team_obj.id, member_obj.id])
+        db["INSERT INTO team_to_member (team_id, member_id) VALUES(?, ?)", [team_obj.id, member_obj.id]]
       end
 
       db.execute("COMMIT")
@@ -192,11 +191,11 @@ class SyncOrgReposMDCommand < BaseCommand
   def store_organization_repositories(context, db, org, watchers, repo_obj)
 
     db.execute("BEGIN TRANSACTION")
-    db.execute("DELETE FROM repository WHERE id=?", repo_obj.id)
-    db.execute("INSERT INTO repository 
+    db["DELETE FROM repository WHERE id=?", repo_obj.id]
+    db["INSERT INTO repository
         (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? 1 : 0, repo_obj.private ? 1 : 0, repo_obj.has_wiki ? 1 : 0, repo_obj.language, repo_obj.watchers, watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s, repo_obj.size, repo_obj.description])
+        [repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? 1 : 0, repo_obj.private ? 1 : 0, repo_obj.has_wiki ? 1 : 0, repo_obj.language, repo_obj.watchers, watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s, repo_obj.size, repo_obj.description]]
     db.execute("COMMIT")
   end
 
@@ -231,7 +230,7 @@ class SyncOrgMembersMDCommand < BaseCommand
   
     client.organization_members(org).each do |member_obj|
       db.execute("BEGIN TRANSACTION")
-      member_found=db.execute("SELECT id FROM member WHERE id=?", [member_obj.id])
+      member_found=db["SELECT id FROM member WHERE id=?", [member_obj.id]]
       
       if(private_access == false)
         d_2fa='unknown'
@@ -242,16 +241,16 @@ class SyncOrgMembersMDCommand < BaseCommand
       end
  
       if(member_found.length > 0)
-         db.execute("UPDATE member SET login=?, two_factor_disabled=?, avatar_url=? WHERE id=?",
-                    [member_obj.login, d_2fa, member_obj.avatar_url, member_obj.id] )
+         db["UPDATE member SET login=?, two_factor_disabled=?, avatar_url=? WHERE id=?",
+                    [member_obj.login, d_2fa, member_obj.avatar_url, member_obj.id]]
       else
-         db.execute("INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                    VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url] )
+         db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
+                    VALUES(?, ?, ?, ?)", [member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url]]
       end
 
 
-      db.execute("DELETE FROM organization_to_member WHERE org_id =? AND member_id=?", [org_id, member_obj.id])
-      db.execute("INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", [org_id, member_obj.id])
+      db["DELETE FROM organization_to_member WHERE org_id =? AND member_id=?", [org_id, member_obj.id]]
+      db["INSERT INTO organization_to_member (org_id, member_id) VALUES(?, ?)", [org_id, member_obj.id]]
       db.execute("COMMIT")
     end
   end
@@ -289,16 +288,16 @@ class SyncOrgCollaboratorsMDCommand < BaseCommand
 
         db.execute("BEGIN TRANSACTION")
 
-        member_found=db.execute("SELECT id FROM member WHERE id=?", [collaborator.id])
+        member_found=db["SELECT id FROM member WHERE id=?", [collaborator.id]]
         if(member_found.length == 0)
-          db.execute("DELETE FROM member WHERE id=?", [collaborator.id])
-          db.execute("INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                      VALUES(?, ?, ?, ?)", [collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url] )
+          db["DELETE FROM member WHERE id=?", [collaborator.id]]
+          db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
+                      VALUES(?, ?, ?, ?)", [collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url]]
         end
-        member_of_repo=db.execute("SELECT COUNT(*) FROM team_to_member ttm, team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=? AND ttm.member_id=?", [repo_obj.id, collaborator.id])
+        member_of_repo=db["SELECT COUNT(*) FROM team_to_member ttm, team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=? AND ttm.member_id=?", [repo_obj.id, collaborator.id]]
         if(member_of_repo[0][0] == 0)
-          db.execute("DELETE FROM repository_to_member WHERE org_id=? AND repo_id=? AND member_id=?", [org_id, repo_obj.id, collaborator.id])
-          db.execute("INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)", [org_id, repo_obj.id, collaborator.id])
+          db["DELETE FROM repository_to_member WHERE org_id=? AND repo_id=? AND member_id=?", [org_id, repo_obj.id, collaborator.id]]
+          db["INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)", [org_id, repo_obj.id, collaborator.id]]
         end
         db.execute("COMMIT")
       end
@@ -322,7 +321,7 @@ class SyncMembersMDCommand < BaseCommand
 
   def update_member_data(db, client)
       # Select members in the db and update with their latest data
-      members=db.execute("SELECT id FROM member")
+      members=db["SELECT id FROM member"]
   
       members.each do |member|
         memberId=member[0]
@@ -332,8 +331,8 @@ class SyncMembersMDCommand < BaseCommand
           # puts "ERROR: Unavailable to find user with id: #{memberId}"
           next
         end
-        db.execute("UPDATE member SET name=?, company=?, email=? WHERE id=?",
-                  [user.name, user.company, user.email, user.id] )
+        db["UPDATE member SET name=?, company=?, email=? WHERE id=?",
+                  [user.name, user.company, user.email, user.id]]
       end
   end
 

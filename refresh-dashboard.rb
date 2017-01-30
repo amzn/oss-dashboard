@@ -216,7 +216,7 @@ printed_gen_dash=false
 
 run_list.each do |phase|
   if(phase=='init-database')
-    unless(File.exists?(File.join(data_directory, 'db', 'gh-sync.db')))
+    unless db_exists?(dashboard_config)
       context.feedback.puts "init-database"
       init_database(context)
     end

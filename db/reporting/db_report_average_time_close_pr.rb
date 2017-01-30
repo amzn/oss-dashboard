@@ -20,11 +20,11 @@ class AveragePrCloseDbReporter < DbReporter
   def db_report(context, org, sync_db)
 
     text = ""
-    pr_query="SELECT repo, COUNT(id), ROUND(AVG( julianday(closed_at) - julianday(created_at) ), 1) as mttr FROM pull_requests WHERE state='closed' AND org=? GROUP BY org, repo ORDER BY mttr"
+    pr_query="SELECT repo, COUNT(id), ROUND(AVG(closed_at::date - created_at::date)::numeric, 2) as mttr FROM pull_requests WHERE state='closed' AND org=? GROUP BY org, repo ORDER BY mttr"
 
-    pr_data=sync_db.execute(pr_query, [org])
+    pr_data=sync_db[pr_query, org]
     pr_data.each() do |row|
-        text << "  <reporting class='issue-report' repo='#{org}/#{row[0]}' type='AveragePrCloseDbReporter'><field>#{org}/#{row[0]}</field><field>#{row[1]}</field><field>#{row[2]}</field></reporting>\n"
+        text << "  <reporting class='issue-report' repo='#{org}/#{row[:repo]}' type='AveragePrCloseDbReporter'><field>#{org}/#{row[:repo]}</field><field>#{row[:count]}</field><field>#{row[:mttr].to_s('f')}</field></reporting>\n"
     end
 
     return text

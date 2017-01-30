@@ -37,7 +37,7 @@ class SyncIssuesCommand < BaseCommand
       else
         repos=context.client.organization_repositories(org)
       end
- 
+
       repos.each do |repo_obj|
 ## COMMENTING OUT MILESTONES. NO VALUE IN GRABBING DATA CURRENTLY AND LINKING DOESN'T SEEM TO BE WORKING.
 #        queue.push(SyncMilestonesCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
@@ -45,7 +45,7 @@ class SyncIssuesCommand < BaseCommand
         queue.push(SyncItemsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
     end
-  
+
   end
 
 end
@@ -65,14 +65,14 @@ class SyncMilestonesCommand < BaseCommand
     end
     db.execute("BEGIN TRANSACTION")
     # Wipe Milestones
-    db.execute("DELETE FROM milestones WHERE orgrepo=?", [orgrepo])
+    db["DELETE FROM milestones WHERE orgrepo=?", [orgrepo]]
     # Fill Milestones again
     milestones.each do |milestone|
-      db.execute(
-        "INSERT INTO milestones " + 
+      db[
+        "INSERT INTO milestones " +
         "(orgrepo, id, html_url, title, state, number, description, creator, open_issues, closed_issues, created_at, updated_at, closed_at, due_on) " +
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)])
+        [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)]]
     end
     db.execute("END TRANSACTION")
   end
@@ -95,10 +95,10 @@ class SyncLabelsCommand < BaseCommand
     end
     db.execute("BEGIN TRANSACTION")
     # Wipe Labels
-    db.execute("DELETE FROM labels WHERE orgrepo=?", [orgrepo])
+    db["DELETE FROM labels WHERE orgrepo=?", [orgrepo]]
     # Fill Labels again
     labels.each do |label|
-      db.execute("INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color])
+      db["INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color]]
     end
     db.execute("END TRANSACTION")
   end
@@ -121,7 +121,7 @@ class SyncItemsCommand < BaseCommand
     maxTimestamp=db_getMaxTimestampForRepo(issue_db, org, repo)               # Get the current max timestamp in the db
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
-      ts=DateTime.iso8601(maxTimestamp) + Rational(1, 60 * 60 * 24)
+      ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
       issues=context.client.list_issues(orgrepo, { 'state' => 'all', 'since' => ts } )
     else
       issues=context.client.list_issues(orgrepo, { 'state' => 'all' } )
@@ -148,10 +148,10 @@ class SyncItemsCommand < BaseCommand
   end
 
 end
-  
+
   # This should speed things up
   # TODO: Needs to a) do all the db things that are done below in addition to plain inserting
-  #       and b) to figure out the repo from each issue returned. Frustratingly it's not in the API of an issue, 
+  #       and b) to figure out the repo from each issue returned. Frustratingly it's not in the API of an issue,
   #       so it seems that one must parse the issue url.
   #def getLatestForOrg(client, issue_db, org)
   #  maxTimestamp=db_getMaxTimestampForOrg(issue_db, org)               # Get the current max timestamp in the db
@@ -162,5 +162,5 @@ end
   #  end
   #  db_insert_issues(issue_db, issues, org, repo)                   # Insert any new items
   #end
-  
-  
+
+

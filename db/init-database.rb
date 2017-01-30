@@ -12,32 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require_relative '../util.rb'
+
 def init_database(context)
 
-  data_directory = context.dashboard_config['data-directory']
-  db_directory="#{data_directory}/db"
-  db_filename=File.join(db_directory, 'gh-sync.db');
-
-  unless(File.exist?(db_directory))
-    Dir.mkdir(db_directory)
-  end
-
-  if(File.exist?(db_filename))
+  if db_exists?(context.dashboard_config)
     # Don't init over the top of an existing database
     puts "ERROR: db exists"
     return
   end
 
-  sync_db=SQLite3::Database.new(db_filename);
+  sync_db = get_db_handle(context.dashboard_config)
 
-  sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_metadata_schema.sql' ) ) )
-  sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_event_schema.sql' ) ) )
-  sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_release_schema.sql' ) ) )
-  sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_commit_schema.sql' ) ) )
-  sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_issue_schema.sql' ) ) )
-  sync_db.execute_batch( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_user_schema.sql' ) ) )
+  sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_metadata_schema.sql' ) ) )
+  sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_event_schema.sql' ) ) )
+  sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_release_schema.sql' ) ) )
+  sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_commit_schema.sql' ) ) )
+  sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_issue_schema.sql' ) ) )
+  sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_user_schema.sql' ) ) )
 
-  sync_db.close
+  sync_db.disconnect
 
 end
 

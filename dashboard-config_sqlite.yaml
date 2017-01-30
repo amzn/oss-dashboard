@@ -1,0 +1,18 @@
+  dashboard:
+    database:
+      engine: sqlite
+      filename: gh-sync.db # not sure this should be the default name, but is fine for now
+
+    data-directory: /tmp/oss-dashboard/db # used for both DB and computed data
+    www-directory: /tmp/oss-dashboard/www
+
+    organizations: [ ]
+    logins: [ ]
+
+    reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
+    db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
+
+#    private-access: ['amznlabs']     # Optional
+#    report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
+#    db-report-path: ['/full/path/to/directory/of/custom/db-reports']  # Optional
+#    map-user-script: /full/path/to/script   # Optional

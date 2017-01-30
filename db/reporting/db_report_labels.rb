@@ -17,21 +17,18 @@ class LabelDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
-    
     query="SELECT l.name, l.color, count(i2l.item_id) FROM labels l, item_to_label i2l WHERE i2l.url=l.url AND l.orgrepo LIKE ? GROUP BY l.name, l.color ORDER BY l.name"
     like_term="#{org}/%"
     text=''
 
-    stmt=sync_db.prepare(query)
-    result=stmt.execute( [like_term] )
+    result=sync_db[query, like_term]
     result.each do |row|
-        name=row[0]
-        color=row[1]
-        count=row[2]
+        name=row[:name]
+        color=row[:color]
+        count=row[:count]
         label = "<label color='#{color}'>#{name}</label>"
         text << "  <reporting class='issue-report' type='LabelDbReporter'><field>#{label}</field><field>#{count}</field></reporting>"
     end
-    stmt.close
 
     return text
   end

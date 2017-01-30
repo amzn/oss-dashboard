@@ -35,7 +35,7 @@ require_relative 'db_report_average_time_close_issue.rb'
 require_relative 'db_report_average_time_close_pr.rb'
 require_relative 'db_report_average_time_open_issue.rb'
 require_relative 'db_report_average_time_open_pr.rb'
- 
+
 # TODO: Consider merging this code with the similar review-source function
 def get_db_reporter_instances(dashboard_config)
   reports = dashboard_config['db-reports']
@@ -64,7 +64,7 @@ def get_db_reporter_instances(dashboard_config)
 end
 
 def run_db_reports(context, sync_db)
-  
+
   owners = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
 
@@ -75,14 +75,14 @@ def run_db_reports(context, sync_db)
   end
 
   context.feedback.puts " reporting"
-  
+
   owners.each do |org|
     context.feedback.print "  #{org} "
     review_file=File.open("#{data_directory}/db-report-xml/#{org}.xml", 'w')
-  
+
     report="<github-db-report>\n"
     report << " <organization name='#{org}'>\n"
-  
+
     report_instances.each do |report_obj|
       report << report_obj.db_report(context, org, sync_db).to_s
       context.feedback.print '.'
@@ -94,5 +94,7 @@ def run_db_reports(context, sync_db)
     review_file.close
     context.feedback.print "\n"
   end
-  
+
+
+
 end

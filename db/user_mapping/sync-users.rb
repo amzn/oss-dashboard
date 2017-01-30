@@ -12,20 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "sqlite3"
-
 def loadUserTable(db, users)
-  db.execute("BEGIN TRANSACTION");
-  db.execute("DELETE FROM users")
-  users.each do |login, email|
-      db.execute(
-       "INSERT INTO users (
-          login, email
-        )
-        VALUES ( ?, ? )",
-        [ login, email ] )
+  db.transaction do
+    db["DELETE FROM users"].delete
+    users.each do |login, email|
+        db[
+         "INSERT INTO users (
+            login, email
+          )
+          VALUES ( ?, ? )", login, email].insert
+    end
   end
-  db.execute("END TRANSACTION");
 end
 
 def sync_user_mapping(context, sync_db)

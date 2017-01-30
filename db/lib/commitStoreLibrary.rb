@@ -13,32 +13,35 @@
 # limitations under the License.
 
 require "yaml"
-require "sqlite3"
 require "date"
 
   def db_insert_commits(db, commits, org, repo)
-    db.execute("BEGIN TRANSACTION");
-    commits.each do |commit|
-        db.execute(
-         "INSERT INTO commits (
-            sha, message, tree, org, repo, author, authored_at, committer, committed_at, comment_count
-          )
-          VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
-        [
-         commit['sha'],
-         commit['commit']['message'],
-         commit['commit']['tree']['sha'],
-         org,
-         repo,
-         commit['commit']['author']['name'],
-         gh_to_db_timestamp(commit['commit']['author']['date']),
-         commit['commit']['committer']['name'],
-         gh_to_db_timestamp(commit['commit']['committer']['date']),
-         commit['commit']['comment_count'] 
-        ] )
-#        puts "  Inserted: #{commit.sha}"
+    begin
+      db.transaction do
+        commits.each do |commit|
+            db[
+             "INSERT INTO commits (
+                sha, message, tree, org, repo, author, authored_at, committer, committed_at, comment_count
+              )
+              VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
+              commit['sha'],
+              commit['commit']['message'],
+              commit['commit']['tree']['sha'],
+              org,
+              repo,
+              commit['commit']['author']['name'],
+              gh_to_db_timestamp(commit['commit']['author']['date']),
+              commit['commit']['committer']['name'],
+              gh_to_db_timestamp(commit['commit']['committer']['date']),
+              commit['commit']['comment_count']
+              ].insert
+        #puts "  Inserted: #{commit.sha}"
+        end
+      end
+    rescue => e
+      puts "Error during processing: #{$!}"
     end
-    db.execute("END TRANSACTION");
+
   end
 
   def gh_to_db_timestamp(timestamp)
@@ -53,8 +56,8 @@ require "date"
   def db_commit_max_timestamp_by_repo(db, org, repo)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
-    db.execute( "select max(committed_at) from commits where org='#{org}' and repo='#{repo}'" ) do |row|
-      timestamp=row[0]
+    db["select max(committed_at) from commits where org='#{org}' and repo='#{repo}'"].each do |row|
+      timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
       else
@@ -66,8 +69,8 @@ require "date"
   def db_commit_max_timestamp_by_org(db, org)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
-    db.execute( "select max(committed_at) from commits where org='#{org}'" ) do |row|
-      timestamp=row[0]
+    db["select max(committed_at) from commits where org='#{org}'"].each do |row|
+      timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
       else

@@ -13,10 +13,9 @@
 # limitations under the License.
 
 require "yaml"
-require "sqlite3"
 require "date"
 
-  # Need to double-check that the hash YAML is simple enough to also be legal JSON. 
+  # Need to double-check that the hash YAML is simple enough to also be legal JSON.
   def flatten_event_payload(event)
     case event.type
     when 'CreateEvent'
@@ -54,7 +53,7 @@ require "date"
       return YAML::dump({ 'team' => event.payload.team['name'], 'repository' => event.payload.repository['full_name'] })
     when 'WatchEvent'
       return YAML::dump({ 'action' => event.payload.action })
-    else 
+    else
       #  CommitCommentEvent
       #  DeploymentStatusEvent
       #  DownloadEvent - No longer exists
@@ -69,30 +68,35 @@ require "date"
 
   # TODO: Currently the event payload storage is BIG. And a little useless.
   #       I need to take each event type that is known about, and convert the GitHub object into an array of hash.
-  #       If not known, it should store the whole object, while wincing. 
+  #       If not known, it should store the whole object, while wincing.
   def db_insert_events(db, events)
-    db.execute("BEGIN TRANSACTION");
-    events.each do |event|
-        flatPayload=flatten_event_payload(event)
-        db.execute(
-         "INSERT INTO events (
-            id, type, actor, org, repo, public, created_at, payload
-          )
-          VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)",
-          [event.id, event.type, event.actor.login, event.org.login, event.repo.name, event.public.to_s, event.created_at.to_s, flatPayload] )
-#        puts "  Inserted: #{event.id}"
+    begin
+      db.transaction do
+        events.each do |event|
+            flatPayload=flatten_event_payload(event)
+            db[
+             "INSERT INTO events (
+                id, type, actor, org, repo, public, created_at, payload
+              )
+              VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)",
+              event.id, event.type, event.actor.login, event.org.login, event.repo.name,
+              event.public.to_s, event.created_at.to_s, flatPayload].insert
+        #puts "  Inserted: #{event.id}"
+        end
+      end
+    rescue => e
+      puts "Error during processing: #{$!}"
     end
-    db.execute("END TRANSACTION");
   end
 
   def db_getMaxIdForOrg(db, org)
-    db.execute( "select max(id) from events where org='#{org}'" ) do |row|
-      return row[0]
+    db["select max(id) from events where org='#{org}'"].each do |row|
+      return row[:max]
     end
   end
 
   def db_getMaxIdForRepo(db, repo)
-    db.execute( "select max(id) from events where repo='#{repo}'" ) do |row|
-      return row[0]
+    db["select max(id) from events where repo='#{repo}'"].each do |row|
+      return row[:max]
     end
   end

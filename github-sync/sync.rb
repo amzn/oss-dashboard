@@ -24,12 +24,11 @@ require_relative 'db_issues/sync-issues.rb'
 require_relative 'db_releases/sync-releases.rb'
 require_relative '../db/user_mapping/sync-users.rb'
 require_relative '../db/reporting/db_reporter_runner.rb'
+require_relative '../util.rb'
 
 def github_sync(context, run_one)
 
-  db_filename=File.join(context.dashboard_config['data-directory'], 'db', 'gh-sync.db');
-
-  sync_db=SQLite3::Database.new db_filename
+  sync_db = get_db_handle(context.dashboard_config)
 
   if(not(run_one) or run_one=='github-sync/metadata')
     sync_metadata(context, sync_db)
@@ -56,7 +55,7 @@ def github_sync(context, run_one)
     run_db_reports(context, sync_db)
   end
 
-  sync_db.close
+  sync_db.disconnect
 
 end
 
