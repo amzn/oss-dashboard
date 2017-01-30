@@ -62,10 +62,10 @@ require "date"
     end
   end
 
-  def db_getMaxCommentTimestampForRepo(db, repo)
+  def db_getMaxCommentTimestampForRepo(db, org, repo)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
-    db.execute( "select max(updated_at) from item_comments where org=? and repo=?'", [org, repo] ) do |row|
+    db.execute( "select max(updated_at) from item_comments where org=? and repo=?", [org, repo] ) do |row|
       timestamp=row[0]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
