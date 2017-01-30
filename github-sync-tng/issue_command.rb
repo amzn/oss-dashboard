@@ -108,6 +108,8 @@ end
 # [GitHub Client Calls = Count(Repo's Updated Issues + Repo's Updated Pull Requests (1 (for data) + 1 (for fix-merged-at) + pr-files) ]
 class SyncItemsCommand < BaseCommand
 
+  BLOCK_SIZE=50
+
   # params=(context, sync_db)
   def run(queue, *params)
     sync_items(queue, params[0], params[1], @args['org'], @args['repo'])
@@ -116,7 +118,6 @@ class SyncItemsCommand < BaseCommand
   def sync_items(queue, context, issue_db, org, repo)
     orgrepo="#{org}/#{repo}"
 
-    issue_db.execute("BEGIN TRANSACTION");
     maxTimestamp=db_getMaxTimestampForRepo(issue_db, org, repo)               # Get the current max timestamp in the db
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
@@ -126,12 +127,24 @@ class SyncItemsCommand < BaseCommand
       issues=context.client.list_issues(orgrepo, { 'state' => 'all' } )
     end
     unless(issues.empty?)
-      db_insert_issues(issue_db, issues, org, repo)                           # Insert any new items
-      db_link_issues(issue_db, issues, org, repo)
-      db_fix_merged_at(issue_db, context.client, issues, org, repo)           # Put in PR specific data - namely merged_at
-      db_add_pull_request_files(issue_db, context.client, issues, org, repo)  # Put in PR specific data - namely the files + their metrics
+
+      while(issues.length>0)
+
+        # Issue lists can be large when first importing, so handle in blocks
+        issue_block=issues.take(BLOCK_SIZE)
+
+        issue_db.execute("BEGIN TRANSACTION");
+        db_insert_issues(issue_db, issue_block, org, repo)                           # Insert any new items
+        db_link_issues(issue_db, issue_block, org, repo)
+        db_fix_merged_at(issue_db, context.client, issue_block, org, repo)           # Put in PR specific data - namely merged_at
+        db_add_pull_request_files(issue_db, context.client, issue_block, org, repo)  # Put in PR specific data - namely the files + their metrics
+        issue_db.execute("END TRANSACTION");
+
+        # remove the block just loaded
+        issues=issues.drop(BLOCK_SIZE)
+      end
+
     end
-    issue_db.execute("END TRANSACTION");
   end
 
 end
