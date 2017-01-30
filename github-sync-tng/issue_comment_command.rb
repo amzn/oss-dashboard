@@ -59,7 +59,7 @@ class SyncItemCommentsCommand < BaseCommand
 
     issue_db.execute("BEGIN TRANSACTION");
     # Get the current max timestamp in the db
-    maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, repo)
+    maxTimestamp=db_getMaxCommentTimestampForRepo(issue_db, org, repo)
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
       ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
@@ -68,7 +68,7 @@ class SyncItemCommentsCommand < BaseCommand
       comments=context.client.issues_comments(orgrepo)
     end
     db_insert_comments(issue_db, comments, org, repo)
-    issue_db.execute("COMMIT");
+    issue_db.execute("END TRANSACTION");
   end
 
 end

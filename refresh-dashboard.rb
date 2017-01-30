@@ -107,6 +107,14 @@ optparse = OptionParser.new do |opts|
   opts.on( '-X', '--xsync', 'Run in experimental sync mode' ) do
     options[:xsync] = true
   end
+  options[:flushonly] = false
+  opts.on( '-F', '--flushonly', 'When in experimental sync mode - only flush' ) do
+    options[:flushonly] = true
+  end
+  options[:queueonly] = false
+  opts.on( '-Q', '--queueonly', 'When in experimental sync mode - only queue' ) do
+    options[:queueonly] = true
+  end
 end
 optparse.parse!
 
@@ -149,8 +157,8 @@ if(options[:light] and ARGV[1])
 end
 
 # TODO: Implement github-sync and generate-dashboard as aliases?
-allPhases=['init-database', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt']
-legitPhases=allPhases + ['github-sync', 'generate-dashboard']
+allPhases=['init-database', 'github-sync', 'pull-source', 'review-source', 'generate-dashboard']
+legitPhases=['init-database', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt', 'github-sync', 'generate-dashboard']
 
 if(ARGV[1])
   run_list=ARGV[1..-1]
@@ -185,6 +193,13 @@ end
 context=DashboardContext.new(feedback, dashboard_config, client)
 context[:START_TIME]=DateTime.now
 owners = dashboard_config['organizations+logins']
+
+if(options[:flushonly])
+  context[:flushonly]=true
+end
+if(options[:queueonly])
+  context[:queueonly]=true
+end
 
 if(context.github_com?)
   context[:START_RATE_LIMIT]=client.rate_limit.remaining

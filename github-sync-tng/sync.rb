@@ -28,6 +28,7 @@ require_relative '../db/reporting/db_reporter_runner.rb'
 require_relative '../util.rb'
 
 def eval_queue(queue, context, sync_db)
+  return_code=true
   while(not queue.empty?)
     cmd=BaseCommand.instantiate(queue.pop)
 
@@ -42,21 +43,24 @@ def eval_queue(queue, context, sync_db)
     rescue Octokit::TooManyRequests => msg
       puts "Out of requests, pushing command back on queue: #{msg}"
       queue.push(cmd)
+      return_code=false
       break
     rescue Faraday::TimeoutError => msg
       puts "GitHub API timing out, pushing command back on queue: #{msg}"
       queue.push(cmd)
+      return_code=false
       break
     rescue Octokit::ClientError => msg
       # Repository access blocked (Octokit::ClientError)
-      puts "Client error, pushing command back on queue: #{msg}"
+      puts "GitHub client error, pushing command back on queue: #{msg}"
       queue.push(cmd)
+      return_code=false
       break
     end
 
   end
   context.feedback.puts
-  return true
+  return return_code
 end
 
 def github_sync(context, run_one)
@@ -71,12 +75,20 @@ def github_sync(context, run_one)
 
   sync_db = get_db_handle(context.dashboard_config)
 
-  unless(queue.empty?)
+  unless(context[:queueonly])
+    unless(queue.empty?)
+      context.feedback.print "\n flushing queue\n  "
+      flushed=eval_queue(queue, context, sync_db)
+      unless(flushed)
+        return
+      end
+    end
+  end
+
+  if(context[:flushonly])
     context.feedback.print "\n flushing queue\n  "
     flushed=eval_queue(queue, context, sync_db)
-    unless(flushed)
-      return
-    end
+    return
   end
 
   if(not(run_one) or run_one=='github-sync/metadata')
@@ -104,8 +116,10 @@ def github_sync(context, run_one)
     queue.push(SyncReleasesCommand.new(Hash.new))
   end
 
-  context.feedback.print "\n evaluating queue\n  "
-  eval_queue(queue, context, sync_db)
+  unless(context[:queueonly])
+    context.feedback.print "\n evaluating queue\n  "
+    eval_queue(queue, context, sync_db)
+  end
 
   if(not(run_one) or run_one=='github-sync/user-mapping')
     context.feedback.puts "  github-sync/user-mapping"

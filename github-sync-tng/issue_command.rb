@@ -18,7 +18,8 @@ require_relative '../db/lib/issueStoreLibrary.rb'
 
 require_relative 'base_command'
 
-# [GitHub Client Calls = COUNT(Repos)]
+# [GitHub Client Calls = COUNT(All Org Repos)]
+#   Though its effect is larger as it kicks off three more commands
 class SyncIssuesCommand < BaseCommand
 
   # params=(context, sync_db)
@@ -38,7 +39,8 @@ class SyncIssuesCommand < BaseCommand
       end
 
       repos.each do |repo_obj|
-        queue.push(SyncMilestonesCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
+## COMMENTING OUT MILESTONES. NO VALUE IN GRABBING DATA CURRENTLY AND LINKING DOESN'T SEEM TO BE WORKING.
+#        queue.push(SyncMilestonesCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncLabelsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncItemsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
@@ -48,7 +50,7 @@ class SyncIssuesCommand < BaseCommand
 
 end
 
-# [GitHub Client Calls = COUNT(Repos)]
+# [GitHub Client Calls = 1]
 class SyncMilestonesCommand < BaseCommand
 
   # params=(context, sync_db)
@@ -72,13 +74,13 @@ class SyncMilestonesCommand < BaseCommand
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [orgrepo, milestone.id, milestone.html_url, milestone.title, milestone.state, milestone.number, milestone.description, milestone.creator.login, milestone.open_issues, milestone.closed_issues, gh_to_db_timestamp(milestone.created_at), gh_to_db_timestamp(milestone.updated_at), gh_to_db_timestamp(milestone.closed_at), gh_to_db_timestamp(milestone.due_on)]]
     end
-    db.execute("COMMIT")
+    db.execute("END TRANSACTION")
   end
 
 end
 
 ##### Every repo has default labels, so this leads to a lot of repeated replacements #####
-# [GitHub Client Calls = COUNT(Repos)]
+# [GitHub Client Calls = 1]
 class SyncLabelsCommand < BaseCommand
 
   # params=(context, sync_db)
@@ -98,31 +100,25 @@ class SyncLabelsCommand < BaseCommand
     labels.each do |label|
       db["INSERT INTO labels (orgrepo, url, name, color) VALUES (?, ?, ?, ?)", [orgrepo, label.url, label.name, label.color]]
     end
-    db.execute("COMMIT")
+    db.execute("END TRANSACTION")
   end
 
 end
 
-# [GitHub Client Calls = Complex]
+# [GitHub Client Calls = Count(Repo's Updated Issues + Repo's Updated Pull Requests (1 (for data) + 1 (for fix-merged-at) + pr-files) ]
 class SyncItemsCommand < BaseCommand
+
+  BLOCK_SIZE=50
 
   # params=(context, sync_db)
   def run(queue, *params)
     sync_items(queue, params[0], params[1], @args['org'], @args['repo'])
   end
 
-# TODO: Move this to the engine?
-##     begin # Repository access blocked (Octokit::ClientError)
-##     rescue Octokit::ClientError
-##        issue_db.rollback
-##        context.feedback.print '!'
-##     end
-
   def sync_items(queue, context, issue_db, org, repo)
     orgrepo="#{org}/#{repo}"
 
-    issue_db.execute("BEGIN TRANSACTION");
-    maxTimestamp=db_getMaxTimestampForRepo(issue_db, orgrepo)               # Get the current max timestamp in the db
+    maxTimestamp=db_getMaxTimestampForRepo(issue_db, org, repo)               # Get the current max timestamp in the db
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
       ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
@@ -130,11 +126,25 @@ class SyncItemsCommand < BaseCommand
     else
       issues=context.client.list_issues(orgrepo, { 'state' => 'all' } )
     end
-    db_insert_issues(issue_db, issues, org, repo)                           # Insert any new items
-    db_link_issues(issue_db, issues, org, repo)
-    db_fix_merged_at(issue_db, context.client, issues, org, repo)           # Put in PR specific data - namely merged_at
-    db_add_pull_request_files(issue_db, context.client, issues, org, repo)  # Put in PR specific data - namely the files + their metrics
-    issue_db.execute("END TRANSACTION");
+    unless(issues.empty?)
+
+      while(issues.length>0)
+
+        # Issue lists can be large when first importing, so handle in blocks
+        issue_block=issues.take(BLOCK_SIZE)
+
+        issue_db.execute("BEGIN TRANSACTION");
+        db_insert_issues(issue_db, issue_block, org, repo)                           # Insert any new items
+        db_link_issues(issue_db, issue_block, org, repo)
+        db_fix_merged_at(issue_db, context.client, issue_block, org, repo)           # Put in PR specific data - namely merged_at
+        db_add_pull_request_files(issue_db, context.client, issue_block, org, repo)  # Put in PR specific data - namely the files + their metrics
+        issue_db.execute("END TRANSACTION");
+
+        # remove the block just loaded
+        issues=issues.drop(BLOCK_SIZE)
+      end
+
+    end
   end
 
 end

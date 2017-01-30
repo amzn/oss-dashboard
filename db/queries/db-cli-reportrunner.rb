@@ -48,7 +48,8 @@ sync_db = get_db_handle(config)
 report="<github-db-report>\n"
 report << " <organization name='#{org}'>\n"
   
-report << report_obj.db_report(org, sync_db).to_s
+# TODO: Passes a nil dashboard-context; will only work for some reports.
+report << report_obj.db_report(nil, org, sync_db).to_s
 
 report << " </organization>\n"
 report << "</github-db-report>\n"

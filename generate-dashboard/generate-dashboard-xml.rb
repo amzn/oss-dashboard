@@ -158,7 +158,6 @@ def generate_dashboard_xml(context)
       end
     rescue => e
       puts "Error during processing: #{$!}"
-      p 'DBGZ' if nil?
     end
 
 

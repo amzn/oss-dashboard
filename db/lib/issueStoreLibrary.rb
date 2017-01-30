@@ -61,10 +61,10 @@ require "date"
     end
   end
 
-  def db_getMaxCommentTimestampForRepo(db, repo)
+  def db_getMaxCommentTimestampForRepo(db, org, repo)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
-    db["select max(updated_at) from item_comments where repo='#{repo}'"].each do |row|
+    db["select max(updated_at) from item_comments where org='#{org}' and repo='#{repo}'"].each do |row|
       timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
@@ -74,10 +74,10 @@ require "date"
     end
   end
 
-  def db_getMaxTimestampForRepo(db, repo)
+  def db_getMaxTimestampForRepo(db, org, repo)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
-    db["select max(updated_at) from items where repo='#{repo}'"].each do |row|
+    db["select max(updated_at) from items where org='#{org}' and repo='#{repo}'"].each do |row|
       timestamp=row[:max]
       if(timestamp)
           return timestamp.to_s.sub(/ /, 'T').sub(/ /, 'Z')
@@ -154,15 +154,16 @@ require "date"
   def db_link_issues(db, issues, org, repo)
     # For each issue
     issues.each do |issue|
+      ## COMMENTING OUT MILESTONES. NO VALUE IN GRABBING DATA CURRENTLY AND LINKING DOESN'T SEEM TO BE WORKING.
       # Remove from item_to_milestone
-      db["DELETE FROM item_to_milestone WHERE item_id=?", issue.id].delete
+      #db["DELETE FROM item_to_milestone WHERE item_id=?", issue.id].delete
       # For each milestone
-      if(issue.milestones)
-        issue.milestones.each do |milestone|
+      #if(issue.milestones)
+        #issue.milestones.each do |milestone|
           # Insert into item_to_milestone
-          db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", item.id, milestone.id].insert
-        end
-      end
+          #db["INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", item.id, milestone.id].insert
+        #end
+      #end
       # Remove from item_to_label
       db["DELETE FROM item_to_label WHERE item_id=?", issue.id].delete
       # For each label
