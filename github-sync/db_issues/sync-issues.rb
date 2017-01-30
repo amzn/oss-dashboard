@@ -90,7 +90,8 @@ def getLatestForOrgRepos(context, issue_db, org, repos)
   repos.each do |repo_obj|
    issue_db.execute("BEGIN TRANSACTION");
    begin # Repository access blocked (Octokit::ClientError)
-    getMilestones(context.client, issue_db, repo_obj.full_name)
+## COMMENTING OUT MILESTONES. NO VALUE IN GRABBING DATA CURRENTLY AND LINKING DOESN'T SEEM TO BE WORKING.
+##    getMilestones(context.client, issue_db, repo_obj.full_name)
     getLabels(context.client, issue_db, repo_obj.full_name)
     maxTimestamp=db_getMaxTimestampForRepo(issue_db, org, repo_obj.name)               # Get the current max timestamp in the db
     if(maxTimestamp)
