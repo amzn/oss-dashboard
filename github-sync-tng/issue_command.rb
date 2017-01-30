@@ -39,7 +39,8 @@ class SyncIssuesCommand < BaseCommand
       end
  
       repos.each do |repo_obj|
-        queue.push(SyncMilestonesCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
+## COMMENTING OUT MILESTONES. NO VALUE IN GRABBING DATA CURRENTLY AND LINKING DOESN'T SEEM TO BE WORKING.
+#        queue.push(SyncMilestonesCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncLabelsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
         queue.push(SyncItemsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end

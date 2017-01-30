@@ -154,15 +154,16 @@ require "date"
   def db_link_issues(db, issues, org, repo)
     # For each issue
     issues.each do |issue|
-      # Remove from item_to_milestone
-      db.execute("DELETE FROM item_to_milestone WHERE item_id=?", [issue.id])
-      # For each milestone
-      if(issue.milestones)
-        issue.milestones.each do |milestone|
-          # Insert into item_to_milestone
-          db.execute("INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", [item.id, milestone.id])
-        end
-      end
+## COMMENTING OUT MILESTONES. NO VALUE IN GRABBING DATA CURRENTLY AND LINKING DOESN'T SEEM TO BE WORKING.
+##      # Remove from item_to_milestone
+##      db.execute("DELETE FROM item_to_milestone WHERE item_id=?", [issue.id])
+##      # For each milestone
+##      if(issue.milestones)
+##        issue.milestones.each do |milestone|
+##          # Insert into item_to_milestone
+##          db.execute("INSERT INTO item_to_milestone (item_id, milestone_id) VALUES(?, ?)", [item.id, milestone.id])
+##        end
+##      end
       # Remove from item_to_label
       db.execute("DELETE FROM item_to_label WHERE item_id=?", [issue.id])
       # For each label
