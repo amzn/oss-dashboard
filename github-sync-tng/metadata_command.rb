@@ -240,7 +240,7 @@ class SyncOrgMembersMDCommand < BaseCommand
         d_2fa='false'
       end
  
-      if(member_found.length > 0)
+      unless(member_found.empty?)
          db["UPDATE member SET login=?, two_factor_disabled=?, avatar_url=? WHERE id=?",
                     [member_obj.login, d_2fa, member_obj.avatar_url, member_obj.id]]
       else
@@ -289,7 +289,7 @@ class SyncOrgCollaboratorsMDCommand < BaseCommand
         db.execute("BEGIN TRANSACTION")
 
         member_found=db["SELECT id FROM member WHERE id=?", [collaborator.id]]
-        if(member_found.length == 0)
+        if(member_found.empty?)    # TODO: Why is the code this way? If not found, then delete - makes no sense
           db["DELETE FROM member WHERE id=?", [collaborator.id]]
           db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
                       VALUES(?, ?, ?, ?)", [collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url]]
