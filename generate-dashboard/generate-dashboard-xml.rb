@@ -119,6 +119,7 @@ def generate_dashboard_xml(context)
     # the LIKE provides case insensitive selection
     org_data=sync_db["SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login LIKE ?", org]
     org_data_row = org_data.first
+    # BUG: This will throw an error if the login is not in the database
     avatar = org_data_row[:avatar_url]
     description = org_data_row[:description]
     blog = org_data_row[:blog]
