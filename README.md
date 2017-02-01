@@ -3,6 +3,17 @@ A dashboard for viewing many GitHub organizations, and/or users, at once.
 
 !!!oss-dashboard now requires PostgreSQL - README needs updating. For the sqlite version, see the 0.2 release!!!
 
+Changes to make:
+
+1) Postgres now needed.
+2) Describe how to configure postgres.
+3) Drop the SQLite requirement.
+4) Gemfile means you can now bundle install the rubygem files.
+5) Need to fix the hardcoding of filenames/database name in the util.rb file.
+6) Document --xsync, though note that the metadata syncing specifically shouldn't be trusted yet.
+
+---
+
 ![Screenshot](screenshots/BasicDashboardExample.png?raw=true)
 
 There are three phases to generating the dashboard.
