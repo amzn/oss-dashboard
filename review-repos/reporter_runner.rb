@@ -42,9 +42,11 @@ def get_reporter_instances(dashboard_config)
   end
   
   report_instances=[]
-  reports.each do |reportName|
-    clazz = Object.const_get(reportName)
-    report_instances<<clazz.new
+  if(reports)
+    reports.each do |reportName|
+      clazz = Object.const_get(reportName)
+      report_instances<<clazz.new
+    end
   end
   return report_instances
 end
