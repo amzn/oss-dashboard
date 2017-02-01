@@ -27,26 +27,26 @@ class SyncReleasesCommand < BaseCommand
   end
 
   def sync_releases(queue, context, sync_db)
-    
+
     owners = context.dashboard_config['organizations+logins']
-    
+
     # GH COST = owners.length
     owners.each do |org|
-  
+
       if(context.login?(org))
         repos=context.client.repositories(org)
       else
         repos=context.client.organization_repositories(org)
       end
-  
+
       # There's no @since here, so it's removing current data and replacing with all release info from GitHub
       # Could use this for initial load and use the event data stream for updates
       repos.each do |repo_obj|
         queue.push(SyncReleaseCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )
       end
-  
+
     end
-  
+
   end
 
 end
@@ -66,33 +66,34 @@ class SyncReleaseCommand < BaseCommand
 
   # TODO: Move to a db library
   def db_insert_releases(db, org, repo, releases)
-    db.execute("BEGIN TRANSACTION");
-    releases.each do |release|
-        db[
-         "DELETE FROM releases WHERE org=? AND repo=? AND id=?", [org, repo, release.id]]
+    db.transaction do
+      releases.each do |release|
+          db[
+           "DELETE FROM releases WHERE org=? AND repo=? AND id=?", org, repo, release.id].delete
 
-        # Sometimes there is no author. Instead, fill in the data with the first file's uploader
-        if(release.author)
-            author=release.author.login
-        else
-            if(release.assets and release.assets[0] and release.assets[0].uploader)
-                author=release.assets[0].uploader.login
-#                puts "Unable to find an author for #{release.html_url}; using uploader: #{author}"
-            else
-                author=nil
-#                puts "Unable to find an author or uploader for #{release.html_url}"
-            end
-        end
+          # Sometimes there is no author. Instead, fill in the data with the first file's uploader
+          if(release.author)
+              author=release.author.login
+          else
+              if(release.assets and release.assets[0] and release.assets[0].uploader)
+                  author=release.assets[0].uploader.login
+  #                puts "Unable to find an author for #{release.html_url}; using uploader: #{author}"
+              else
+                  author=nil
+  #                puts "Unable to find an author or uploader for #{release.html_url}"
+              end
+          end
 
 
-        db[
-         "INSERT INTO releases (
-            org, repo, id, html_url, tarball_url, zipball_url, tag_name, name, body, created_at, published_at, author
-          )
-          VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
-          [ org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s, release.published_at.to_s, author]]
+          db[
+           "INSERT INTO releases (
+              org, repo, id, html_url, tarball_url, zipball_url, tag_name, name, body, created_at, published_at, author
+            )
+            VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
+            org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s,
+            release.published_at.to_s, author].insert
+      end
     end
-    db.execute("END TRANSACTION");
   end
 
 end
