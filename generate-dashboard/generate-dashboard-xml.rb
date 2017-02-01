@@ -114,12 +114,18 @@ def generate_dashboard_xml(context)
 
   organizations.each do |org|
     context.feedback.print "  #{org} "
-    dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
 
     # the LIKE provides case insensitive selection
     org_data=sync_db["SELECT avatar_url, description, blog, name, location, email, created_at FROM organization WHERE login LIKE ?", org]
+
+    unless(org_data.first)
+      context.feedback.puts "!"
+      next
+    end
+
+    dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
+
     org_data_row = org_data.first
-    # BUG: This will throw an error if the login is not in the database
     avatar = org_data_row[:avatar_url]
     description = org_data_row[:description]
     blog = org_data_row[:blog]
@@ -445,7 +451,11 @@ def merge_dashboard_xml_to(context, attribute, xmlfile, title)
 
   organizations.each do |org|
 
-    xmlfile=File.new("#{data_directory}/dash-xml/#{org}.xml")
+    filename="#{data_directory}/dash-xml/#{org}.xml"
+    unless(File.exist?(filename))
+      next
+    end
+    xmlfile=File.new(filename)
     begin
       dashboardXml = Document.new(xmlfile)
     end
