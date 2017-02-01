@@ -1,6 +1,8 @@
 # Amazon Open Source Program GitHub Dashboard
 A dashboard for viewing many GitHub organizations, and/or users, at once. 
 
+!!!oss-dashboard now requires PostgreSQL - README needs updating. For the sqlite version, see the 0.2 release!!!
+
 ![Screenshot](screenshots/BasicDashboardExample.png?raw=true)
 
 There are three phases to generating the dashboard.
