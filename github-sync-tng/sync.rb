@@ -70,7 +70,7 @@ def github_sync(context, run_one)
     return
   end
 
-  queue_filename=File.join(context.dashboard_config['data-directory'], 'db', 'oss-dashboard.queue');
+  queue_filename=File.join(context.dashboard_config['data-directory'], 'oss-dashboard.queue');
   queue = FileQueue.new queue_filename
 
   sync_db = get_db_handle(context.dashboard_config)
