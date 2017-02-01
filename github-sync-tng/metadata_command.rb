@@ -297,7 +297,7 @@ class SyncOrgCollaboratorsMDCommand < BaseCommand
                         VALUES(?, ?, ?, ?)", collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url].insert
           end
           member_of_repo=db["SELECT COUNT(*) FROM team_to_member ttm, team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=? AND ttm.member_id=?", repo_obj.id, collaborator.id]
-          if(member_of_repo[0][0] == 0)
+          if(member_of_repo.first[:count] == 0)
             db["DELETE FROM repository_to_member WHERE org_id=? AND repo_id=? AND member_id=?", org_id, repo_obj.id, collaborator.id].delete
             db["INSERT INTO repository_to_member (org_id, repo_id, member_id) VALUES(?, ?, ?)", org_id, repo_obj.id, collaborator.id].insert
           end
@@ -326,7 +326,7 @@ class SyncMembersMDCommand < BaseCommand
       members=db["SELECT id FROM member"]
 
       members.each do |member|
-        memberId=member[0]
+        memberId=member[:id]
         begin
           user=client.user(memberId)
         rescue Octokit::NotFound => msg
