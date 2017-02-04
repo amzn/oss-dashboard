@@ -107,6 +107,7 @@ class SyncLabelsCommand < BaseCommand
     rescue => e
       puts "Error during processing: #{$!}"
     end
+  end
 end
 
 # [GitHub Client Calls = Count(Repo's Updated Issues + Repo's Updated Pull Requests (1 (for data) + 1 (for fix-merged-at) + pr-files) ]
@@ -147,10 +148,9 @@ class SyncItemsCommand < BaseCommand
         rescue => e
           puts "Error during processing: #{$!}"
         end
-
       end
-
     end
+  end
 end
   # This should speed things up
   # TODO: Needs to a) do all the db things that are done below in addition to plain inserting
