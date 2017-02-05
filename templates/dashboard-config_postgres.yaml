@@ -7,11 +7,11 @@
       password: postgres
       database: oss-dashboard
 
-    data-directory: data # used for both DB and computed data
+    data-directory: data
     www-directory: html
 
-    organizations: []
-    logins: ['ahetawal-p']
+    organizations: ['amznlabs']
+    logins: []
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
     #private-access: ['amznlabs']     # Optional
