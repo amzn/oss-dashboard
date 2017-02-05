@@ -18,7 +18,7 @@ def init_database(context)
 
   if db_exists?(context.dashboard_config)
     # Don't init over the top of an existing database
-    puts "ERROR: db exists"
+    puts "ERROR: Will not initialize over the top of an existing database. Please remove the database if reset is desired. "
     return
   end
 
