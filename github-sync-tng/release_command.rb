@@ -69,7 +69,7 @@ class SyncReleaseCommand < BaseCommand
     db.transaction do
       releases.each do |release|
           db[
-           "DELETE FROM releases WHERE org=? AND repo=? AND id=?", org, repo, release.id].delete
+           "DELETE FROM releases WHERE org=? AND repo=? AND id::int=?", org, repo, release.id].delete
 
           # Sometimes there is no author. Instead, fill in the data with the first file's uploader
           if(release.author)
