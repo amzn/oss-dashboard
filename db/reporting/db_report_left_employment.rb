@@ -27,7 +27,7 @@ class LeftEmploymentDbReporter < DbReporter
   end
 
   def describe()
-    return "This report shows which of the organization members are flagging as having left the company (per a custom task's updating of the users.is_employee column. "
+    return "This report shows which of the organization members/collaborators are flagging as having left the company (per a custom task's updating of the users.is_employee column. "
   end
 
   def db_columns()
@@ -38,6 +38,11 @@ class LeftEmploymentDbReporter < DbReporter
     left_members=sync_db["SELECT DISTINCT(m.login) as login, u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr, users u WHERE m.login=u.login AND u.is_employee=0 AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", org]
     text = ''
     left_members.each do |row|
+      url="#{context.github_url}/orgs/#{org}/people/#{row[:login]}"
+      text << "  <reporting class='user-report' type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[:login]}</field><field>#{row[:email]}</field></reporting>\n"
+    end
+    left_collaborators=sync_db["SELECT DISTINCT(m.login), u.email FROM member m, repository r, repository_to_member rtm, users u WHERE m.login=u.login AND u.is_employee=0 AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", org]
+    left_collaborators.each do |row|
       url="#{context.github_url}/orgs/#{org}/people/#{row[:login]}"
       text << "  <reporting class='user-report' type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[:login]}</field><field>#{row[:email]}</field></reporting>\n"
     end
