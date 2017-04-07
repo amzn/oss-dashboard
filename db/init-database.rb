@@ -30,6 +30,7 @@ def init_database(context)
   sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_commit_schema.sql' ) ) )
   sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_issue_schema.sql' ) ) )
   sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_user_schema.sql' ) ) )
+  sync_db.run( File.read( File.join( File.dirname(__FILE__), 'schemas', 'db_traffic_schema.sql' ) ) )
 
   sync_db.disconnect
 
