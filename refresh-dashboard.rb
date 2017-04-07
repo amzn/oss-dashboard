@@ -138,7 +138,7 @@ else
 end
 
 Octokit.auto_paginate = true
-client = Octokit::Client.new :access_token => access_token, :accept => 'application/vnd.github.moondragon+json' 
+client = Octokit::Client.new :access_token => access_token
 
 # Dashboard configuration
 config_file = ARGV[0]
@@ -158,7 +158,7 @@ end
 
 # TODO: Implement github-sync and generate-dashboard as aliases?
 allPhases=['init-database', 'github-sync', 'pull-source', 'review-source', 'generate-dashboard']
-legitPhases=['init-database', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt', 'github-sync', 'generate-dashboard']
+legitPhases=['init-database', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/traffic', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt', 'github-sync', 'generate-dashboard']
 
 if(ARGV[1])
   run_list=ARGV[1..-1]

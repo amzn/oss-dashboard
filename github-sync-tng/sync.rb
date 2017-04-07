@@ -22,6 +22,7 @@ require_relative 'issue_command'
 require_relative 'issue_comment_command'
 require_relative 'commit_command'
 require_relative 'metadata_command'
+require_relative 'traffic_command'
 
 require_relative '../db/user_mapping/sync-users.rb'
 require_relative '../db/reporting/db_reporter_runner.rb'
@@ -114,6 +115,10 @@ def github_sync(context, run_one)
   if(not(run_one) or run_one=='github-sync/releases')
     context.feedback.puts "  github-sync/releases: queueing"
     queue.push(SyncReleasesCommand.new(Hash.new))
+  end
+  if(not(run_one) or run_one=='github-sync/traffic')
+    context.feedback.puts "  github-sync/traffic: queueing"
+    queue.push(SyncTrafficCommand.new(Hash.new))
   end
 
   unless(context[:queueonly])
