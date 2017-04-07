@@ -48,9 +48,6 @@ def pull_source(context)
       repos = context.client.organization_repositories(owner)
     end
     repos.each do |repo|
-      if repo.fork
-        next
-      end
       if repo.private
         next
       end
