@@ -76,7 +76,7 @@ def review_source(context)
 
     repos.each do |repo|
       if repo.fork
-        next
+#        next
       end
       unless File.exists?("#{scratch_dir}/#{repo.full_name}")
         next

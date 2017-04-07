@@ -24,7 +24,7 @@ require_relative '../review-repos/reporter_runner'
 require_relative '../db/reporting/db_reporter_runner'
 
 def escape_for_xml(text)
-  return text ? text.gsub(/&/, '&amp;') : text
+  return text ? text.tr("\b", '').gsub(/&/, '&amp;').gsub(/</, '&lt;') : text
 end
 
 def generate_report_metadata(context, metadata, tag)

@@ -35,7 +35,7 @@ class UnknownCollaboratorsDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
-    unknown=sync_db.execute("SELECT DISTINCT(m.login), r.name FROM member m, repository r, repository_to_member rtm WHERE m.login NOT IN (SELECT login FROM users) AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", [org])
+    unknown=sync_db.execute("SELECT DISTINCT(m.login), r.name FROM member m, repository r, repository_to_member rtm WHERE LOWER(m.login) NOT IN (SELECT LOWER(login) FROM users) AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", [org])
 
     text = ''
     unknown.each do |row|

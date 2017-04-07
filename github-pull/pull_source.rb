@@ -49,7 +49,7 @@ def pull_source(context)
     end
     repos.each do |repo|
       if repo.fork
-        next
+#        next
       end
       if repo.private
         next
