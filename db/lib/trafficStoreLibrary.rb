@@ -27,7 +27,6 @@ require "date"
 
   def db_insert_traffic_referrers(db, referrers, org, repo)
     begin
-      db.execute("BEGIN TRANSACTION")
         referrers.each do |referrer|
             db.execute(
              "INSERT INTO traffic_referrers (
@@ -41,7 +40,6 @@ require "date"
               referrer['uniques']
               ])
         end
-      db.execute("COMMIT")
     rescue => e
       puts "Error during processing: #{$!}"
     end
@@ -49,7 +47,6 @@ require "date"
 
   def db_insert_traffic_paths(db, paths, org, repo)
     begin
-      db.execute("BEGIN TRANSACTION")
         paths.each do |path|
             db.execute(
              "INSERT INTO traffic_popular_paths (
@@ -64,7 +61,6 @@ require "date"
               path['uniques']
               ])
         end
-      db.execute("COMMIT")
     rescue => e
       puts "Error during processing: #{$!}"
     end
@@ -72,7 +68,6 @@ require "date"
 
   def db_insert_traffic_views(db, views, org, repo)
     begin
-      db.execute("BEGIN TRANSACTION")
         db.execute(
          "INSERT INTO traffic_views_total (
             org, repo, count, uniques, recorded_at
@@ -98,14 +93,12 @@ require "date"
               gh_to_db_timestamp(view['timestamp'])
               ])
         end
-      db.execute("COMMIT")
     rescue => e
       puts "Error during processing: #{$!}"
     end
   end
   def db_insert_traffic_clones(db, clones, org, repo)
     begin
-      db.execute("BEGIN TRANSACTION")
         db.execute(
          "INSERT INTO traffic_clones_total (
             org, repo, count, uniques, recorded_at
@@ -131,7 +124,6 @@ require "date"
               gh_to_db_timestamp(clone['timestamp'])
               ])
         end
-      db.execute("COMMIT")
     rescue => e
       puts "Error during processing: #{$!}"
     end
