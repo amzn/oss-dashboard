@@ -31,7 +31,7 @@ class SyncTrafficCommand < BaseCommand
 
     owners.each do |org|
 
-      unless(private_access?(org))
+      unless(context.private_access?(org))
         next
       end
 
@@ -62,8 +62,6 @@ class SyncTrafficForRepoCommand < BaseCommand
     repo_name=@args['repo']
     repo_full_name="#{org}/#{repo_name}"
 
-    sync_db.execute("BEGIN TRANSACTION")
-
     referrers=context.client.top_referrers(repo_full_name, {:accept => 'application/vnd.github.spiderman-preview'})
     db_insert_traffic_referrers(sync_db, referrers, org, repo_name)
 
@@ -75,8 +73,6 @@ class SyncTrafficForRepoCommand < BaseCommand
 
     clones=context.client.clones(repo_full_name, {:accept => 'application/vnd.github.spiderman-preview'})
     db_insert_traffic_clones(sync_db, clones, org, repo_name)
-
-    sync_db.execute("COMMIT")
 
   end
 
