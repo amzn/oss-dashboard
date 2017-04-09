@@ -31,7 +31,7 @@ class SyncTrafficCommand < BaseCommand
 
     owners.each do |org|
 
-      unless(private_access?(org))
+      unless(context.private_access?(org))
         next
       end
 
