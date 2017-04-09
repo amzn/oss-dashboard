@@ -79,8 +79,8 @@ class DashboardContext < Hash
   end
 
   def private_access?(org)
-    if(dashboard_config['private_access'])
-      return dashboard_config['private_access'].include?(org)
+    if(dashboard_config['private-access'])
+      return dashboard_config['private-access'].include?(org)
     else
       return false
     end
