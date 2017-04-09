@@ -31,6 +31,10 @@ class SyncTrafficCommand < BaseCommand
 
     owners.each do |org|
 
+      unless(private_access?(org))
+        next
+      end
+
       if(context.login?(org))
         repos=context.client.repositories(org)
       else
