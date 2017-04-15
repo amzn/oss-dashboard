@@ -17,7 +17,7 @@ class LabelDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
-    query="SELECT l.name, l.color, count(i2l.item_id) FROM labels l, item_to_label i2l WHERE i2l.url=l.url AND l.orgrepo LIKE ? GROUP BY l.name, l.color ORDER BY l.name"
+    query="SELECT l.name, l.color, count(i2l.item_id) as total FROM labels l, item_to_label i2l WHERE i2l.url=l.url AND l.orgrepo LIKE ? GROUP BY l.name, l.color ORDER BY total"
     like_term="#{org}/%"
     text=''
 
