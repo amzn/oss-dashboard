@@ -76,66 +76,70 @@ def github_sync(context, run_one)
   db_filename=File.join(context.dashboard_config['data-directory'], 'db', 'gh-sync.db');
   sync_db=SQLite3::Database.new db_filename
 
-  unless(context[:queueonly])
-    unless(queue.empty?)
-      context.feedback.print "\n flushing queue\n  "
-      flushed=eval_queue(queue, context, sync_db)
-      unless(flushed)
-        return
+  begin
+
+    unless(context[:queueonly])
+      unless(queue.empty?)
+        context.feedback.print "\n flushing queue\n  "
+        flushed=eval_queue(queue, context, sync_db)
+        unless(flushed)
+          return
+        end
       end
     end
-  end
+  
+    if(context[:flushonly])
+      context.feedback.print "\n flushing queue\n  "
+      flushed=eval_queue(queue, context, sync_db)
+      return
+    end
+  
+    if(not(run_one) or run_one=='github-sync/metadata')
+      context.feedback.puts "  github-sync/metadata: queueing"
+      queue.push(SyncMetadataCommand.new(Hash.new))
+    end
+    if(not(run_one) or run_one=='github-sync/commits')
+      context.feedback.puts "  github-sync/commits: queueing"
+      queue.push(SyncCommitsCommand.new(Hash.new))
+    end
+    if(not(run_one) or run_one=='github-sync/events')
+      context.feedback.puts "  github-sync/events: queueing"
+      queue.push(SyncEventsCommand.new(Hash.new))
+    end
+    if(not(run_one) or run_one=='github-sync/issues')
+      context.feedback.puts "  github-sync/issues: queueing"
+      queue.push(SyncIssuesCommand.new(Hash.new))
+    end
+    if(not(run_one) or run_one=='github-sync/issue-comments')
+      context.feedback.puts "  github-sync/issue-comments: queueing"
+      queue.push(SyncIssueCommentsCommand.new(Hash.new))
+    end
+    if(not(run_one) or run_one=='github-sync/releases')
+      context.feedback.puts "  github-sync/releases: queueing"
+      queue.push(SyncReleasesCommand.new(Hash.new))
+    end
+    if(not(run_one) or run_one=='github-sync/traffic')
+      context.feedback.puts "  github-sync/traffic: queueing"
+      queue.push(SyncTrafficCommand.new(Hash.new))
+    end
+  
+    unless(context[:queueonly])
+      context.feedback.print "\n evaluating queue\n  "
+      eval_queue(queue, context, sync_db)
+    end
+  
+    if(not(run_one) or run_one=='github-sync/user-mapping')
+      context.feedback.puts "  github-sync/user-mapping"
+      sync_user_mapping(context, sync_db)
+    end
+    if(not(run_one) or run_one=='github-sync/reporting')
+      context.feedback.puts "  github-sync/reporting"
+      run_db_reports(context, sync_db)
+    end
 
-  if(context[:flushonly])
-    context.feedback.print "\n flushing queue\n  "
-    flushed=eval_queue(queue, context, sync_db)
-    return
+  ensure
+    sync_db.close
   end
-
-  if(not(run_one) or run_one=='github-sync/metadata')
-    context.feedback.puts "  github-sync/metadata: queueing"
-    queue.push(SyncMetadataCommand.new(Hash.new))
-  end
-  if(not(run_one) or run_one=='github-sync/commits')
-    context.feedback.puts "  github-sync/commits: queueing"
-    queue.push(SyncCommitsCommand.new(Hash.new))
-  end
-  if(not(run_one) or run_one=='github-sync/events')
-    context.feedback.puts "  github-sync/events: queueing"
-    queue.push(SyncEventsCommand.new(Hash.new))
-  end
-  if(not(run_one) or run_one=='github-sync/issues')
-    context.feedback.puts "  github-sync/issues: queueing"
-    queue.push(SyncIssuesCommand.new(Hash.new))
-  end
-  if(not(run_one) or run_one=='github-sync/issue-comments')
-    context.feedback.puts "  github-sync/issue-comments: queueing"
-    queue.push(SyncIssueCommentsCommand.new(Hash.new))
-  end
-  if(not(run_one) or run_one=='github-sync/releases')
-    context.feedback.puts "  github-sync/releases: queueing"
-    queue.push(SyncReleasesCommand.new(Hash.new))
-  end
-  if(not(run_one) or run_one=='github-sync/traffic')
-    context.feedback.puts "  github-sync/traffic: queueing"
-    queue.push(SyncTrafficCommand.new(Hash.new))
-  end
-
-  unless(context[:queueonly])
-    context.feedback.print "\n evaluating queue\n  "
-    eval_queue(queue, context, sync_db)
-  end
-
-  if(not(run_one) or run_one=='github-sync/user-mapping')
-    context.feedback.puts "  github-sync/user-mapping"
-    sync_user_mapping(context, sync_db)
-  end
-  if(not(run_one) or run_one=='github-sync/reporting')
-    context.feedback.puts "  github-sync/reporting"
-    run_db_reports(context, sync_db)
-  end
-
-  sync_db.close
 
 end
 
