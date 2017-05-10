@@ -34,7 +34,7 @@ class NoPrCommentsDbReporter < DbReporter
         if(label_data)
           label_data.each do |label|
             labelName=label[1].gsub(/ /, '&#xa0;')
-            labels << "<label url=\"#{label[0]}\" color='#{label[2]}'>#{labelName}</label>"
+            labels << "<label url=\"#{escape_amp(label[0])}\" color='#{label[2]}'>#{escape_amp(labelName)}</label>"
           end
         end
         

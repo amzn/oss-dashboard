@@ -29,7 +29,7 @@ class LabelDbReporter < DbReporter
         color=row[1]
         count=row[2]
         label = "<label color='#{color}'>#{name}</label>"
-        text << "  <reporting class='issue-report' type='LabelDbReporter'><field>#{label}</field><field>#{count}</field></reporting>"
+        text << "  <reporting class='issue-report' type='LabelDbReporter'><field>#{escape_amp(label)}</field><field>#{count}</field></reporting>"
     end
     stmt.close
 
