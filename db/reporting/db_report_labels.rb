@@ -27,7 +27,7 @@ class LabelDbReporter < DbReporter
         color=row[:color]
         count=row[:count]
         label = "<label color='#{color}'>#{name}</label>"
-        text << "  <reporting class='issue-report' type='LabelDbReporter'><field>#{label}</field><field>#{count}</field></reporting>"
+        text << "  <reporting class='issue-report' type='LabelDbReporter'><field>#{escape_amp(label)}</field><field>#{count}</field></reporting>"
     end
 
     return text

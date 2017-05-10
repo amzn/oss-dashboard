@@ -251,7 +251,7 @@ def generate_dashboard_xml(context)
           labels=sync_db["SELECT l.url, l.name, l.color FROM labels l, item_to_label itl WHERE itl.url=l.url AND item_id=?", issueRow[:id]]
           labels.each do |label|
             labelName=label[:name].gsub(/ /, '&#xa0;')
-            dashboard_file.puts "        <label url=\"#{label[:url]}\" color='#{label[:color]}'>#{labelName}</label>"
+            dashboard_file.puts "        <label url=\"#{escape_for_xml(label[:url])}\" color='#{label[:color]}'>#{escape_for_xml(labelName)}</label>"
           end
           dashboard_file.puts "      </issue>"
         end
