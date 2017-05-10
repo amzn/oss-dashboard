@@ -35,7 +35,13 @@ queries = [
   ["SELECT COUNT(*) as Team2RepoData FROM team_to_repository ttr", ", repository r WHERE ttr.repository_id=r.id AND r.org=?"],
   ["SELECT COUNT(DISTINCT concat(ttm.member_id,ttm.team_id)) as Team2MemberData FROM team_to_member ttm", ", team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?"],
   ["SELECT COUNT(DISTINCT(otm.member_id)) as Organization2MemberData FROM organization_to_member otm", ", organization o WHERE otm.org_id=o.id AND o.login=?"],
-  ["SELECT COUNT(DISTINCT(rtm.member_id)) as Repository2MemberData FROM repository_to_member rtm", ", repository r WHERE rtm.repo_id=r.id AND r.org=?"]
+  ["SELECT COUNT(DISTINCT(rtm.member_id)) as Repository2MemberData FROM repository_to_member rtm", ", repository r WHERE rtm.repo_id=r.id AND r.org=?"],
+  ["SELECT COUNT(*) as TrafficReferrerData FROM traffic_referrers", " WHERE org=?"],
+  ["SELECT COUNT(*) as TrafficPopularPathsData FROM traffic_popular_paths", " WHERE org=?"],
+  ["SELECT COUNT(*) as TrafficViewsTotalData FROM traffic_views_total", " WHERE org=?"],
+  ["SELECT COUNT(*) as TrafficViewsDailyData FROM traffic_views_daily", " WHERE org=?"],
+  ["SELECT COUNT(*) as TrafficClonesTotalData FROM traffic_clones_total", " WHERE org=?"],
+  ["SELECT COUNT(*) as TrafficClonesDailyData FROM traffic_clones_daily", " WHERE org=?"],
 ]
 
 config_file = ARGV[0]
