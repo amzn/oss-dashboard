@@ -164,7 +164,7 @@ end
 def sync_issue_comments(context, sync_db)
 
   owners = context.dashboard_config['organizations+logins']
-  context.feedback.puts " issues"
+  context.feedback.puts " issue-comments"
 
   owners.each do |org|
     if(context.login?(org))
