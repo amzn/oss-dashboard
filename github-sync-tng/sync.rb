@@ -76,6 +76,14 @@ def github_sync(context, run_one)
 
   sync_db = get_db_handle(context.dashboard_config)
 
+  # Only run in queueonly mode when the queue is empty
+  if(context[:queueonly])
+    unless(queue.empty?)
+      return
+    end
+  end
+
+  # Normal behaviour is to flush the queue
   unless(context[:queueonly])
     unless(queue.empty?)
       context.feedback.print "\n flushing queue\n  "
@@ -86,12 +94,14 @@ def github_sync(context, run_one)
     end
   end
 
+  # Also flush the queue if it's specifically been asked
   if(context[:flushonly])
     context.feedback.print "\n flushing queue\n  "
     flushed=eval_queue(queue, context, sync_db)
     return
   end
 
+  # The queue was flushed, or we're in queueonly mode, so go ahead and queue
   if(not(run_one) or run_one=='github-sync/metadata')
     context.feedback.puts "  github-sync/metadata: queueing"
     queue.push(SyncMetadataCommand.new(Hash.new))
