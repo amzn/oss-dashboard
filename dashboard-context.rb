@@ -76,4 +76,8 @@ class DashboardContext < Hash
     end
   end
 
+  def hide_private_repositories?
+    return dashboard_config['hide-private-repositories']==true
+  end
+
 end

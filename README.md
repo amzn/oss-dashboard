@@ -160,6 +160,14 @@ Then creates that license-hashes.yml file with content similar to:
 
 These hashes are found on the Repository -> Reports -> License Report, which saves you having to write code against Licensee to identify the hash. 
 
+### Optional: Hiding private repositories
+
+If you don't want to download private repositories, you can add that as a configuration option:
+
+```
+    hide-private-repositories: true
+```
+
 ## Running
 
 With the configuration file created, you should execute the following:

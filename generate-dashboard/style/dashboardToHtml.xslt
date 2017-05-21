@@ -962,6 +962,7 @@ publicRepoCount=[
   [2017, <xsl:value-of select="count(organization/repo[@private='false' and '2017'>=substring(@created_at,1,4)])"/>],
 ]
 
+<xsl:if test="@hide_private_repositories!='true'">
 privateRepoCount=[
   [2010, <xsl:value-of select="count(organization/repo[@private='true' and '2010'>=substring(@created_at,1,4)])"/>],
   [2011, <xsl:value-of select="count(organization/repo[@private='true' and '2011'>=substring(@created_at,1,4)])"/>],
@@ -972,8 +973,9 @@ privateRepoCount=[
   [2016, <xsl:value-of select="count(organization/repo[@private='true' and '2016'>=substring(@created_at,1,4)])"/>],
   [2017, <xsl:value-of select="count(organization/repo[@private='true' and '2017'>=substring(@created_at,1,4)])"/>],
 ]
+</xsl:if>
 
-$.plot($("#repoCountChart"), [ { data: privateRepoCount, label: 'private'}, { data: publicRepoCount, label: 'public' } ],
+$.plot($("#repoCountChart"), [ <xsl:if test="@hide_private_repositories!='true'">{ data: privateRepoCount, label: 'private'}, </xsl:if> { data: publicRepoCount, label: 'public' } ],
 
 {
     series: {
@@ -991,7 +993,7 @@ $.plot($("#repoCountChart"), [ { data: privateRepoCount, label: 'private'}, { da
     legend: {
         position: 'nw'
     },
-    colors: ["#0F6BA9", "#2FABE9"]
+    colors: [ <xsl:if test="@hide_private_repositories!='true'">"#0F6BA9", </xsl:if>"#2FABE9" ] 
 });
 </script>
 

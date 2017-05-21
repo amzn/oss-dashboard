@@ -18,3 +18,4 @@
     #report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
     #db-report-path: ['/full/path/to/directory/of/custom/db-reports']  # Optional
     #map-user-script: /full/path/to/script   # Optional
+    #hide-private-repositories: true

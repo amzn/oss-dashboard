@@ -81,6 +81,10 @@ def store_organization_repositories(context, db, org)
    begin # Repository access blocked (Octokit::ClientError)
     watchers=context.client.send('subscribers', "#{org}/#{repo_obj.name}").length
 
+    if(context.hide_private_repositories? and repo_obj.private)
+      next
+    end
+
     db["INSERT INTO repository
       (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
