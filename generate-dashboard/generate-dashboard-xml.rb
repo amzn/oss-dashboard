@@ -97,10 +97,6 @@ def generate_dashboard_xml(context)
 
   organizations = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
-  private_access = context.dashboard_config['private-access']
-  unless(private_access)
-    private_access = []
-  end
 
   sync_db = get_db_handle(context.dashboard_config)
 
@@ -135,7 +131,7 @@ def generate_dashboard_xml(context)
     created_at = org_data_row[:created_at]
 
     begin
-      dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{private_access.include?(org)}' logo='#{avatar}' github_url='#{context.github_url}'>"
+      dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{context.private_access?(org)}' logo='#{avatar}' github_url='#{context.github_url}'>"
       dashboard_file.puts metadata
 
       account_type="organization"

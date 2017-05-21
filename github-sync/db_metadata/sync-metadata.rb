@@ -174,10 +174,6 @@ def sync_metadata(context, sync_db)
   organizations = context.dashboard_config['organizations']
   logins = context.dashboard_config['logins']
   data_directory = context.dashboard_config['data-directory']
-  private_access = context.dashboard_config['private-access']
-  unless(private_access)
-    private_access = []
-  end
   context.feedback.puts " metadata"
   previous_members=Hash.new
 
@@ -191,8 +187,8 @@ def sync_metadata(context, sync_db)
         clear_organization(sync_db, org_login)
         org=store_organization(context, sync_db, org_login)
         store_organization_repositories(context, sync_db, org_login)
-        store_organization_members(sync_db, context.client, org, private_access.include?(org_login), previous_members)
-        if(private_access.include?(org_login))
+        store_organization_members(sync_db, context.client, org, context.private_access?(org_login), previous_members)
+        if(context.private_access?(org_login))
           store_organization_teams(sync_db, context.client, org_login)
         end
       end
