@@ -19,74 +19,13 @@ require 'octokit'
 require 'yaml'
 require 'xml'
 require 'xslt'
+require_relative 'dashboard-context'
 require_relative 'db/init-database'
 require_relative 'github-pull/pull_source'
 require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
 require 'optparse'
 
-class DashboardContext < Hash
-
-  attr_reader :feedback, :dashboard_config, :client
-  OCTOKIT_API_ENDPOINT = ENV['OCTOKIT_API_ENDPOINT']
-
-  def initialize(feedback, dashboard_config, client)
-    @feedback=feedback
-    @dashboard_config=dashboard_config
-    @client=client
-
-    owners=Array.new
-    if(dashboard_config['organizations'])
-      owners.concat(dashboard_config['organizations'])
-    end
-    if(dashboard_config['logins'])
-      owners.concat(dashboard_config['logins'])
-    end
-    dashboard_config['organizations+logins']=owners
-  end
-
-  def login?(login)
-    if(dashboard_config['logins'])
-      return dashboard_config['logins'].include?(login)
-    else
-      return false
-    end
-  end
-
-  def org?(org)
-    if(dashboard_config['organizations'])
-      return dashboard_config['organizations'].include?(org)
-    else
-      return false
-    end
-  end
-
-  def github_com?
-    if(OCTOKIT_API_ENDPOINT)
-      return false
-    else
-      return true
-    end
-  end
-
-  def github_url
-    if(github_com?)
-      return 'https://github.com'
-    else
-      # https://github.url/api/v3/
-      return OCTOKIT_API_ENDPOINT.sub(%r{/api/v3/?}, '')
-    end
-  end
-
-  def private_access?(org)
-    if(dashboard_config['private-access'])
-      return dashboard_config['private-access'].include?(org)
-    else
-      return false
-    end
-  end
-
-end
 
 options = {}
 
