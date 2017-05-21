@@ -19,6 +19,7 @@ class DashboardContext < Hash
   attr_reader :feedback, :dashboard_config, :client
   OCTOKIT_API_ENDPOINT = ENV['OCTOKIT_API_ENDPOINT']
 
+  # parameters:  feedback: output stream, dashboard_config: yaml hash, client: octokit client
   def initialize(feedback, dashboard_config, client)
     @feedback=feedback
     @dashboard_config=dashboard_config
