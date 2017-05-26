@@ -35,13 +35,17 @@ class RepoUnownedDbReporter < DbReporter
   end
 
   def db_report(context, org, sync_db)
+    text = ''
+
     # repos with empty teams
     emptyteam=sync_db["SELECT r.name, r.created_at FROM repository r, team_to_repository ttr WHERE ttr.team_id NOT IN (SELECT DISTINCT(team_id) FROM team_to_member) AND ttr.repository_id=r.id AND r.org=?", org]
+    emptyteam.each do |row|
+      text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
+    end
+
     # repos with no team
     noteam=sync_db["SELECT r.name, r.created_at FROM repository r WHERE r.id NOT IN (SELECT DISTINCT repository_id FROM team_to_repository) AND r.org=?", org]
-
-    text = ''
-    emptyteam.concat(noteam).each do |row|
+    noteam.each do |row|
       text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
     end
 
