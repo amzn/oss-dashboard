@@ -26,7 +26,6 @@ require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
 require 'optparse'
 
-
 options = {}
 
 optparse = OptionParser.new do |opts|
@@ -87,6 +86,14 @@ dashboard_config = config['dashboard']
 # Overriding from env variables
 dashboard_config['logins'] = ENV['LOGINS'] ? ENV['LOGINS'].split(",") : dashboard_config['logins']
 dashboard_config['organizations'] = ENV['ORGANIZATIONS'] ? ENV['ORGANIZATIONS'].split(",") : dashboard_config['organizations']
+
+
+# If a custom license path is indicated, monkey patch Licensee
+custom_license_path = dashboard_config['custom-license-path']
+if(custom_license_path)
+  require_relative 'license-monkey'
+  licensee_monkey_patch(custom_license_path)
+end
 
 data_directory = dashboard_config['data-directory']
 www_directory = dashboard_config['www-directory']

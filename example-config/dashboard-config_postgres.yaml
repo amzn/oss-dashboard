@@ -14,8 +14,11 @@
     logins: []
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
-    #private-access: ['amznlabs']     # Optional
-    #report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
-    #db-report-path: ['/full/path/to/directory/of/custom/db-reports']  # Optional
-    #map-user-script: /full/path/to/script   # Optional
-    #hide-private-repositories: true
+
+    ## Optional configurations ##
+    #private-access: ['amznlabs']
+    #report-path: ['/full/path/to/directory/of/custom/reports']
+    #db-report-path: ['/full/path/to/directory/of/custom/db-reports']
+    #map-user-script: /full/path/to/script
+    #hide-private-repositories: true 
+    #custom-license-path: ['/full/path/to/directory/of/licenses/per/licensee/format']
