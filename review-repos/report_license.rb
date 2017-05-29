@@ -38,9 +38,9 @@ class LicenseReporter < Reporter
         project=Licensee::GitProject.new(repodir)
         ignore=project.license # Tests for the error
       rescue ArgumentError
-        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
+        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes ArgumentError</reporting>\n"
       rescue Rugged::ReferenceError
-        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes error</reporting>\n"
+        return "      <reporting class='repo-report' repo='#{repo.full_name}' type='LicenseReporter'>License causes RuggedError</reporting>\n"
       end
 
       unless(project.matched_file)
