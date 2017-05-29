@@ -16,6 +16,8 @@
 
 require 'licensee'
 
+# NOTE: Custom license filenames must be all lowercase as Licensee downcases them in its code
+
 def licensee_monkey_patch(custom_path)
 
   puts "Monkey patching Licensee::License to add a custom license path: #{custom_path}"
