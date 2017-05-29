@@ -204,7 +204,6 @@ class SyncOrgReposMDCommand < BaseCommand
 end
 
 # [GitHub Client Calls = 3]
-#   1 call needed to get the 2fa disable status
 #   1 call to get the members
 class SyncOrgMembersMDCommand < BaseCommand
 
@@ -216,38 +215,22 @@ class SyncOrgMembersMDCommand < BaseCommand
     org_id=@args['org_id']
     private_access=@args['private_access']
 
-    # Build a mapping of the individuals in an org who have 2fa disabled
-    disabled_2fa=Hash.new
-    if(private_access=='true')
-      context.client.org_members(org, 'filter' => '2fa_disabled').each do |user|
-        disabled_2fa[user.login] = true
-      end
-    end
-
-    store_organization_members(sync_db, context.client, org, org_id, private_access, disabled_2fa)
+    store_organization_members(sync_db, context.client, org, org_id, private_access)
   end
 
   # TODO: Get the client parameter out of this API and move to a Library file
-  def store_organization_members(db, client, org, org_id, private_access, disabled_2fa)
+  def store_organization_members(db, client, org, org_id, private_access)
 
     client.organization_members(org).each do |member_obj|
       db.transaction do
         member_found=db["SELECT id FROM member WHERE id=?", member_obj.id]
 
-        if(private_access == false)
-          d_2fa='unknown'
-        elsif(disabled_2fa[member_obj.login])
-          d_2fa='true'
-        else
-          d_2fa='false'
-        end
-
         unless(member_found.empty?)
-           db["UPDATE member SET login=?, two_factor_disabled=?, avatar_url=? WHERE id=?",
-                      member_obj.login, d_2fa, member_obj.avatar_url, member_obj.id].update
+           db["UPDATE member SET login=?, avatar_url=? WHERE id=?",
+                      member_obj.login, member_obj.avatar_url, member_obj.id].update
         else
-           db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                      VALUES(?, ?, ?, ?)", member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url].insert
+           db["INSERT INTO member (id, login, avatar_url)
+                      VALUES(?, ?, ?, ?)", member_obj.id, member_obj.login, member_obj.avatar_url].insert
         end
 
 
@@ -293,8 +276,8 @@ class SyncOrgCollaboratorsMDCommand < BaseCommand
           member_found=db["SELECT id FROM member WHERE id=?", collaborator.id]
           if(member_found.empty?)    # TODO: Why is the code this way? If not found, then delete - makes no sense
             db["DELETE FROM member WHERE id=?", collaborator.id].delete
-            db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                        VALUES(?, ?, ?, ?)", collaborator.id, collaborator.login, 'unknown', collaborator.avatar_url].insert
+            db["INSERT INTO member (id, login, avatar_url)
+                        VALUES(?, ?, ?)", collaborator.id, collaborator.login, collaborator.avatar_url].insert
           end
           member_of_repo=db["SELECT COUNT(*) FROM team_to_member ttm, team_to_repository ttr, repository r WHERE ttm.team_id=ttr.team_id AND ttr.repository_id=? AND ttm.member_id=?", repo_obj.id, collaborator.id]
           if(member_of_repo.first[:count] == 0)

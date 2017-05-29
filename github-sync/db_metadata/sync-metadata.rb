@@ -103,29 +103,13 @@ def store_organization_members(db, client, org_obj, private, previous_members)
   # Mapping for this org's member ids
   org_members=Hash.new
 
-  # Build a mapping of the individuals in an org who have 2fa disabled
-  disabled_2fa=Hash.new
-  if(private)
-    client.org_members(org_obj.login, 'filter' => '2fa_disabled').each do |user|
-      disabled_2fa[user.login] = true
-    end
-  end
-
   client.organization_members(org_obj.login).each do |member_obj|
     org_members[member_obj.id]=true
     unless(previous_members[member_obj.id])
       db["DELETE FROM member WHERE id=?", member_obj.id].delete
 
-      if(private == false)
-        d_2fa=false
-      elsif(disabled_2fa[member_obj.login])
-        d_2fa=true
-      else
-        d_2fa=false
-      end
-
-      db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                  VALUES(?, ?, ?, ?)", member_obj.id, member_obj.login, d_2fa, member_obj.avatar_url].insert
+      db["INSERT INTO member (id, login, avatar_url)
+                  VALUES(?, ?, ?)", member_obj.id, member_obj.login, member_obj.avatar_url].insert
 
       previous_members[member_obj.id]=true
     end
@@ -140,8 +124,8 @@ def store_organization_members(db, client, org_obj, private, previous_members)
       collaborators.each do |collaborator|
         unless(previous_members[collaborator.id])
           db["DELETE FROM member WHERE id=?", collaborator.id].delete
-          db["INSERT INTO member (id, login, two_factor_disabled, avatar_url)
-                      VALUES(?, ?, ?, ?)", collaborator.id, collaborator.login, false, collaborator.avatar_url].insert
+          db["INSERT INTO member (id, login, avatar_url)
+                      VALUES(?, ?, ?)", collaborator.id, collaborator.login, collaborator.avatar_url].insert
           previous_members[collaborator.id]=true
         end
         unless(org_members[collaborator.id])

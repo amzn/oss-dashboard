@@ -67,8 +67,7 @@ CREATE TABLE member (
   name VARCHAR,
   avatar_url VARCHAR,
   company VARCHAR,
-  email VARCHAR,
-  two_factor_disabled BOOLEAN
+  email VARCHAR
 );
 
 DROP TABLE IF EXISTS team_to_member;

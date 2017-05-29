@@ -362,7 +362,7 @@ def generate_dashboard_xml(context)
 
     # Generate XML for Member data
     # AH TODO Need to revisit
-    members=sync_db["SELECT DISTINCT(m.login), m.two_factor_disabled, u.email as uemail, m.name, m.avatar_url, m.company, m.email as memail FROM organization o JOIN organization_to_member otm ON otm.org_id=o.id JOIN member m ON m.id = otm.member_id LEFT OUTER JOIN users u ON u.login=m.login WHERE o.login=?", org]
+    members=sync_db["SELECT DISTINCT(m.login), u.email as uemail, m.name, m.avatar_url, m.company, m.email as memail FROM organization o JOIN organization_to_member otm ON otm.org_id=o.id JOIN member m ON m.id = otm.member_id LEFT OUTER JOIN users u ON u.login=m.login WHERE o.login=?", org]
     members.each do |memberRow|
       # TODO: Include whether the individual is in ldap
       internalLogin=""
@@ -370,7 +370,7 @@ def generate_dashboard_xml(context)
         internalLogin=memberRow[:uemail].split('@')[0]
         internalText=" internal='#{internalLogin}' employee_email='#{memberRow[:uemail]}'"
       end
-      dashboard_file.puts "  <member login='#{memberRow[:login]}' avatar_url='#{memberRow[:avatar_url]}' email='#{memberRow[:memail]}' disabled_2fa='#{memberRow[:two_factor_disabled]}'#{internalText}><company>#{escape_for_xml(memberRow[:company])}</company><name>#{memberRow[:name]}</name></member>"
+      dashboard_file.puts "  <member login='#{memberRow[:login]}' avatar_url='#{memberRow[:avatar_url]}' email='#{memberRow[:memail]}'#{internalText}><company>#{escape_for_xml(memberRow[:company])}</company><name>#{memberRow[:name]}</name></member>"
     end
 
     # Copy the review xml into the dashboard xml

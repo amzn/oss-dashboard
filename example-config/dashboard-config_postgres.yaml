@@ -13,7 +13,7 @@
     organizations: ['amznlabs']
     logins: []
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
-    db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'No2faDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
+    db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter', 'AverageIssueOpenedDbReporter', 'AveragePrOpenedDbReporter' ]
 
     ## Optional configurations ##
     #private-access: ['amznlabs']

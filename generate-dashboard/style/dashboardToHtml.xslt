@@ -48,7 +48,7 @@
   <repo name='repo1' private='false' fork='false' open_issue_count='0' has_wiki='false' language='Blah' stars='3' watchers='14' forks='0'>
     <description>ABC</description>
   </repo>
-  <member internal='mem1' mail='mem1@example.com' disabled_2fa='true' name='member1'/>
+  <member internal='mem1' mail='mem1@example.com' name='member1'/>
   <github-review>
     <organization name=''>
       <repo name=''>
@@ -693,7 +693,7 @@
              <div class="data-grid-sortable tablesorter">
               <table id='memberTable' class='data-grid'>
                 <thead>
-                <tr><th>GitHub login</th><th>Name</th><th>Email</th><th>Company</th><th>Employee login</th><th>2FA?</th></tr>
+                <tr><th>GitHub login</th><th>Name</th><th>Email</th><th>Company</th><th>Employee login</th></tr>
                 </thead>
                 <tbody>
                 <xsl:for-each select="organization/member[not(@login=preceding::*/@login)]">
@@ -707,12 +707,6 @@
                         <xsl:if test="not(@internal)"><span class="octicon octicon-question"></span></xsl:if>
                         <xsl:if test="@internal"><xsl:value-of select="@employee_email"/></xsl:if>
                       </td>
-                      <td><xsl:if test="@disabled_2fa='false'">
-                        <span style="display:none">1</span><span class="octicon octicon-check"></span>
-                      </xsl:if>
-                      <xsl:if test="@disabled_2fa='true'">
-                        <span style="display:none">0</span>
-                      </xsl:if></td>
                   </tr>
                 </xsl:for-each>
                 </tbody>
