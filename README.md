@@ -38,21 +38,28 @@ The dashboard assumes the following are installed:
 
 | Dependency | Use |
 | ----- | -------- |
-|  SQLite 3.x | Database for local copy of GitHub data |
+|  Postgres | Database for local copy of GitHub data (including dev package where applicable) |
 |  git  | Pulls source from GitHub |
-|  Ruby | Executes scripts (tested on version 2.0.0 and 2.2.1) |
-|  SQLite Rubygem - 'sqlite3' | Access the database |
+|  Ruby | Executes scripts (tested on version 2.0.0 and 2.2.1) (including dev package where applicable) |
+|  SQLite Rubygem - 'sqlite3' | Access the database (when using sqlite, including sqlite and sqlite-dev packages) |
 |  OctoKit Rubygem - 'octokit' | Access GitHub API |
 |  Licensee Rubygem - 'licensee' | Identify licensing, though this should go away when the data is provided by OctoKit |
 |  XML Rubygem - 'libxml-ruby' | Parse XML files |
 |  XSLT Rubygem - 'libxslt-ruby' | Process XSLT files |
+|  Libz-dev | Compression |
+|  Sequel Rubygem - 'sequel' | Execute SQL queries |
+|  'pg' | |
+
 
 ## Setup
 
 * Install the dependencies listed above.
 * Decide how to manage your GitHub personal access token.
   * You can store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit.
-  * Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600. 
+  * Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600.
+
+To check your token actually works access the following and check the headers:
+https://api.github.com/user?access_token=YOUR_TOKEN_GOES_HERE 
 
 Example file:
 
@@ -80,6 +87,15 @@ Example file:
     report-path: ['/full/path/to/directory/of/custom/reports']  # Optional
     db-report-path: ['/full/path/to/directory/of/custom/db-reports']  # Optional
     map-user-script: /full/path/to/script   # Optional
+
+  database:
+    engine: 'postgres'
+    username: 'USERNAME'
+    password: 'PASSWORD'
+    server: 'localhost'
+    port: 5432
+    database: 'DATABASENAME'
+
 ```
 
 ### organizations
