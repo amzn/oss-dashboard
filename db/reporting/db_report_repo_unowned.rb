@@ -41,7 +41,10 @@ class RepoUnownedDbReporter < DbReporter
     noteam=sync_db["SELECT r.name, r.created_at FROM repository r WHERE r.id NOT IN (SELECT DISTINCT repository_id FROM team_to_repository) AND r.org=?", org]
 
     text = ''
-    emptyteam.concat(noteam).each do |row|
+    emptyteam.each do |row|
+      text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
+    end
+    noteam.each do |row|
       text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
     end
 
