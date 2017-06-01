@@ -1,16 +1,7 @@
 # Amazon Open Source Program GitHub Dashboard
 A dashboard for viewing many GitHub organizations, and/or users, at once. 
 
-!!!oss-dashboard now requires PostgreSQL - README needs updating. For the sqlite version, see the 0.2 release!!!
-
-Changes to make:
-
-1) Postgres now needed.
-2) Describe how to configure postgres.
-3) Drop the SQLite requirement.
-4) Gemfile means you can now bundle install the rubygem files.
-5) Need to fix the hardcoding of filenames/database name in the util.rb file.
-6) Document --xsync, though note that the metadata syncing specifically shouldn't be trusted yet.
+The current version of this code depends on PostgreSQL. If you're looking for the older SQLite dependent version, look at the sqlite_legacy branch.
 
 ---
 
@@ -22,7 +13,7 @@ There are three phases to generating the dashboard.
 
 Sync data from GitHub. 
 
-Ruby is used to connect to GitHub, pull down the latest data, and update a SQLite Database.
+Ruby is used to connect to GitHub, pull down the latest data, and update a PostgreSQL Database.
 
 ## Phase 2
 
@@ -30,7 +21,7 @@ The latest code is checked out, and review scripts run on the code. Analysis is 
 
 ## Phase 3
 
-An HTML dashboard is generated from the SQLite Databases (phase 1) and the analysis of the code (phase 2). 
+An HTML dashboard is generated from the PostgreSQL Database (phase 1) and the analysis of the code (phase 2). 
 
 ## Dependencies
 
@@ -38,22 +29,21 @@ The dashboard assumes the following are installed:
 
 | Dependency | Use |
 | ----- | -------- |
-|  Postgres | Database for local copy of GitHub data (including dev package where applicable) |
+|  PostgreSQL | Database for local copy of GitHub data (including dev package where applicable) |
 |  git  | Pulls source from GitHub |
 |  Ruby | Executes scripts (tested on version 2.0.0 and 2.2.1) (including dev package where applicable) |
-|  SQLite Rubygem - 'sqlite3' | Access the database (when using sqlite, including sqlite and sqlite-dev packages) |
 |  OctoKit Rubygem - 'octokit' | Access GitHub API |
 |  Licensee Rubygem - 'licensee' | Identify licensing, though this should go away when the data is provided by OctoKit |
 |  XML Rubygem - 'libxml-ruby' | Parse XML files |
 |  XSLT Rubygem - 'libxslt-ruby' | Process XSLT files |
 |  Libz-dev | Compression |
 |  Sequel Rubygem - 'sequel' | Execute SQL queries |
-|  'pg' | |
+|  Pg Rubygem - 'pg' | Ruby PostgreSQL driver|
 
 
 ## Setup
 
-* Install the dependencies listed above.
+* Install the dependencies listed above. Note that the rubygems can be installed by doing 'bundle install' (assuming you have installed bundler: https://github.com/bundler/bundler)
 * Decide how to manage your GitHub personal access token.
   * You can store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit.
   * Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600.
@@ -72,7 +62,7 @@ For general use, no specific scopes are required. If you wish to see private org
 
 * Create a dashboard configuration file (outside of the git clone).
 
-Example file:
+For an example file, see 
 
 ```
   dashboard:
@@ -97,6 +87,10 @@ Example file:
     database: 'DATABASENAME'
 
 ```
+
+### database configuration
+
+Configure the database section above by setting the username, password, server, port and database settings. You can manually setup the table, or if it's not setup oss-dashboard will attempt to set it up for you.
 
 ### organizations
 
@@ -253,6 +247,8 @@ The following query shows you the size of each of your tables. It needs porting 
 Because of that 5000 request limit, loading the data for large organizations can be difficult. While in principle you should be able to repeat run the dashboard until your database is full (at least until you hit a repository that would take greater than 5000 requests), this hasn't been tested and the dashboard does not yet fail gracefully. 
 
 Running each phase at a time is advised; chances are you will need to run github-sync/issues repeatedly until full. You can edit the configuration so it only runs on the org you are adding during that manual import, then put the full list back again. 
+
+Another approach is to turn on the --xsync flag for issues/commits/releases/events. This uses a queue to synchronize the data rather than trying to do it all in one go. It's not recommended that you use the --xsync flag for metadata as it doesn't cleanly delete old data that has gone from GitHub. 
 
 ## Notes on Output Warnings
 
