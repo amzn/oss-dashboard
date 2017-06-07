@@ -83,7 +83,11 @@ def review_source(context)
       end
   
       report_instances.each do |report_obj|
-        report << report_obj.report(context, repo, "#{scratch_dir}/#{repo.full_name}").to_s
+        txt = report_obj.report(context, repo, "#{scratch_dir}/#{repo.full_name}").to_s
+        if(txt)
+          txt=txt.force_encoding('UTF-8')
+        end
+        report << txt
       end
 
       context.feedback.print '.'
