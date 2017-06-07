@@ -378,9 +378,10 @@ def generate_dashboard_xml(context)
     #       Quite possible that there's no need for the review xml file to be separate in the first place.
     dashboard_file.puts " <reports>"
     if(File.exists?("#{data_directory}/review-xml/#{org}.xml"))
-      xmlfile=File.new("#{data_directory}/review-xml/#{org}.xml")
       begin
-        dashboardXml = Document.new(xmlfile)
+        txt=File.read("#{data_directory}/review-xml/#{org}.xml")
+        txt=txt.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+        dashboardXml = Document.new(txt)
       end
 
       if(dashboardXml.root)
@@ -393,13 +394,13 @@ def generate_dashboard_xml(context)
       else
         context.feedback.print "No root found for #{data_directory}/review-xml/#{org}.xml\n"
       end
-
-      xmlfile.close
     end
+
     if(File.exists?("#{data_directory}/db-report-xml/#{org}.xml"))
-      xmlfile=File.new("#{data_directory}/db-report-xml/#{org}.xml")
       begin
-        dashboardXml = Document.new(xmlfile)
+        txt=File.read("#{data_directory}/db-report-xml/#{org}.xml")
+        txt=txt.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+        dashboardXml = Document.new(txt)
       end
 
       dashboardXml.root.each_element("organization/reporting") do |child|
@@ -408,8 +409,6 @@ def generate_dashboard_xml(context)
       dashboardXml.root.each_element("organization/license") do |child|
         dashboard_file.puts " #{child}"
       end
-
-      xmlfile.close
     end
     dashboard_file.puts " </reports>"
 
