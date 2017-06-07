@@ -28,7 +28,7 @@ class NoIssueCommentsDbReporter < DbReporter
     issue_data.each() do |row|
 
         url="#{context.github_url}/#{org}/#{row[4]}/issues/#{row[1]}"
-        title=row[2].gsub(/&/, "&amp;").gsub(/</, "&lt;")
+        title=row[2].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/[\u0000-\u001A]/ , '')
 
         label_data=sync_db.execute(label_query, [row[0]])
         labels=""
@@ -39,7 +39,7 @@ class NoIssueCommentsDbReporter < DbReporter
           end
         end
         
-        text << "  <reporting class='issue-report' repo='#{org}/#{row[4]}' type='NoIssueCommentsDbReporter'><field>#{row[5]}</field><field>#{url}</field><field>#{title}</field><field>#{labels}</field></reporting>\n"
+        text << "  <reporting class='issue-report' repo='#{org}/#{row[4]}' type='NoIssueCommentsDbReporter'><field>#{row[5]}</field><field>#{escape_amp(url)}</field><field>#{title}</field><field>#{escape_amp(labels)}</field></reporting>\n"
     end
 
     return text
