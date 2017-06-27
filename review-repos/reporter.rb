@@ -27,6 +27,7 @@ class Reporter
         end
   
         unless(File.directory?(file))
+          file=file.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
           txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
         end
       end
@@ -45,6 +46,7 @@ class Reporter
               num=num+1
               if(pattern.match(line))
                 sliceIdx=dir.length + 1
+                file=file.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
                 escaped=line.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
                 txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file lineno='#{num}'>#{file.to_s[sliceIdx..-1]}</file><match>#{escaped}</match></reporting>\n"
               end
