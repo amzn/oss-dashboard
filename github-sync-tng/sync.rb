@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'fileutils'
+
 #require 'filequeue'
 require_relative 'fixed_filequeue'
 
@@ -64,6 +66,17 @@ def eval_queue(queue, context, sync_db)
   return return_code
 end
 
+def empty_queue(context)
+  queue_filename=File.join(context.dashboard_config['data-directory'], 'oss-dashboard.queue');
+  queue = FileQueue.new queue_filename
+  unless(queue.empty?)
+    # remove the queue
+    backup_filename="#{queue_filename}.bckp"
+    puts "Moving queue containing #{queue.length} items to #{backup_filename}"
+    FileUtils.mv(queue_filename, backup_filename)
+  end
+end
+
 def github_sync(context, run_one)
 
   if(context.client.rate_limit.remaining==0)
@@ -75,13 +88,6 @@ def github_sync(context, run_one)
   queue = FileQueue.new queue_filename
 
   sync_db = get_db_handle(context.dashboard_config)
-
-  # Only run in queueonly mode when the queue is empty
-  if(context[:queueonly])
-    unless(queue.empty?)
-      return
-    end
-  end
 
   # Normal behaviour is to flush the queue
   unless(context[:queueonly])

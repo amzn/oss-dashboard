@@ -53,6 +53,10 @@ optparse = OptionParser.new do |opts|
   opts.on( '-Q', '--queueonly', 'When in experimental sync mode - only queue' ) do
     options[:queueonly] = true
   end
+  options[:emptyqueue] = false
+  opts.on( '-E', '--emptyqueue', 'When in experimental sync mode - empty the queue' ) do
+    options[:emptyqueue] = true
+  end
 end
 optparse.parse!
 
@@ -144,6 +148,11 @@ if(options[:flushonly])
 end
 if(options[:queueonly])
   context[:queueonly]=true
+end
+if(options[:xsync])
+  if(options[:emptyqueue])
+    empty_queue(context)
+  end
 end
 
 if(context.github_com?)
