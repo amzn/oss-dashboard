@@ -20,7 +20,7 @@ require 'licensee'
 
 def licensee_monkey_patch(custom_path)
 
-  puts "Monkey patching Licensee::License to add a custom license path: #{custom_path}"
+  puts "#{Time.now} - Monkey patching Licensee::License to add a custom license path: #{custom_path}"
 
   Licensee::License.class_eval do
   
