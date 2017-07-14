@@ -213,7 +213,7 @@ def generate_dashboard_xml(context)
       commitCountRow = sync_db["SELECT COUNT(*) FROM commits WHERE org='#{org}' AND repo='#{repoName}'"]
       commitCount = commitCountRow.first[:count]
 
-      dashboard_file.puts "  <repo name='#{repoName}' homepage='#{repoRow[:homepage]}' private='#{privateRepo}' fork='#{isFork}' closed_issue_count='#{closedIssueCount}' closed_pr_count='#{closedPullRequestCount}' open_issue_count='#{openIssueCount}' open_pr_count='#{openPullRequestCount}' has_wiki='#{hasWiki}' language='#{repoRow[:language]}' stars='#{repoRow[:stars]}' watchers='#{repoRow[:watchers]}' forks='#{repoRow[:forks]}' created_at='#{repoRow[:created_at]}' updated_at='#{repoRow[:updated_at]}' pushed_at='#{repoRow[:pushed_at]}' size='#{repoRow[:size]}' commit_count='#{commitCount}'>"
+      dashboard_file.puts "  <repo name='#{repoName}' homepage='#{escape_for_xml(repoRow[:homepage])}' private='#{privateRepo}' fork='#{isFork}' closed_issue_count='#{closedIssueCount}' closed_pr_count='#{closedPullRequestCount}' open_issue_count='#{openIssueCount}' open_pr_count='#{openPullRequestCount}' has_wiki='#{hasWiki}' language='#{repoRow[:language]}' stars='#{repoRow[:stars]}' watchers='#{repoRow[:watchers]}' forks='#{repoRow[:forks]}' created_at='#{repoRow[:created_at]}' updated_at='#{repoRow[:updated_at]}' pushed_at='#{repoRow[:pushed_at]}' size='#{repoRow[:size]}' commit_count='#{commitCount}'>"
       desc = repoRow[:description] ? repoRow[:description].gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;") : repoRow[:description]
       dashboard_file.puts "    <description>#{desc}</description>"
 
