@@ -32,6 +32,12 @@ require_relative '../util.rb'
 
 def eval_queue(queue, context, sync_db)
   return_code=true
+
+  # If we fail more than limit times, give up.
+  # Sometimes a fail is just a repo being deleted and getting a 404, so soldier on
+  fail=0
+  limit=10
+
   while(not queue.empty?)
     cmd=BaseCommand.instantiate(queue.pop)
 
@@ -51,14 +57,22 @@ def eval_queue(queue, context, sync_db)
     rescue Faraday::TimeoutError => msg
       puts "GitHub API timing out, pushing command back on queue: #{msg}"
       queue.push(cmd)
-      return_code=false
-      break
+      if(fail > limit)
+        return_code=false
+        break
+      else
+        fail=fail+1
+      end
     rescue Octokit::ClientError => msg
       # Repository access blocked (Octokit::ClientError)
       puts "GitHub client error, pushing command back on queue: #{msg}"
       queue.push(cmd)
-      return_code=false
-      break
+      if(fail > limit)
+        return_code=false
+        break
+      else
+        fail=fail+1
+      end
     end
 
   end
