@@ -17,6 +17,10 @@ require 'yaml'
 
 class Reporter
 
+  def escape_for_xml(text)
+    return text ? text.tr("\b", '').gsub(/&/, '&amp;').gsub(/</, '&lt;').gsub(/>/, "&gt;") : text
+  end
+
   # exclude and pattern are regexps
   def filename_check(repo, dir, pattern, name, exclude=nil)
       txt=""
@@ -27,7 +31,7 @@ class Reporter
         end
   
         unless(File.directory?(file))
-          txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
+          txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file>#{escape_for_xml(file.to_s[sliceIdx..-1])}</file></reporting>\n"
         end
       end
       return txt
@@ -45,8 +49,8 @@ class Reporter
               num=num+1
               if(pattern.match(line))
                 sliceIdx=dir.length + 1
-                escaped=line.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
-                txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file lineno='#{num}'>#{file.to_s[sliceIdx..-1]}</file><match>#{escaped}</match></reporting>\n"
+                escaped=escape_for_xml(line.chomp)
+                txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file lineno='#{num}'>#{escape_for_xml(file.to_s[sliceIdx..-1])}</file><match>#{escaped}</match></reporting>\n"
               end
             end
             fh.close
