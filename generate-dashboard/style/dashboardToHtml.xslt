@@ -440,8 +440,10 @@
               <table id='repoTrafficTable' class='data-grid'>
               <thead>
               <tr><th>Repository</th>
-                  <th>Count</th>
-                  <th>Uniques</th>
+                  <th>Views</th>
+                  <th>Unique Views</th>
+                  <th>Clones</th>
+                  <th>Unique Clones</th>
               </tr>
               </thead>
               <tbody>
@@ -458,8 +460,10 @@
                    <sup><span style="margin-left: 5px" class="octicon octicon-repo-forked"></span></sup>
                 </xsl:if>
                 </td>
-                <td><xsl:value-of select='traffic-data/traffic/@count'/></td>
-                <td><xsl:value-of select='traffic-data/traffic/@uniques'/></td>
+                <td><xsl:value-of select='traffic-data/views/@count'/></td>
+                <td><xsl:value-of select='traffic-data/views/@uniques'/></td>
+                <td><xsl:value-of select='traffic-data/clones/@count'/></td>
+                <td><xsl:value-of select='traffic-data/clones/@uniques'/></td>
                 </tr>
               </xsl:for-each>
               </tbody>
