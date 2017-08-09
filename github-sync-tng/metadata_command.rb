@@ -230,7 +230,7 @@ class SyncOrgMembersMDCommand < BaseCommand
                       member_obj.login, member_obj.avatar_url, member_obj.id].update
         else
            db["INSERT INTO member (id, login, avatar_url)
-                      VALUES(?, ?, ?, ?)", member_obj.id, member_obj.login, member_obj.avatar_url].insert
+                      VALUES(?, ?, ?)", member_obj.id, member_obj.login, member_obj.avatar_url].insert
         end
 
 
