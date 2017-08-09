@@ -204,6 +204,7 @@
               <ul class="dropdown-menu" role="menu">
                 <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(organization/repo)"/>)</a></li>
                 <li><a href="#repometrics" data-toggle="tab">Repository Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
+                <li><a href="#repotraffic" data-toggle="tab">Repository Traffic (<xsl:value-of select="count(organization/repo)"/>)</a></li>
                 <xsl:if test="metadata/repo-reports/report">
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
@@ -428,6 +429,37 @@
                   <td><xsl:value-of select='@watchers'/></td>
                   <td><xsl:value-of select='@forks'/></td>
                   <td><xsl:value-of select='@commit_count'/></td>
+                </tr>
+              </xsl:for-each>
+              </tbody>
+              </table>
+             </div>
+            </div>
+            <div class="tab-pane" id="repotraffic">
+             <div class="data-grid-sortable tablesorter">
+              <table id='repoTrafficTable' class='data-grid'>
+              <thead>
+              <tr><th>Repository</th>
+                  <th>Count</th>
+                  <th>Uniques</th>
+              </tr>
+              </thead>
+              <tbody>
+              <xsl:for-each select="organization/repo">
+              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:variable name="reponame" select="@name"/>
+              <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
+                <tr><td>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
+                <xsl:if test="@private='true'">
+                   <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
+                </xsl:if>
+                <xsl:if test="@fork='true'">
+                   <sup><span style="margin-left: 5px" class="octicon octicon-repo-forked"></span></sup>
+                </xsl:if>
+                </td>
+                <td><xsl:value-of select='traffic-data/traffic/@count'/></td>
+                <td><xsl:value-of select='traffic-data/traffic/@uniques'/></td>
                 </tr>
               </xsl:for-each>
               </tbody>

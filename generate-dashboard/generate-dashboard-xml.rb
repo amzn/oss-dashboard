@@ -356,6 +356,10 @@ def generate_dashboard_xml(context)
         end
         dashboard_file.puts "  </release-data>"
 
+        dashboard_file.puts "  <traffic-data>"
+        traffic=sync_db["SELECT count, uniques FROM traffic_views_total WHERE org=? AND repo=? ORDER BY recorded_at DESC LIMIT 1", org, repoName].first
+        dashboard_file.puts "    <traffic count='#{traffic[:count]}' uniques='#{traffic[:uniques]}'/>"
+        dashboard_file.puts "  </traffic-data>"
 
       dashboard_file.puts "  </repo>"
     end
