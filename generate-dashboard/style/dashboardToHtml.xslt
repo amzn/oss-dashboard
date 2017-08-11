@@ -1251,6 +1251,9 @@ $.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of sele
                 $("#teamTable").tablesorter({
                     sortList: [[0,0]],
                 });
+                $("#repoTrafficTable").tablesorter({
+                    sortList: [[0,0]],
+                });
             <xsl:for-each select="metadata/user-reports/report">
                 $("#<xsl:value-of select="@key"/>Table").tablesorter({
                     sortList: [[0,0]],
