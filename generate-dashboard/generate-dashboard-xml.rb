@@ -358,9 +358,13 @@ def generate_dashboard_xml(context)
 
         dashboard_file.puts "  <traffic-data>"
         views=sync_db["SELECT count, uniques FROM traffic_views_total WHERE org=? AND repo=? ORDER BY recorded_at DESC LIMIT 1", org, repoName].first
-        dashboard_file.puts "    <views count='#{views[:count]}' uniques='#{views[:uniques]}'/>"
+        if(views)
+          dashboard_file.puts "    <views count='#{views[:count]}' uniques='#{views[:uniques]}'/>"
+        end
         clones=sync_db["SELECT count, uniques FROM traffic_clones_total WHERE org=? AND repo=? ORDER BY recorded_at DESC LIMIT 1", org, repoName].first
-        dashboard_file.puts "    <clones count='#{clones[:count]}' uniques='#{clones[:uniques]}'/>"
+        if(clones)
+          dashboard_file.puts "    <clones count='#{clones[:count]}' uniques='#{clones[:uniques]}'/>"
+        end
         dashboard_file.puts "  </traffic-data>"
 
       dashboard_file.puts "  </repo>"
