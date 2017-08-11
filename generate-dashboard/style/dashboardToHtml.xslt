@@ -436,6 +436,7 @@
              </div>
             </div>
             <div class="tab-pane" id="repotraffic">
+             <p><i>Shows the last 14 days of traffic.</i></p>
              <div class="data-grid-sortable tablesorter">
               <table id='repoTrafficTable' class='data-grid'>
               <thead>
