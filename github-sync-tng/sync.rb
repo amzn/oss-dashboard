@@ -81,7 +81,7 @@ def eval_queue(queue, context, sync_db)
     end
 
   end
-  context.feedback.puts
+
   return return_code
 end
 
@@ -113,6 +113,7 @@ def github_sync(context, run_one)
     unless(queue.empty?)
       context.feedback.print "\n flushing queue\n  "
       flushed=eval_queue(queue, context, sync_db)
+      context.feedback.print "\n"
       unless(flushed)
         return
       end
@@ -123,6 +124,7 @@ def github_sync(context, run_one)
   if(context[:flushonly])
     context.feedback.print "\n flushing queue\n  "
     flushed=eval_queue(queue, context, sync_db)
+    context.feedback.print "\n"
     return
   end
 
@@ -159,6 +161,7 @@ def github_sync(context, run_one)
   unless(context[:queueonly])
     context.feedback.print "\n evaluating queue\n  "
     eval_queue(queue, context, sync_db)
+    context.feedback.print "\n"
   end
 
   if(not(run_one) or run_one=='github-sync/user-mapping')
