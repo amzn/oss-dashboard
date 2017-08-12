@@ -26,6 +26,25 @@ require_relative '../db/user_mapping/sync-users.rb'
 require_relative '../db/reporting/db_reporter_runner.rb'
 require_relative '../util.rb'
 
+require_relative '../github-sync-tng/sync.rb'
+require_relative '../github-sync-tng/commit_command.rb'
+require_relative '../github-sync-tng/traffic_command.rb'
+
+class AsyncQueue < Queue
+
+  def initialize(context, sync_db)
+    super()
+    @context=context
+    @sync_db=sync_db
+  end
+
+  def push(obj)
+    super(obj)
+    eval_queue(self, @context, @sync_db)
+  end
+
+end
+
 def github_sync(context, run_one)
 
   sync_db = get_db_handle(context.dashboard_config)
@@ -34,7 +53,10 @@ def github_sync(context, run_one)
     sync_metadata(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/commits')
-    sync_commits(context, sync_db)
+    context.feedback.puts ' commits'
+    queue=AsyncQueue.new(context, sync_db)
+    queue.push(SyncCommitsCommand.new)
+    context.feedback.print "\n"
   end
   if(not(run_one) or run_one=='github-sync/events')
     sync_events(context, sync_db)
@@ -47,6 +69,12 @@ def github_sync(context, run_one)
   end
   if(not(run_one) or run_one=='github-sync/releases')
     sync_releases(context, sync_db)
+  end
+  if(not(run_one) or run_one=='github-sync/traffic')
+    context.feedback.puts ' traffic'
+    queue=AsyncQueue.new(context, sync_db)
+    queue.push(SyncTrafficCommand.new)
+    context.feedback.print "\n"
   end
   if(not(run_one) or run_one=='github-sync/user-mapping')
     sync_user_mapping(context, sync_db)
