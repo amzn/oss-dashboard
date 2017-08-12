@@ -365,6 +365,10 @@ def generate_dashboard_xml(context)
         if(clones)
           dashboard_file.puts "    <clones count='#{clones[:count]}' uniques='#{clones[:uniques]}'/>"
         end
+        referrer=sync_db["SELECT referrer, count, uniques FROM traffic_referrers WHERE org=? AND repo=? ORDER BY recorded_at DESC LIMIT 1", org, repoName].first
+        if(referrer)
+          dashboard_file.puts "    <referrer count='#{referrer[:count]}' uniques='#{referrer[:uniques]}'>#{referrer[:referrer]}</referrer>"
+        end
         dashboard_file.puts "  </traffic-data>"
 
       dashboard_file.puts "  </repo>"

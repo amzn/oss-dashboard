@@ -445,6 +445,7 @@
                   <th>Unique Views</th>
                   <th>Clones</th>
                   <th>Unique Clones</th>
+                  <th>Top Referrer (views/uniques)</th>
               </tr>
               </thead>
               <tbody>
@@ -465,6 +466,7 @@
                 <td><xsl:value-of select='traffic-data/views/@uniques'/></td>
                 <td><xsl:value-of select='traffic-data/clones/@count'/></td>
                 <td><xsl:value-of select='traffic-data/clones/@uniques'/></td>
+                <td><xsl:value-of select='traffic-data/referrer'/> (<xsl:value-of select='traffic-data/referrer/@count'/>/<xsl:value-of select='traffic-data/referrer/@uniques'/>)</td>
                 </tr>
               </xsl:for-each>
               </tbody>
