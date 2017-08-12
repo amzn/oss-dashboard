@@ -58,15 +58,19 @@ def github_sync(context, run_one)
     context.feedback.print "\n"
   end
   if(not(run_one) or run_one=='github-sync/events')
+    # TODO: Move to being based on the async code
     sync_events(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/issues')
+    # TODO: Move to being based on the async code
     sync_issues(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/issue-comments')
+    # TODO: Move to being based on the async code
     sync_issue_comments(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/releases')
+    # TODO: Move to being based on the async code
     sync_releases(context, sync_db)
   end
   if(not(run_one) or run_one=='github-sync/traffic')
