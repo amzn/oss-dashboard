@@ -129,31 +129,31 @@ def github_sync(context, run_one)
   # The queue was flushed, or we're in queueonly mode, so go ahead and queue
   if(not(run_one) or run_one=='github-sync/metadata')
     context.feedback.puts "  github-sync/metadata: queueing"
-    queue.push(SyncMetadataCommand.new(Hash.new))
+    queue.push(SyncMetadataCommand.new)
   end
   if(not(run_one) or run_one=='github-sync/commits')
     context.feedback.puts "  github-sync/commits: queueing"
-    queue.push(SyncCommitsCommand.new(Hash.new))
+    queue.push(SyncCommitsCommand.new)
   end
   if(not(run_one) or run_one=='github-sync/events')
     context.feedback.puts "  github-sync/events: queueing"
-    queue.push(SyncEventsCommand.new(Hash.new))
+    queue.push(SyncEventsCommand.new)
   end
   if(not(run_one) or run_one=='github-sync/issues')
     context.feedback.puts "  github-sync/issues: queueing"
-    queue.push(SyncIssuesCommand.new(Hash.new))
+    queue.push(SyncIssuesCommand.new)
   end
   if(not(run_one) or run_one=='github-sync/issue-comments')
     context.feedback.puts "  github-sync/issue-comments: queueing"
-    queue.push(SyncIssueCommentsCommand.new(Hash.new))
+    queue.push(SyncIssueCommentsCommand.new)
   end
   if(not(run_one) or run_one=='github-sync/releases')
     context.feedback.puts "  github-sync/releases: queueing"
-    queue.push(SyncReleasesCommand.new(Hash.new))
+    queue.push(SyncReleasesCommand.new)
   end
   if(not(run_one) or run_one=='github-sync/traffic')
     context.feedback.puts "  github-sync/traffic: queueing"
-    queue.push(SyncTrafficCommand.new(Hash.new))
+    queue.push(SyncTrafficCommand.new)
   end
 
   unless(context[:queueonly])

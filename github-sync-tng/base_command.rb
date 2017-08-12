@@ -16,7 +16,7 @@
 class BaseCommand
 
   # Commands are created with a hash for desired arguments
-  def initialize(arg_hash)
+  def initialize(arg_hash=nil)
     @args = arg_hash
   end
 
