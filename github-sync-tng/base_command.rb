@@ -18,6 +18,11 @@ class BaseCommand
   # Commands are created with a hash for desired arguments
   def initialize(arg_hash=nil)
     @args = arg_hash
+    unless(@args)
+      # pickle_format fails on @args.map if this is nil
+      # ideally would fix the code there so a new empty Hash isn't needed
+      @args=Hash.new
+    end
   end
 
   # Override this method to implement your command execution
