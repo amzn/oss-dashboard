@@ -31,6 +31,10 @@ class SyncCommitsCommand < BaseCommand
 
     owners.each do |org|
 
+      unless(queue.is_a? FileQueue)
+        context.feedback.print "  #{org} "
+      end
+
       if(context.login?(org))
         repos=context.client.repositories(org)
       else
