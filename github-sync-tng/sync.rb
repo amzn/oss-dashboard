@@ -39,7 +39,12 @@ def eval_queue(queue, context, sync_db)
   limit=10
 
   while(not queue.empty?)
-    cmd=BaseCommand.instantiate(queue.pop)
+    queue_obj=queue.pop
+    if(queue_obj.is_a? BaseCommand)
+      cmd=queue_obj
+    else
+      cmd=BaseCommand.instantiate(queue_obj)
+    end
 
     begin
       passed=cmd.run(queue, context, sync_db)
