@@ -1,6 +1,10 @@
 
 class AverageIssueCloseDbReporter < DbReporter
 
+  def get_table_name()
+    return 'issues'
+  end
+
   def name()
     return "Average Issue Close Time"
   end
@@ -10,21 +14,57 @@ class AverageIssueCloseDbReporter < DbReporter
   end
 
   def describe()
-    return "This report shows the average time each repo takes to close issues"
+    return "This report shows the average time each repo takes to close #{get_table_name()}"
   end
 
   def db_columns()
-    return [ ['Repo', 'org/repo'], "Count of closed issues", "Average time to close issues" ]
+    return [ ['Repo', 'org/repo'], 
+             "<1 month: Closed", "<1 month: MTTR", "<1 month: Still Open",
+             "<1 quarter: Closed", "<1 quarter: MTTR", "<1 quarter: Still Open",
+             "<1 year: Closed", "<1 year: MTTR","<1 year: Still Open",
+             "All time: Closed", "All time: MTTR", "All time: Still Open",
+           ]
   end
 
   def db_report(context, org, sync_db)
 
     text = ""
-    issue_query="SELECT repo, COUNT(id), ROUND(AVG(closed_at::date - created_at::date)::numeric, 2) as mttr FROM issues WHERE state='closed' AND org=? GROUP BY org, repo ORDER BY mttr"
+    repos=sync_db["SELECT name FROM repository WHERE org=?", org]
+    repos.each do |repoRow|
+      repo=repoRow[:name]
 
-    issue_data=sync_db[issue_query, org]
-    issue_data.each do |row|
-      text << "  <reporting class='issue-report' repo='#{org}/#{row[:repo]}' type='AverageIssueCloseDbReporter'><field>#{org}/#{row[:repo]}</field><field>#{row[:count]}</field><field>#{row[:mttr].to_s('f')}</field></reporting>\n"
+      queries = { 
+                  '1_month' => "AND created_at > now() - interval '1 month'",
+                  '1_quarter' => "AND created_at > now() - interval '3 months'",
+                  '1_year' => "AND created_at > now() - interval '1 year'",
+                  'all_time' => '',
+                }
+
+      issue_data=Array.new
+      queries.each do |name, dateQuery|
+        issue_query="SELECT COUNT(id) AS count, ROUND(AVG(closed_at::date - created_at::date)::numeric, 2) as mttr FROM #{get_table_name()} WHERE state='closed' #{dateQuery} AND org=? AND repo=? GROUP BY org, repo"
+        result=sync_db[issue_query, org, repo].first
+        if(result)
+          issue_data << result[:count] << result[:mttr].to_s('f')
+        else
+          issue_data << 0 << 0
+        end
+
+        still_open_query="SELECT COUNT(id) AS count FROM #{get_table_name()} WHERE state='open' #{dateQuery} AND org=? AND repo=? GROUP BY org, repo"
+        result=sync_db[still_open_query, org, repo].first
+        if(result)
+          issue_data << result[:count]
+        else
+          issue_data << 0
+        end
+      end
+
+      text << "  <reporting class='issue-report' repo='#{org}/#{repo}' type='#{self.class.name}'><field>#{org}/#{repo}</field>"
+      issue_data.each do |field|
+        text << "<field>#{field}</field>"
+      end
+
+      text << "</reporting>\n"
     end
 
     return text
