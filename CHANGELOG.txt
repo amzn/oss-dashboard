@@ -10,3 +10,7 @@ This Changelog documents breaking changes, typically plugin API or database chan
             REASON: GitHub allows organizations to require two-factor authentication. Rather than looking at reports,
                     users should be enabling that feature. 
             ACTION: Users should remove the No2faDbReporter report from their config files. 
+
+2017-05-28: CHANGE: Traffic tables added to the schema
+            REASON: Traffic data is now being pulled from GitHub.
+            ACTION: Existing users should manually add the traffic tables from db/schema.
