@@ -56,6 +56,7 @@ Example file:
 ```
  github:
    access_token: 'your github personal access token'
+   ssl_verify: false
 ```
 
 For general use, no specific scopes are required. If you wish to see private organization data (such as Teams, all Members and private Repositories), you will need to enable the 'repo' scope.
