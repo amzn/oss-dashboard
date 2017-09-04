@@ -14,3 +14,19 @@ This Changelog documents breaking changes, typically plugin API or database chan
 2017-05-28: CHANGE: Traffic tables added to the schema
             REASON: Traffic data is now being pulled from GitHub.
             ACTION: Existing users should manually add the traffic tables from db/schema.
+
+2017-09-03: CHANGE: Overhaul of the dashboard approach.
+                    The generate-dashboard/merge and generate-dashboard/teams-xml commands have been removed.
+                    In their place are generate-dashboard/json-data and generate-dashboard/dashboards commands.
+                    There is no longer a Teams drop-down, instead it is linked from the Teams page of the organization dashboard.
+            REASON: To allow for custom charting and for custom dashboards, the dashboard approach has been changed 
+                    to be repository focused. The system generates XML for each repository, then organizations and teams 
+                    are the merger of a set of repository files. Additionally, the charting is moved out of the HTML files and 
+                    into data and chart configuration JSON files. 
+            ACTION: None usually needed; but recording here as it's a large change and users may have been dependent on side-effects.
+
+2017-09-03: CHANGE: Change API of db-reports - now passes in the repo object, not the org.
+                    Report XML files are now per repository. 
+            REASON: With dashboards moving to a repo-focused approach, the db-reports needed to run on a repository and not 
+                    an organization. 
+            ACTION: Any custom db-reports will need to be modified to be repo-based.

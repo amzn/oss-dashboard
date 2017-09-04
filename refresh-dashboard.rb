@@ -23,7 +23,8 @@ require_relative 'dashboard-context'
 require_relative 'db/init-database'
 require_relative 'github-pull/pull_source'
 require_relative 'review-repos/reporter_runner'
-require_relative 'generate-dashboard/generate-dashboard-xml'
+require_relative 'generate-dashboard/generate-dashboards'
+require_relative 'generate-dashboard/generate-json-data'
 require 'optparse'
 
   def xml2html(context, xmlFiles, xsltFile, outputDirectory)
@@ -132,7 +133,7 @@ end
 
 # TODO: Implement github-sync and generate-dashboard as aliases?
 allPhases=['init-database', 'github-sync', 'pull-source', 'review-source', 'generate-dashboard']
-legitPhases=['init-database', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/traffic', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard/xml', 'generate-dashboard/merge', 'generate-dashboard/teams-xml', 'generate-dashboard/xslt', 'github-sync', 'generate-dashboard']
+legitPhases=['init-database', 'github-sync/metadata', 'github-sync/commits', 'github-sync/events', 'github-sync/issues', 'github-sync/issue-comments', 'github-sync/releases', 'github-sync/traffic', 'github-sync/user-mapping', 'github-sync/reporting', 'pull-source', 'review-source', 'generate-dashboard/xml', 'generate-dashboard/json-data', 'generate-dashboard/dashboards', 'generate-dashboard/xslt', 'github-sync', 'generate-dashboard']
 
 if(ARGV[1])
   run_list=ARGV[1..-1]
@@ -231,20 +232,20 @@ run_list.each do |phase|
        printed_gen_dash=true
     end
 
+    if(phase=='generate-dashboard' or phase=='generate-dashboard/json-data')
+      context.feedback.puts " json-data"
+      generate_json_data(context)
+      context.feedback.print "\n"
+    end
+
     if(phase=='generate-dashboard' or phase=='generate-dashboard/xml')
       context.feedback.puts " xml"
-      generate_dashboard_xml(context)
+      generate_tng_repo_xml(context)
     end
 
-    if(owners.length > 1)
-      if(phase=='generate-dashboard' or phase=='generate-dashboard/merge')
-        merge_dashboard_xml(context)
-      end
-    end
-
-    if(phase=='generate-dashboard' or phase=='generate-dashboard/teams-xml')
-      context.feedback.puts " teams-xml"
-      generate_team_xml(context)
+    if(phase=='generate-dashboard' or phase=='generate-dashboard/dashboards')
+      # merges both repository xml into dashboard xml AND repository json data into dashboard json data
+      generate_tng_dashboards(context)
     end
 
     if(phase=='generate-dashboard' or phase=='generate-dashboard/xslt')
@@ -252,13 +253,15 @@ run_list.each do |phase|
         Dir.mkdir(www_directory)
       end
 
-      context.feedback.print " xslt\n  "
+      # xslt the dashboards
+      context.feedback.print " xslt (dashboards) "
       xml2html(context, "#{data_directory}/dash-xml/*.xml", File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt'), www_directory)
       context.feedback.print "\n"
 
       context.feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
     end
   end
+
 end
 
 if(context.github_com?)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-# Copyright 2015-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,50 +17,6 @@
 -->
 
 <xsl:stylesheet method="html" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
-
-<!--
-<github-dashdata dashboard='ORG'>
- <metadata>
-  <navigation>
-    <organization>org1</organization>
-    <organization>org2</organization>
-    <login>login1</login>
-  </navigation>
-  <user-reports>
-    <report>UserReporter</report>
-    <report>CustomUserReporter</report>
-  </user-reports>
-  <repo-reports>
-    <report>DocsReporter</report>
-    <report>CustomRepoReporter</report>
-  </repo-reports>
- </metadata>
- <organization name='ORG' avatar='url'>
-  <team name='NAME'>
-    <description>XYZ</description>
-    <repos>
-        <repo>repo1</repo>
-    </repos>
-    <members>
-      <member>member1</member>
-    </members>
-  </team>
-  <repo name='repo1' private='false' fork='false' open_issue_count='0' has_wiki='false' language='Blah' stars='3' watchers='14' forks='0'>
-    <description>ABC</description>
-  </repo>
-  <member internal='mem1' mail='mem1@example.com' name='member1'/>
-  <github-review>
-    <organization name=''>
-      <repo name=''>
-        <license>
-        <reporting>
-      </repo>
-    </organization>
-  </github-review>
- </organization>
-</github-dashdata>
-
--->
 
   <xsl:template match="github-dashdata">
     <xsl:variable name="dashboardname" select="@dashboard"/>
@@ -84,6 +40,86 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.24.2/js/jquery.tablesorter.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.smartmenus/1.0.0/jquery.smartmenus.min.js"><xsl:comment/></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.smartmenus/1.0.0/addons/bootstrap/jquery.smartmenus.bootstrap.min.js"><xsl:comment/></script>
+
+<script type="text/javascript">
+// Currently inline code; tempted to move to its own separate JSON/JavaScript file 
+// when more pluggable charts are implemented
+var charts = [];
+
+charts['PieChart'] = JSON.parse('{ \
+    "series": { \
+      "pie": { \
+        "show": true, \
+        "grid": { \
+            "borderWidth": 0 \
+        } \
+      } \
+    }, \
+    "colors": ["#0F6BA9", "#2FABE9"] \
+}');
+
+charts["BarChart"] = JSON.parse('{ \
+    "series": { \
+        "stack": true, \
+        "bars": { "show": true, "barWidth": 0.6 } \
+    }, \
+    "xaxis": { \
+        "ticks": [ \
+          ["1", "1 hour"], \
+          ["2", "3 hours"], \
+          ["3", "9 hours"], \
+          ["4", "1 day"], \
+          ["5", "1 week"], \
+          ["6", "1 month"], \
+          ["7", "1 quarter"], \
+          ["8", "1 year"], \
+          ["9", "over 1 year"]  \
+        ] \
+    }, \
+    "grid": { \
+        "borderWidth": 0 \
+    }, \
+    "legend": { \
+        "position": "ne" \
+    }, \
+    "colors": ["#0F6BA9"] \
+}');
+
+charts["LineChart"] = JSON.parse('{ \
+  "series": { \
+    "stack": true, \
+    "lines": { \
+      "show": true, \
+      "lineWidth": "2" \
+    }, \
+    "points": { "show": true }, \
+    "shadowSize": "2" \
+  }, \
+  "grid": { \
+    "borderWidth": "0" \
+  }, \
+  "legend": { \
+    "position": "nw" \
+  }, \
+  "colors": ["#0F8BC9", "#2FABE9"] \
+}');
+
+ function plotChart(chart,config) {
+  var chartData, chartConfig;
+  chartConfig=charts[config];   // Remove this when this section is split out of the generated HTML
+  $.when(
+    $.getJSON("json-data/"+chart+".json", function(json) {
+        chartData = json;
+    })
+//    $.getJSON("chart-config/"+config+".json", function(json) {
+//        chartConfig = json;
+//    })
+  ).then(function() {
+    $.plot($("#"+chart+"Chart"), chartData.datasets, chartConfig)
+  });
+
+ }
+</script>
 
         <!-- This is inline to make for a simpler deliverable -->
         <style>
@@ -151,31 +187,6 @@
             </ul>
           </li>
           </xsl:if>
-          <xsl:if test="organization/team">
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-              Teams <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu" role="menu">
-             <xsl:if test="metadata/navigation/team">
-              <!-- we're on a team page -->
-              <xsl:for-each select="metadata/navigation/team">
-                <xsl:sort select="@name"/>
-                <xsl:variable name="teamlink" select="@slug"/>
-                <li><a href="team-{$teamlink}.html"><xsl:value-of select="@name"/></a></li>
-              </xsl:for-each>
-             </xsl:if>
-             <xsl:if test="not(metadata/navigation/team)">
-              <!-- we're on an organization page -->
-              <xsl:for-each select='organization/team[not(@slug=preceding::*/@slug)]'>
-                <xsl:sort select="@name"/>
-                <xsl:variable name="teamlink" select="@slug"/>
-                <li><a href="team-{$teamlink}.html"><xsl:value-of select="@name"/></a></li>
-              </xsl:for-each>
-             </xsl:if>
-            </ul>
-          </li>
-          </xsl:if>
           <xsl:if test="metadata/navigation/organization">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -202,9 +213,9 @@
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">Repositories <span class="caret"/></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(organization/repo)"/>)</a></li>
-                <li><a href="#repometrics" data-toggle="tab">Repository Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
-                <li><a href="#repotraffic" data-toggle="tab">Repository Traffic (<xsl:value-of select="count(organization/repo)"/>)</a></li>
+                <li><a href="#repositories" data-toggle="tab">Repositories (<xsl:value-of select="count(repo)"/>)</a></li>
+                <li><a href="#repometrics" data-toggle="tab">Repository Metrics (<xsl:value-of select="count(repo)"/>)</a></li>
+                <li><a href="#repotraffic" data-toggle="tab">Repository Traffic (<xsl:value-of select="count(repo)"/>)</a></li>
                 <xsl:if test="metadata/repo-reports/report">
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
@@ -221,10 +232,10 @@
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">Triage <span class="caret"/></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#issuemetrics" data-toggle="tab">Issue Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
-                <li><a href="#prmetrics" data-toggle="tab">PR Metrics (<xsl:value-of select="count(organization/repo)"/>)</a></li>
-                <li><a href="#issues" data-toggle="tab">Open Issues (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='false'])"/>)</a></li>
-                <li><a href="#pullrequests" data-toggle="tab">Open PRs (<xsl:value-of select="count(organization/repo/issues/issue[@pull_request='true'])"/>)</a></li>
+                <li><a href="#issuemetrics" data-toggle="tab">Issue Metrics (<xsl:value-of select="count(repo)"/>)</a></li>
+                <li><a href="#prmetrics" data-toggle="tab">PR Metrics (<xsl:value-of select="count(repo)"/>)</a></li>
+                <li><a href="#issues" data-toggle="tab">Open Issues (<xsl:value-of select="count(repo/issues/issue[@pull_request='false'])"/>)</a></li>
+                <li><a href="#pullrequests" data-toggle="tab">Open PRs (<xsl:value-of select="count(repo/issues/issue[@pull_request='true'])"/>)</a></li>
                 <xsl:if test="metadata/issue-reports/report">
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
@@ -241,14 +252,14 @@
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#">User Management <span class="caret"/></a>
               <ul class="dropdown-menu" role="menu">
-                <xsl:if test="organization/team">
-                <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(organization/team)"/>)</a></li>
+                <xsl:if test="team">
+                <li><a href="#teams" data-toggle="tab">Teams (<xsl:value-of select="count(team)"/>)</a></li>
                 </xsl:if>
                 <xsl:if test="organization/member">
                 <li><a href="#members" data-toggle="tab">Members (<xsl:value-of select="count(organization/member[not(@login=preceding::*/@login)])"/>)</a></li>
                 </xsl:if>
-                <xsl:if test="organization/repo/collaborators/collaborator">
-                <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(organization/repo/collaborators/collaborator)"/>)</a></li>
+                <xsl:if test="repo/collaborators/collaborator">
+                <li><a href="#collaborators" data-toggle="tab">Collaborators (<xsl:value-of select="count(repo/collaborators/collaborator)"/>)</a></li>
                 </xsl:if>
                 <xsl:if test="metadata/user-reports/report">
                 <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports <span class="caret"></span></a>
@@ -308,16 +319,16 @@
             </td>
             <td class="center" style="vertical-align:top">
                 <h4>Repo Count over Time</h4><br/>
-                <div id="repoCountChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
+                <div id="{$dashboardname}-repoCountChart" style="height:150px;width:400px;"><xsl:comment/></div><br/>
             </td>
             <td class="right" style="vertical-align:top">
-              <xsl:if test="organization/repo">
+              <xsl:if test="repo">
               <h4>Recent Repositories:</h4>
               <table class='data-grid'>
-                <xsl:for-each select="organization/repo">
+                <xsl:for-each select="repo">
                   <xsl:sort select="@created_at" order="descending"/>
                   <xsl:variable name='repo_name' select="@name"/>
-                  <xsl:variable name='orgname2' select="../@name"/>
+                  <xsl:variable name='orgname2' select="@org"/>
                   <xsl:if test="position() &lt;= 5">
                     <tr><td>
                       <xsl:value-of select='substring(@created_at,1,10)'/> - <a href="{$githuburl}/{$orgname2}/{$repo_name}"><xsl:value-of select='@name'/></a>
@@ -332,11 +343,11 @@
                 </xsl:for-each>
               </table>
               </xsl:if>
-              <xsl:if test="organization/repo/release-data/release">
+              <xsl:if test="repo/release-data/release">
               <hr/>
               <h4>Recent Releases:</h4>
               <table class='data-grid'>
-                <xsl:for-each select="organization/repo/release-data/release">
+                <xsl:for-each select="repo/release-data/release">
                   <xsl:sort select="@published_at" order="descending"/>
                   <xsl:variable name='release_url' select="@url"/>
                   <xsl:if test="position() &lt;= 5">
@@ -353,16 +364,16 @@
              <div class="data-grid-sortable tablesorter">
               <table id='repoTable' class='data-grid'>
               <thead>
-              <tr><th>Repository</th><th>Description</th><xsl:if test="organization/team"><th>Teams</th></xsl:if>
+              <tr><th>Repository</th><th>Description</th><xsl:if test="team"><th>Teams</th></xsl:if>
               </tr>
               </thead>
               <tbody>
-              <xsl:for-each select="organization/repo">
+              <xsl:for-each select="repo">
               <xsl:variable name="reponame" select="@name"/>
-              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:variable name="orgname2" select="@org"/>
               <xsl:variable name="homepage" select="@homepage"/>
                 <tr><td>
-                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="@org"/>)</a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -401,12 +412,12 @@
               </tr>
               </thead>
               <tbody>
-              <xsl:for-each select="organization/repo">
-              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:for-each select="repo">
+              <xsl:variable name="orgname2" select="@org"/>
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
-                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="@org"/>)</a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -415,9 +426,9 @@
                 </xsl:if>
                 </td>
                 <td>
-                  <xsl:if test="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]">
-                    <xsl:variable name="licenseFile" select="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]/@file"/>
-                    <a href="{$githuburl}/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]"/> (<xsl:value-of select="round(/github-dashdata/organization[@name=$orgname2]/reports/license[@repo=$orgreponame]/@confidence)"/>%)</a>
+                  <xsl:if test="/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]">
+                    <xsl:variable name="licenseFile" select="/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]/@file"/>
+                    <a href="{$githuburl}/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]"/> (<xsl:value-of select="round(/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]/@confidence)"/>%)</a>
                   </xsl:if>
                 </td>
                 <td><xsl:value-of select='@language'/></td>
@@ -449,12 +460,12 @@
               </tr>
               </thead>
               <tbody>
-              <xsl:for-each select="organization/repo">
-              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:for-each select="repo">
+              <xsl:variable name="orgname2" select="@org"/>
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
-                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a>
+                <a href="{$githuburl}/{$orgname2}/{$reponame}"><xsl:value-of select="@name"/> (<xsl:value-of select="@org"/>)</a>
                 <xsl:if test="@private='true'">
                    <sup><span style="margin-left: 5px" class="octicon octicon-lock"></span></sup>
                 </xsl:if>
@@ -478,15 +489,15 @@
               <tr>
               <td style="text:align=left">
                 <h4>Issue Count over Time</h4><br/>
-                <div id="issueCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+                <div id="{$dashboardname}-issueCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=center">
                 <h4>Time to Close an Issue</h4><br/>
-                <div id="issueTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
+                <div id="{$dashboardname}-issueTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=right">
                 <h4>Contributions</h4><br/>
-                <div id="issueCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
+                <div id="{$dashboardname}-issueCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
               </td>
               </tr>
              </table>
@@ -502,8 +513,8 @@
               </tr>
               </thead>
               <tbody>
-              <xsl:for-each select="organization/repo">
-              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:for-each select="repo">
+              <xsl:variable name="orgname2" select="@org"/>
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
@@ -539,15 +550,15 @@
               <tr>
               <td style="text:align=left">
                 <h4>Pull Request Count over Time</h4><br/>
-                <div id="pullRequestCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
+                <div id="{$dashboardname}-pullRequestCountChart" class="right" style="height:100px;width:300px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=center">
                 <h4>Time to Close a Pull Request</h4><br/>
-                <div id="prTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
+                <div id="{$dashboardname}-prTimeToCloseChart" style="height:100px;width:330px;"><xsl:comment/></div><br/>
               </td>
               <td style="text:align=right">
                 <h4>Contributions</h4><br/>
-                <div id="prCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
+                <div id="{$dashboardname}-prCommunityPieChart" style="height:100px;width:270px;"><xsl:comment/></div><br/>
               </td>
               </tr>
              </table>
@@ -563,8 +574,8 @@
               </tr>
               </thead>
               <tbody>
-              <xsl:for-each select="organization/repo">
-              <xsl:variable name="orgname2" select="../@name"/>
+              <xsl:for-each select="repo">
+              <xsl:variable name="orgname2" select="@org"/>
               <xsl:variable name="reponame" select="@name"/>
               <xsl:variable name="orgreponame" select="concat($orgname2, '/', $reponame)"/>
                 <tr><td>
@@ -601,7 +612,7 @@
                 <tr><th>Open Issue</th><th>Title</th><th>Labels</th><th>Age</th><th>Created</th><th>Updated</th><th>Requester</th><th>Comments</th></tr>
                 </thead>
                 <tbody>
-                <xsl:for-each select="organization/repo">
+                <xsl:for-each select="repo">
                   <xsl:variable name="orgname2" select="../@name"/>
                   <xsl:variable name="reponame" select="@name"/>
                   <xsl:for-each select="issues/issue[@pull_request='false']">
@@ -647,7 +658,7 @@
                 <tr><th>Open Pull Request</th><th>Title</th><th>Labels</th><th>Age</th><th>Created</th><th>Updated</th><th>Requester</th><th>Comments</th><th># Files Changed</th><th># New Lines</th><th># Removed Lines</th></tr>
                 </thead>
                 <tbody>
-                <xsl:for-each select="organization/repo">
+                <xsl:for-each select="repo">
                   <xsl:variable name="orgname2" select="../@name"/>
                   <xsl:variable name="reponame" select="@name"/>
                   <xsl:for-each select="issues/issue[@pull_request='true']">
@@ -689,7 +700,7 @@
               </table>
              </div>
             </div>
-            <xsl:if test="organization/team">
+            <xsl:if test="team">
             <div class="tab-pane" id="teams">
              <div class="data-grid-sortable tablesorter">
               <table id='teamTable' class='data-grid'>
@@ -697,10 +708,10 @@
                 <tr><th>Team</th><th>Repos</th><th>Members</th></tr>
                 </thead>
                 <tbody>
-                <xsl:for-each select="organization/team">
-                  <xsl:variable name="orgname2" select="../@name"/>
+                <xsl:for-each select="team">
+                  <xsl:variable name="orgname2" select="@org"/>
                   <xsl:variable name="teamlink" select="@slug"/>
-                  <tr><td><a href="{$githuburl}/orgs/{$orgname2}/teams/{$teamlink}"><xsl:value-of select="@name"/> (<xsl:value-of select="../@name"/>)</a><br/>
+                  <tr><td><a href="team-{$teamlink}.html"><xsl:value-of select="@name"/> (<xsl:value-of select="@org"/>)</a><br/>
                     <xsl:value-of select="description"/>
                   </td>
                   <td>
@@ -754,7 +765,7 @@
             </div>
             </xsl:if>
             <!-- TODO: Merge with member above into people? -->
-            <xsl:if test="organization/repo/collaborators/collaborator">
+            <xsl:if test="repo/collaborators/collaborator">
             <div class="tab-pane" id="collaborators">
              <div class="data-grid-sortable tablesorter">
               <table id='collaboratorTable' class='data-grid'>
@@ -762,7 +773,7 @@
                 <tr><th>Repository</th><th>Collaborators</th></tr>
                 </thead>
                 <tbody>
-                <xsl:for-each select="organization/repo">
+                <xsl:for-each select="repo">
                   <xsl:if test="collaborators/collaborator">
                   <tr><td>
                     <xsl:variable name="reponame" select="@name"/>
@@ -811,7 +822,7 @@
                </xsl:for-each>
                </tr></thead>
                <tbody>
-                  <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
+                  <xsl:for-each select="/github-dashdata/repo/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
                     <tr>
                      <xsl:if test="not(field)">
                       <xsl:call-template name="reporting-field">
@@ -859,7 +870,7 @@
                </xsl:for-each>
                </tr></thead>
                <tbody>
-                  <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
+                  <xsl:for-each select="/github-dashdata/repo/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
                     <tr>
                      <xsl:if test="not(field)">
                       <xsl:call-template name="reporting-field">
@@ -905,7 +916,7 @@
                 <tr><th>Issue Found In</th><th>Details</th></tr> 
                 </thead>
                 <tbody>
-                <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(@repo=preceding::reporting[@type=$report]/@repo)]">
+                <xsl:for-each select="/github-dashdata/repo/reports/reporting[@type=$report and not(@repo=preceding::reporting[@type=$report]/@repo)]">
                   <xsl:variable name="orgreponame" select="@repo"/>
                     <tr>
                       <td><a href="{$githuburl}/{$orgreponame}"><xsl:value-of select="@repo"/></a>
@@ -914,7 +925,7 @@
                         </xsl:if>
                       </td>
                       <td><ul style='list-style-type: none;'>
-                      <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and @repo=$orgreponame]">
+                      <xsl:for-each select="/github-dashdata/repo/reports/reporting[@type=$report and @repo=$orgreponame]">
                         <xsl:variable name="file" select="file"/>
                         <xsl:variable name="lineno"><xsl:value-of select="file/@lineno"/></xsl:variable>
                         <xsl:variable name="linetxt">#L<xsl:value-of select="$lineno"/></xsl:variable>
@@ -945,7 +956,7 @@
                </xsl:for-each>
                </tr></thead>
                <tbody>
-                  <xsl:for-each select="/github-dashdata/organization/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
+                  <xsl:for-each select="/github-dashdata/repo/reports/reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())]">
                     <tr>
                      <xsl:if test="not(field)">
                       <xsl:call-template name="reporting-field">
@@ -982,250 +993,14 @@
         </div>
           <div class="pull-right"><xsl:value-of select="metric/@start-time"/></div>
 
-<!-- The years are hardcoded :( -->
 <script>
-publicRepoCount=[
-  [2010, <xsl:value-of select="count(organization/repo[@private='false' and '2010'>=substring(@created_at,1,4)])"/>],
-  [2011, <xsl:value-of select="count(organization/repo[@private='false' and '2011'>=substring(@created_at,1,4)])"/>],
-  [2012, <xsl:value-of select="count(organization/repo[@private='false' and '2012'>=substring(@created_at,1,4)])"/>],
-  [2013, <xsl:value-of select="count(organization/repo[@private='false' and '2013'>=substring(@created_at,1,4)])"/>],
-  [2014, <xsl:value-of select="count(organization/repo[@private='false' and '2014'>=substring(@created_at,1,4)])"/>],
-  [2015, <xsl:value-of select="count(organization/repo[@private='false' and '2015'>=substring(@created_at,1,4)])"/>],
-  [2016, <xsl:value-of select="count(organization/repo[@private='false' and '2016'>=substring(@created_at,1,4)])"/>],
-  [2017, <xsl:value-of select="count(organization/repo[@private='false' and '2017'>=substring(@created_at,1,4)])"/>],
-]
-
-<xsl:if test="@hide_private_repositories!='true'">
-privateRepoCount=[
-  [2010, <xsl:value-of select="count(organization/repo[@private='true' and '2010'>=substring(@created_at,1,4)])"/>],
-  [2011, <xsl:value-of select="count(organization/repo[@private='true' and '2011'>=substring(@created_at,1,4)])"/>],
-  [2012, <xsl:value-of select="count(organization/repo[@private='true' and '2012'>=substring(@created_at,1,4)])"/>],
-  [2013, <xsl:value-of select="count(organization/repo[@private='true' and '2013'>=substring(@created_at,1,4)])"/>],
-  [2014, <xsl:value-of select="count(organization/repo[@private='true' and '2014'>=substring(@created_at,1,4)])"/>],
-  [2015, <xsl:value-of select="count(organization/repo[@private='true' and '2015'>=substring(@created_at,1,4)])"/>],
-  [2016, <xsl:value-of select="count(organization/repo[@private='true' and '2016'>=substring(@created_at,1,4)])"/>],
-  [2017, <xsl:value-of select="count(organization/repo[@private='true' and '2017'>=substring(@created_at,1,4)])"/>],
-]
-</xsl:if>
-
-$.plot($("#repoCountChart"), [ <xsl:if test="@hide_private_repositories!='true'">{ data: privateRepoCount, label: 'private'}, </xsl:if> { data: publicRepoCount, label: 'public' } ],
-
-{
-    series: {
-        stack: true,
-        lines: {
-            show: true,
-            lineWidth: 2,
-        },
-        points: { show: true },
-        shadowSize: 2
-    },
-    grid: {
-        borderWidth: 0
-    },
-    legend: {
-        position: 'nw'
-    },
-    colors: [ <xsl:if test="@hide_private_repositories!='true'">"#0F6BA9", </xsl:if>"#2FABE9" ] 
-});
-</script>
-
-<script>
-issuesOpened=[
-  ['2010', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2010'>=@year]/@count)"/>],
-  ['2011', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2011'>=@year]/@count)"/>],
-  ['2012', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2012'>=@year]/@count)"/>],
-  ['2013', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2013'>=@year]/@count)"/>],
-  ['2014', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2014'>=@year]/@count)"/>],
-  ['2015', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2015'>=@year]/@count)"/>],
-  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2016'>=@year]/@count)"/>],
-  ['2017', <xsl:value-of select="sum(organization/repo/issue-data/issues-opened['2017'>=@year]/@count)"/>],
-]
-
-issuesClosed=[
-  ['2010', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2010'>=@year]/@count)"/>],
-  ['2011', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2011'>=@year]/@count)"/>],
-  ['2012', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2012'>=@year]/@count)"/>],
-  ['2013', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2013'>=@year]/@count)"/>],
-  ['2014', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2014'>=@year]/@count)"/>],
-  ['2015', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2015'>=@year]/@count)"/>],
-  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2016'>=@year]/@count)"/>],
-  ['2017', <xsl:value-of select="sum(organization/repo/issue-data/issues-closed['2017'>=@year]/@count)"/>],
-]
-
-prsOpened=[
-  ['2010', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2010'>=@year]/@count)"/>],
-  ['2011', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2011'>=@year]/@count)"/>],
-  ['2012', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2012'>=@year]/@count)"/>],
-  ['2013', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2013'>=@year]/@count)"/>],
-  ['2014', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2014'>=@year]/@count)"/>],
-  ['2015', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2015'>=@year]/@count)"/>],
-  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2016'>=@year]/@count)"/>],
-  ['2017', <xsl:value-of select="sum(organization/repo/issue-data/prs-opened['2017'>=@year]/@count)"/>],
-]
-
-$.plot($("#issueCountChart"), [ 
-{ data: issuesClosed, label: 'closed'}, 
-{ data: issuesOpened, label: 'opened'}, 
-],
-
-{
-    series: {
-        stack: true,
-        lines: {
-            show: true,
-            fill: true,
-            lineWidth: 2,
-        },
-        points: { show: true },
-        shadowSize: 2
-    },
-    grid: {
-        borderWidth: 0
-    },
-    legend: {
-        position: 'nw'
-    },
-    colors: ["#0F6BA9", "#2FABE9"]
-});
-
-prsClosed=[
-  ['2010', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2010'>=@year]/@count)"/>],
-  ['2011', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2011'>=@year]/@count)"/>],
-  ['2012', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2012'>=@year]/@count)"/>],
-  ['2013', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2013'>=@year]/@count)"/>],
-  ['2014', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2014'>=@year]/@count)"/>],
-  ['2015', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2015'>=@year]/@count)"/>],
-  ['2016', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2016'>=@year]/@count)"/>],
-  ['2017', <xsl:value-of select="sum(organization/repo/issue-data/prs-closed['2017'>=@year]/@count)"/>],
-]
-
-$.plot($("#pullRequestCountChart"), [ 
-{ data: prsClosed, label: 'closed' }, 
-{ data: prsOpened, label: 'opened'},
-],
-
-{
-    series: {
-        stack: true,
-        lines: {
-            show: true,
-            fill: true,
-            lineWidth: 2,
-        },
-        points: { show: true },
-        shadowSize: 2
-    },
-    grid: {
-        borderWidth: 0
-    },
-    legend: {
-        position: 'nw'
-    },
-    colors: ["#0F8BC9", "#2FABE9"]
-});
-</script>
-
-<script>
-issueResolveTimes=[
-  [1, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='1 hour'])"/>],
-  [2, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='3 hours'])"/>],
-  [3, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='9 hours'])"/>],
-  [4, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='1 day'])"/>],
-  [5, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='1 week'])"/>],
-  [6, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='1 month'])"/>],
-  [7, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='1 quarter'])"/>],
-  [8, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='1 year'])"/>],
-  [9, <xsl:value-of select="sum(organization/repo/issue-data/age-count/issue-count[@age='over 1 year'])"/>],
-]
-
-$.plot($("#issueTimeToCloseChart"), [ { data: issueResolveTimes} ],
-
-{
-    series: {
-        stack: true,
-        bars: { show: true, barWidth: 0.6 },
-    },
-    xaxis: {
-        ticks: [
-          [1, '1 hour'],
-          [2, '3 hours'],
-          [3, '9 hours'],
-          [4, '1 day'],
-          [5, '1 week'],
-          [6, '1 month'],
-          [7, '1 quarter'],
-          [8, '1 year'],
-          [9, 'over 1 year'] 
-        ]
-    },
-    grid: {
-        borderWidth: 0
-    },
-    colors: ["#0F6BA9"]
-});
-
-prResolveTimes=[
-  [1, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='1 hour'])"/>],
-  [2, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='3 hours'])"/>],
-  [3, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='9 hours'])"/>],
-  [4, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='1 day'])"/>],
-  [5, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='1 week'])"/>],
-  [6, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='1 month'])"/>],
-  [7, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='1 quarter'])"/>],
-  [8, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='1 year'])"/>],
-  [9, <xsl:value-of select="sum(organization/repo/issue-data/age-count/pr-count[@age='over 1 year'])"/>],
-]
-$.plot($("#prTimeToCloseChart"), [ { data: prResolveTimes } ],
-
-{
-    series: {
-        stack: true,
-        bars: { show: true, barWidth: 0.6 },
-    },
-    xaxis: {
-        ticks: [
-          [1, '1 hour'],
-          [2, '3 hours'],
-          [3, '9 hours'],
-          [4, '1 day'],
-          [5, '1 week'],
-          [6, '1 month'],
-          [7, '1 quarter'],
-          [8, '1 year'],
-          [9, 'over 1 year'] 
-        ]
-    },
-    grid: {
-        borderWidth: 0
-    },
-    colors: ["#0F6BA9"]
-});
-
-$.plot($("#issueCommunityPieChart"), [ { label: "Project", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/issue-count[@type='project'])"/>, color: "#0F6BA9" }, { label: "Community", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/issue-count[@type='community'])"/>, color: "#2FABE9" } ],
-  {
-    series: {
-      pie: {
-        show: true,
-        grid: {
-            borderWidth: 0
-        }
-      }
-    }
-
-  });
-$.plot($("#prCommunityPieChart"), [ { label: "Project", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/pr-count[@type='project'])"/>, color: "#0F6BA9" }, { label: "Community", data: <xsl:value-of select="sum(organization/repo/issue-data/community-balance/pr-count[@type='community'])"/>, color: "#2FABE9" } ],
-  {
-    series: {
-      pie: {
-        show: true,
-        grid: {
-            borderWidth: 0
-        }
-      }
-    }
-
-  });
+ plotChart("<xsl:value-of select='@dashboard'/>-repoCount", "LineChart")
+ plotChart("<xsl:value-of select='@dashboard'/>-issueCount", "LineChart")
+ plotChart("<xsl:value-of select='@dashboard'/>-issueTimeToClose", "BarChart")
+ plotChart("<xsl:value-of select='@dashboard'/>-issueCommunityPie", "PieChart")
+ plotChart("<xsl:value-of select='@dashboard'/>-pullRequestCount", "LineChart")
+ plotChart("<xsl:value-of select='@dashboard'/>-prTimeToClose", "BarChart")
+ plotChart("<xsl:value-of select='@dashboard'/>-prCommunityPie", "PieChart")
 </script>
 
         <script type="text/javascript">
