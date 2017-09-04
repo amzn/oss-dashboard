@@ -65,11 +65,11 @@ def review_source(context)
 
   owners.each do |owner|
     context.feedback.print "  #{owner} "
-    review_file=File.open("#{data_directory}/review-xml/#{owner}.xml", 'w')
   
-    report="<github-review>\n"
-    report << " <organization name='#{owner}'>\n"
-  
+    unless(File.exists?("#{data_directory}/review-xml/#{owner}/"))
+      Dir.mkdir("#{data_directory}/review-xml/#{owner}/")
+    end
+
     if(context.login?(owner))
       repos = context.client.repositories(owner)
     else
@@ -81,6 +81,10 @@ def review_source(context)
         next
       end
   
+      review_file=File.open("#{data_directory}/review-xml/#{repo.full_name}.xml", 'w')
+
+      report="    <reports org='#{owner}' name='#{repo.name}'>\n"
+
       report_instances.each do |report_obj|
         txt = report_obj.report(context, repo, "#{scratch_dir}/#{repo.full_name}").to_s
         if(txt)
@@ -89,12 +93,12 @@ def review_source(context)
         report << txt
       end
 
+      report << "    </reports>\n"
+      review_file.puts report
+      review_file.close
+
       context.feedback.print '.'
     end
-    report << " </organization>\n"
-    report << "</github-review>\n"
-    review_file.puts report
-    review_file.close
     context.feedback.print "\n"
   end
   
