@@ -34,11 +34,11 @@ class EmptyDbReporter < DbReporter
     return [ 'Date', ['repository', 'org/repo'] ]
   end
 
-  def db_report(context, org, sync_db)
-    empty=sync_db["SELECT r.name, r.created_at FROM repository r WHERE size=0 AND r.org=?", org]
+  def db_report(context, repo, sync_db)
+    empty=sync_db["SELECT r.name, r.created_at FROM repository r WHERE size=0 AND r.org=? AND r.name=?", repo.owner.login, repo.name]
     text = ''
     empty.each do |row|
-      text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='EmptyDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{repo.full_name}' type='EmptyDbReporter'><field>#{row[:created_at]}</field><field>#{repo.full_name}</field></reporting>\n"
     end
     return text
   end

@@ -23,7 +23,6 @@ require_relative 'db_report_unknown_members.rb'
 require_relative 'db_report_left_employment.rb'
 require_relative 'db_report_unknown_collaborators.rb'
 require_relative 'db_report_wiki_on.rb'
-require_relative 'db_report_team_empty.rb'
 require_relative 'db_report_empty.rb'
 require_relative 'db_report_unchanged.rb'
 require_relative 'db_report_issues_no_comments.rb'
@@ -76,21 +75,38 @@ def run_db_reports(context, sync_db)
   context.feedback.puts " reporting"
 
   owners.each do |org|
-    context.feedback.print "  #{org} "
-    review_file=File.open("#{data_directory}/db-report-xml/#{org}.xml", 'w')
 
-    report="<github-db-report>\n"
-    report << " <organization name='#{org}'>\n"
-
-    report_instances.each do |report_obj|
-      report << report_obj.db_report(context, org, sync_db).to_s
-      context.feedback.print '.'
+    unless(File.exists?("#{data_directory}/db-report-xml/#{org}/"))
+      Dir.mkdir("#{data_directory}/db-report-xml/#{org}/")
     end
 
-    report << " </organization>\n"
-    report << "</github-db-report>\n"
-    review_file.puts report
-    review_file.close
+    if(context.login?(org))
+      repos = context.client.repositories(org)
+    else
+      repos = context.client.organization_repositories(org)
+    end
+
+    context.feedback.print "  #{org} "
+
+    repos.each do |repo|
+
+      review_file=File.open("#{data_directory}/db-report-xml/#{repo.full_name}.xml", 'w')
+
+      report="    <reports org='#{org}' name='#{repo.name}'>\n"
+
+      report_instances.each do |report_obj|
+        txt = report_obj.db_report(context, repo, sync_db).to_s
+        if(txt)
+          txt=txt.force_encoding('UTF-8')
+        end
+        report << txt
+        context.feedback.print '.'
+      end
+
+      report << "    </reports>\n"
+      review_file.puts report
+      review_file.close
+    end
     context.feedback.print "\n"
   end
 

@@ -34,11 +34,11 @@ class WikiOnDbReporter < DbReporter
     return [ 'Create Date', ['repository', 'org/repo'], ['Wiki', 'url'] ]
   end
 
-  def db_report(context, org, sync_db)
-    wikiOn=sync_db["SELECT r.created_at, r.name FROM repository r WHERE has_wiki='1' AND r.org=?", org]
+  def db_report(context, repo, sync_db)
+    wikiOn=sync_db["SELECT r.created_at, r.name FROM repository r WHERE has_wiki='1' AND r.org=? AND r.name=?", repo.owner.login, repo.name]
     text = ''
     wikiOn.each do |row|
-      text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='WikiOnDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field><field>#{context.github_url}/#{org}/#{row[:name]}/wiki</field></reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{repo.full_name}' type='WikiOnDbReporter'><field>#{row[:created_at]}</field><field>#{repo.full_name}</field><field>#{context.github_url}/#{repo.full_name}/wiki</field></reporting>\n"
     end
     return text
   end

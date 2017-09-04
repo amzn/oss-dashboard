@@ -34,12 +34,12 @@ class UnknownCollaboratorsDbReporter < DbReporter
     return [ ['login', 'member'], ['repository', 'org/repo'] ]
   end
 
-  def db_report(context, org, sync_db)
-    unknown=sync_db["SELECT DISTINCT(m.login) as login, r.name FROM member m, repository r, repository_to_member rtm WHERE LOWER(m.login) NOT IN (SELECT LOWER(login) FROM users) AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", org]
+  def db_report(context, repo, sync_db)
+    unknown=sync_db["SELECT DISTINCT(m.login) as login FROM member m, repository r, repository_to_member rtm WHERE LOWER(m.login) NOT IN (SELECT LOWER(login) FROM users) AND m.id=rtm.member_id AND rtm.repo_id=?", repo.id]
 
     text = ''
     unknown.each do |row|
-      text << "  <reporting class='user-report' type='UnknownCollaboratorsDbReporter'><field>#{row[:login]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
+      text << "  <reporting class='user-report' type='UnknownCollaboratorsDbReporter'><field>#{row[:login]}</field><field>#{repo.full_name}</field></reporting>\n"
     end
     return text
   end

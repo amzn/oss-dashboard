@@ -34,11 +34,11 @@ class UnchangedDbReporter < DbReporter
     return [ 'Date', ['repository', 'org/repo'] ]
   end
 
-  def db_report(context, org, sync_db)
-    unchanged=sync_db["SELECT r.name, r.created_at FROM repository r WHERE created_at=pushed_at AND r.org=?", org]
+  def db_report(context, repo, sync_db)
+    unchanged=sync_db["SELECT r.created_at FROM repository r WHERE created_at=pushed_at AND r.org=? AND r.name=?", repo.owner.login, repo.name]
     text = ''
     unchanged.each do |row|
-      text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='UnchangedDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{repo.full_name}' type='UnchangedDbReporter'><field>#{row[:created_at]}</field><field>#{repo.full_name}</field></reporting>\n"
     end
     return text
   end

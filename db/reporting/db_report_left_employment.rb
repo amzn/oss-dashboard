@@ -34,16 +34,16 @@ class LeftEmploymentDbReporter < DbReporter
     return [ ['login', 'url'], 'email' ]
   end
 
-  def db_report(context, org, sync_db)
-    left_members=sync_db["SELECT DISTINCT(m.login) as login, u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr, users u WHERE m.login=u.login AND u.is_employee=false AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=r.id AND r.org=?", org]
+  def db_report(context, repo, sync_db)
+    left_members=sync_db["SELECT DISTINCT(m.login) as login, u.email FROM member m, repository r, team_to_member ttm, team_to_repository ttr, users u WHERE m.login=u.login AND u.is_employee=false AND m.id=ttm.member_id AND ttm.team_id=ttr.team_id AND ttr.repository_id=?", repo.id]
     text = ''
     left_members.each do |row|
-      url="#{context.github_url}/orgs/#{org}/people/#{row[:login]}"
+      url="#{context.github_url}/orgs/#{repo.owner.login}/people/#{row[:login]}"
       text << "  <reporting class='user-report' type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[:login]}</field><field>#{row[:email]}</field></reporting>\n"
     end
-    left_collaborators=sync_db["SELECT DISTINCT(m.login), u.email FROM member m, repository r, repository_to_member rtm, users u WHERE m.login=u.login AND u.is_employee=false AND m.id=rtm.member_id AND rtm.repo_id=r.id AND r.org=?", org]
+    left_collaborators=sync_db["SELECT DISTINCT(m.login), u.email FROM member m, repository r, repository_to_member rtm, users u WHERE m.login=u.login AND u.is_employee=false AND m.id=rtm.member_id AND rtm.repo_id=?", repo.id]
     left_collaborators.each do |row|
-      url="#{context.github_url}/orgs/#{org}/people/#{row[:login]}"
+      url="#{context.github_url}/orgs/#{repo.owner.login}/people/#{row[:login]}"
       text << "  <reporting class='user-report' type='LeftEmploymentDbReporter'><field id='#{url}'>#{row[:login]}</field><field>#{row[:email]}</field></reporting>\n"
     end
     return text

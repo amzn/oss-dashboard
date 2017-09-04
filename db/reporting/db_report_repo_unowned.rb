@@ -34,19 +34,19 @@ class RepoUnownedDbReporter < DbReporter
     return [ 'Date', ['repository', 'org/repo'] ]
   end
 
-  def db_report(context, org, sync_db)
+  def db_report(context, repo, sync_db)
     text = ''
 
     # repos with empty teams
-    emptyteam=sync_db["SELECT r.name, r.created_at FROM repository r, team_to_repository ttr WHERE ttr.team_id NOT IN (SELECT DISTINCT(team_id) FROM team_to_member) AND ttr.repository_id=r.id AND r.org=?", org]
+    emptyteam=sync_db["SELECT r.created_at FROM repository r, team_to_repository ttr WHERE ttr.team_id NOT IN (SELECT DISTINCT(team_id) FROM team_to_member) AND ttr.repository_id=r.id AND r.org=? AND r.name=?", repo.owner.login, repo.name]
     emptyteam.each do |row|
-      text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{repo.full_name}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{repo.full_name}</field></reporting>\n"
     end
 
     # repos with no team
-    noteam=sync_db["SELECT r.name, r.created_at FROM repository r WHERE r.id NOT IN (SELECT DISTINCT repository_id FROM team_to_repository) AND r.org=?", org]
+    noteam=sync_db["SELECT r.created_at FROM repository r WHERE r.id NOT IN (SELECT DISTINCT repository_id FROM team_to_repository) AND r.org=? AND r.name=?", repo.owner.login, repo.name]
     noteam.each do |row|
-      text << "  <reporting class='repo-report' repo='#{org}/#{row[:name]}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{org}/#{row[:name]}</field></reporting>\n"
+      text << "  <reporting class='repo-report' repo='#{repo.full_name}' type='RepoUnownedDbReporter'><field>#{row[:created_at]}</field><field>#{repo.full_name}</field></reporting>\n"
     end
 
     return text

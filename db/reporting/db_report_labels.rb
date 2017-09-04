@@ -16,12 +16,10 @@ class LabelDbReporter < DbReporter
     return [ ['Label', 'labels'], 'PR/Issue Count']
   end
 
-  def db_report(context, org, sync_db)
-    query="SELECT l.name, l.color, count(i2l.item_id) as total FROM labels l, item_to_label i2l WHERE i2l.url=l.url AND l.orgrepo LIKE ? GROUP BY l.name, l.color ORDER BY total"
-    like_term="#{org}/%"
+  def db_report(context, repo, sync_db)
     text=''
 
-    result=sync_db[query, like_term]
+    result=sync_db["SELECT l.name, l.color, count(i2l.item_id) as total FROM labels l, item_to_label i2l WHERE i2l.url=l.url AND l.orgrepo=? GROUP BY l.name, l.color ORDER BY total", repo.full_name]
     result.each do |row|
         name=row[:name]
         color=row[:color]
