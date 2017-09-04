@@ -26,6 +26,20 @@ require_relative 'review-repos/reporter_runner'
 require_relative 'generate-dashboard/generate-dashboard-xml'
 require 'optparse'
 
+  def xml2html(context, xmlFiles, xsltFile, outputDirectory)
+    Dir.glob(xmlFiles).each do |inputFile|
+      stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(xsltFile))
+      xml_doc = LibXML::XML::Document.file(inputFile)
+      html = stylesheet.apply(xml_doc)
+
+      outputFile=File.basename(inputFile, ".xml")
+      htmlFile = File.new("#{outputDirectory}/#{outputFile}.html", 'w')
+      htmlFile.write(html)
+      htmlFile.close
+      context.feedback.print "."
+    end
+  end
+
 options = {}
 
 optparse = OptionParser.new do |opts|
@@ -239,18 +253,7 @@ run_list.each do |phase|
       end
 
       context.feedback.print " xslt\n  "
-      Dir.glob("#{data_directory}/dash-xml/*.xml").each do |inputFile|
-        outputFile=File.basename(inputFile, ".xml")
-
-        stylesheet = LibXSLT::XSLT::Stylesheet.new( LibXML::XML::Document.file(File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt') ) )
-        xml_doc = LibXML::XML::Document.file(inputFile)
-        html = stylesheet.apply(xml_doc)
-
-        htmlFile = File.new("#{www_directory}/#{outputFile}.html", 'w')
-        htmlFile.write(html)
-        htmlFile.close
-        context.feedback.print "."
-      end
+      xml2html(context, "#{data_directory}/dash-xml/*.xml", File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt'), www_directory)
       context.feedback.print "\n"
 
       context.feedback.puts "\nSee HTML in #{www_directory}/ for dashboard."
