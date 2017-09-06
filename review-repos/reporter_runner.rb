@@ -88,7 +88,7 @@ def review_source(context)
       report_instances.each do |report_obj|
         txt = report_obj.report(context, repo, "#{scratch_dir}/#{repo.full_name}").to_s
         if(txt)
-          txt=txt.force_encoding('UTF-8')
+          txt=txt.encode('UTF-8', 'binary', undef: :replace, replace: '')
         end
         report << txt
       end

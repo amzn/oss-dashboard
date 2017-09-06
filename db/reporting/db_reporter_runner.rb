@@ -97,7 +97,7 @@ def run_db_reports(context, sync_db)
       report_instances.each do |report_obj|
         txt = report_obj.db_report(context, repo, sync_db).to_s
         if(txt)
-          txt=txt.force_encoding('UTF-8')
+          txt=txt.encode('UTF-8', 'binary', undef: :replace, replace: '')
         end
         report << txt
         context.feedback.print '.'
