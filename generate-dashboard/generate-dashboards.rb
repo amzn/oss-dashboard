@@ -48,8 +48,8 @@ def generate_tng_repo_xml(context)
 
   sync_db = get_db_handle(context.dashboard_config)
 
-  unless(File.exists?("#{data_directory}/tng-xml/"))
-    Dir.mkdir("#{data_directory}/tng-xml/")
+  unless(File.exists?("#{data_directory}/dash-xml/"))
+    Dir.mkdir("#{data_directory}/dash-xml/")
   end
 
   # Generate XML for Repo data, including time-indexed metrics and collaborators
@@ -61,10 +61,10 @@ def generate_tng_repo_xml(context)
     org = repoRow[:org]
     repoName = repoRow[:name]
 
-    unless(File.exists?("#{data_directory}/tng-xml/#{org}/"))
-      Dir.mkdir("#{data_directory}/tng-xml/#{org}/")
+    unless(File.exists?("#{data_directory}/dash-xml/#{org}/"))
+      Dir.mkdir("#{data_directory}/dash-xml/#{org}/")
     end
-    repo_xml_file=File.open("#{data_directory}/tng-xml/#{org}/#{repoName}.xml", 'w')
+    repo_xml_file=File.open("#{data_directory}/dash-xml/#{org}/#{repoName}.xml", 'w')
 
     closedIssueCountRow = sync_db["SELECT COUNT(*) FROM issues WHERE org='#{org}' AND repo='#{repoName}'"]
     closedIssueCount = closedIssueCountRow.first[:count]
@@ -183,8 +183,8 @@ def add_repo_xml(context, sync_db, repos, file)
   data_directory = context.dashboard_config['data-directory']
   repos.each do |repoFullName|
     # Copy over the repo xml
-    if(File.exists?("#{data_directory}/tng-xml/#{repoFullName}.xml"))
-      txt=File.read("#{data_directory}/tng-xml/#{repoFullName}.xml")
+    if(File.exists?("#{data_directory}/dash-xml/#{repoFullName}.xml"))
+      txt=File.read("#{data_directory}/dash-xml/#{repoFullName}.xml")
       file.puts txt
     end
   end
@@ -300,8 +300,8 @@ def generate_tng_dashboards(context)
     context.feedback.print '  organization-dashboards '
     organizations = context.dashboard_config['organizations+logins']
 
-    unless(File.exists?("#{data_directory}/tng-xml/"))
-      Dir.mkdir("#{data_directory}/tng-xml/")
+    unless(File.exists?("#{data_directory}/dash-xml/"))
+      Dir.mkdir("#{data_directory}/dash-xml/")
     end
   
     # First, generate the metadata needed to build navigation
@@ -348,7 +348,7 @@ def generate_organization_dashboard(context, sync_db, org, metadata)
     return
   end
 
-  dashboard_file=File.open("#{data_directory}/tng-xml/#{org}.xml", 'w')
+  dashboard_file=File.open("#{data_directory}/dash-xml/#{org}.xml", 'w')
 
   dashboard_file.puts "<github-dashdata dashboard='#{org}' includes_private='#{context.private_access?(org)}' hide_private_repositories='#{context.hide_private_repositories?}' logo='#{org_data.first[:avatar_url]}' github_url='#{context.github_url}'>"
 
@@ -380,7 +380,7 @@ def generate_team_dashboard(context, sync_db, slug, metadata)
     return
   end
 
-  dashboard_file=File.open("#{data_directory}/tng-xml/team-#{slug}.xml", 'w')
+  dashboard_file=File.open("#{data_directory}/dash-xml/team-#{slug}.xml", 'w')
 
   dashboard_file.puts "<github-dashdata dashboard='team-#{slug}' team='true' hide_private_repositories='#{context.hide_private_repositories?}' github_url='#{context.github_url}'>"
 
