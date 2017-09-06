@@ -296,7 +296,7 @@ def generate_tng_dashboards(context)
   data_directory = context.dashboard_config['data-directory']
   sync_db = get_db_handle(context.dashboard_config)
 
-  if(context.dashboard_config['organization-dashboards'])
+#  if(context.dashboard_config['organization-dashboards'])
     context.feedback.print '  organization-dashboards '
     organizations = context.dashboard_config['organizations+logins']
 
@@ -314,9 +314,9 @@ def generate_tng_dashboards(context)
     end
 
     context.feedback.print "\n"
-  end
+#  end
 
-  if(context.dashboard_config['team-dashboards'])
+#  if(context.dashboard_config['team-dashboards'])
     context.feedback.print '  team-dashboards '
 
     organizations = context.dashboard_config['organizations+logins']
@@ -327,7 +327,7 @@ def generate_tng_dashboards(context)
       generate_json_for_dashboard(context, "team-#{slug}", repos_for_slug(context, sync_db, slug))
     end
     context.feedback.print "\n"
-  end
+#  end
 
   # TODO: Implement this
   if(context.dashboard_config['custom-dashboards'])
