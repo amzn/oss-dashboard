@@ -209,6 +209,7 @@ def generate_json_data(context)
 
       context.feedback.print '.'
     end
+    context.feedback.print "\n"
   end
 
   # TODO: Output the json-data for the report API
