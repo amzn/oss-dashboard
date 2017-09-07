@@ -305,12 +305,12 @@ charts["LineChart"] = JSON.parse('{ \
                 <h4>Accounts:</h4>
                 <table class="data-grid">
                  <xsl:for-each select="organization">
-                  <xsl:sort select="count(repo)" data-type="number" order="descending"/>
+                  <xsl:sort select="count(../repo[@org=current()/@name])" data-type="number" order="descending"/>
                   <xsl:variable name="orgname2" select="@name"/>
                   <xsl:variable name="logo2" select="@avatar"/>
                   <xsl:variable name="orgDescription2" select="organization/description"/>
                   <tr>
-                    <td><xsl:if test="$logo2"><a rel="tooltip" title="{$orgDescription2}" href="{$githuburl}/{$orgname2}"><img width="35" height="35" src="{$logo2}&amp;s=35"/></a></xsl:if><a href="{$orgname2}.html"><xsl:value-of select="@name"/> (<xsl:value-of select="count(repo)"/>)</a></td>
+                    <td><xsl:if test="$logo2"><a rel="tooltip" title="{$orgDescription2}" href="{$githuburl}/{$orgname2}"><img width="35" height="35" src="{$logo2}&amp;s=35"/></a></xsl:if><a href="{$orgname2}.html"><xsl:value-of select="@name"/> (<xsl:value-of select="count(../repo[@org=current()/@name])"/>)</a></td>
                     <td></td>
                   </tr>
                  </xsl:for-each>
