@@ -50,6 +50,8 @@
 # 	Run XSLT for the Dashboard
 
 require_relative './generate-dashboard-xml'
+require 'rexml/document'
+include REXML
 
 def generate_tng_repo_xml(context)
 
@@ -411,4 +413,50 @@ def generate_team_dashboard(context, sync_db, slug, metadata)
   dashboard_file.puts "</github-dashdata>"
   dashboard_file.close
   context.feedback.print "."
+end
+
+def merge_dashboard_xml_to(context, attribute, xmlfile, title)
+
+  organizations = context.dashboard_config[attribute]
+  unless(organizations)
+    return
+  end
+
+  data_directory = context.dashboard_config['data-directory']
+
+  dashboard_file=File.open("#{data_directory}/dash-xml/#{xmlfile}", 'w')
+  # TODO: Don't hard code includes_private
+  dashboard_file.puts "<github-dashdata dashboard='#{title}' includes_private='true' github_url='#{context.github_url}'>"
+
+  dashboard_file.puts(generate_metadata_header(context))
+
+  context.feedback.puts " merge: #{title}"
+
+  organizations.each do |org|
+
+    filename="#{data_directory}/dash-xml/#{org}.xml"
+    unless(File.exist?(filename))
+      next
+    end
+    xmlfile=File.new(filename)
+    begin
+      dashboardXml = Document.new(xmlfile)
+    end
+
+    dashboardXml.root.each_element("organization") do |child|
+      dashboard_file.puts " #{child}"
+    end
+    # TODO: Need to filter out duplicates if this is used to merge custom dashboards
+    dashboardXml.root.each_element("repo") do |child|
+      dashboard_file.puts " #{child}"
+    end
+
+    xmlfile.close
+    context.feedback.puts "  #{org}"
+  end
+
+  dashboard_file.puts "</github-dashdata>"
+
+  dashboard_file.close
+
 end
