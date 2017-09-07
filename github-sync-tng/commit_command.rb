@@ -55,6 +55,10 @@ class SyncCommitsCommand < BaseCommand
 
       end
 
+      if(queue.class.name=='AsyncQueue')
+        context.feedback.print "\n"
+      end
+
     end
 
   end
