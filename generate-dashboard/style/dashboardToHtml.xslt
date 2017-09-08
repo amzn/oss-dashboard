@@ -426,9 +426,9 @@ charts["LineChart"] = JSON.parse('{ \
                 </xsl:if>
                 </td>
                 <td>
-                  <xsl:if test="/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]">
-                    <xsl:variable name="licenseFile" select="/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]/@file"/>
-                    <a href="{$githuburl}/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]"/> (<xsl:value-of select="round(/github-dashdata/organization[@name=$orgname2]/repo/reports/license[@repo=$orgreponame]/@confidence)"/>%)</a>
+                  <xsl:if test="/github-dashdata/repo/reports/license[@repo=$orgreponame]">
+                    <xsl:variable name="licenseFile" select="/github-dashdata/repo/reports/license[@repo=$orgreponame]/@file"/>
+                    <a href="{$githuburl}/{$orgname2}/{$reponame}/blob/master/{$licenseFile}"><xsl:value-of select="/github-dashdata/repo/reports/license[@repo=$orgreponame]"/> (<xsl:value-of select="round(/github-dashdata/repo/reports/license[@repo=$orgreponame]/@confidence)"/>%)</a>
                   </xsl:if>
                 </td>
                 <td><xsl:value-of select='@language'/></td>
