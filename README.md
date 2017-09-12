@@ -227,6 +227,42 @@ Available phases are:
 |  generate-dashboard/teams-xml | Splits the organizations up into separate Team XML files |
 |  generate-dashboard/xslt | Turns the XML files into HTML |
 
+### Use Docker
+
+You can run oss-dashboard with Docker.
+
+```
+  docker build -t oss-dashboard .
+  docker run \
+    -e GH_ACCESS_TOKEN=${GH_ACCESS_TOKEN} \
+    oss-dashboard
+```
+
+If you configure dashboard/github settings, you write configuration files (`config-dashboard.yaml` and `config-github.yaml`) in this root dir.
+(See [Setup section](https://github.com/amzn/oss-dashboard#setup) about the contents of configuration files)
+
+Then execute the following commands.
+
+```
+  docker build -t oss-dashboard .
+  docker run \
+    -v $PWD/config-dashboard.yaml:/oss-dashboard/config-dashboard.yaml \
+    -v $PWD/config-github.yaml:/oss-dashboard/config-github.yaml \
+    -v $PWD/data:/oss-dashboard/data \  # if you need data files (specified `data-directory`), you need this line.
+    -v $PWD/html:/oss-dashboard/html \  # if you need html files (specified `www-directory`), you need this line.
+    oss-dashbord --ghconfig config-github.yaml config-dashboard.yaml 
+```
+
+If you connect to your organization's GitHub Enterprise, you must specify your GitHub Enterprise API endpoint to `OCTOKIT_API_ENDPOINT`.
+
+```
+  docker run \
+    -v $PWD/config-dashboard.yaml:/oss-dashboard/config-dashboard.yaml \
+    -v $PWD/config-github.yaml:/oss-dashboard/config-github.yaml \
+    -e OCTOKIT_API_ENDPOINT=https://github.mycompany.com/api/v3/ \
+    oss-dashbord --ghconfig config-github.yaml config-dashboard.yaml
+```
+
 ## Helper Tools
 
 You only get 5000 requests an hour to GitHub, so keeping an eye on your current request count can be important. 
@@ -260,4 +296,3 @@ By default the refresh_dashboard.rb script outputs '.' characters to show it's t
 ## Bootstrap Themes
 
 The HTML generated relies, amongst other libraries, on Bootstrap. The HTML files look for a file named bootstrap-theme.css in the same directory, allowing you to customize the look and feel of the dashboard (typically by finding a theme you like and using that). 
-
