@@ -23,9 +23,9 @@ class LabelDbReporter < DbReporter
     result.each do |row|
         name=row[:name]
         color=row[:color]
-        count=row[:count]
+        total=row[:total]
         label = "<label color='#{color}'>#{name}</label>"
-        text << "  <reporting class='issue-report' type='LabelDbReporter'><field>#{escape_amp(label)}</field><field>#{count}</field></reporting>"
+        text << "  <reporting class='issue-report' type='LabelDbReporter'><field>#{escape_amp(label)}</field><field>#{total}</field></reporting>"
     end
 
     return text
