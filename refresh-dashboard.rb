@@ -125,6 +125,9 @@ www_directory = dashboard_config['www-directory']
 unless(File.exists?(data_directory))
   Dir.mkdir(data_directory)
 end
+unless(File.exists?(www_directory))
+  Dir.mkdir(www_directory)
+end
 
 if(options[:light] and ARGV[1])
   puts "Light mode does not allow specific phases to be called. "
@@ -252,10 +255,6 @@ run_list.each do |phase|
     end
 
     if(phase=='generate-dashboard' or phase=='generate-dashboard/xslt')
-      unless(File.exists?(www_directory))
-        Dir.mkdir(www_directory)
-      end
-
       # xslt the dashboards
       context.feedback.print " xslt (dashboards) "
       xml2html(context, "#{data_directory}/dash-xml/*.xml", File.join( File.dirname(__FILE__), 'generate-dashboard', 'style', 'dashboardToHtml.xslt'), www_directory)
