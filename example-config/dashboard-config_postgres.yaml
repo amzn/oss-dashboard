@@ -12,6 +12,7 @@
 
     organizations: ['amznlabs']
     logins: []
+    repositories: []   # 'org/repo' format
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'UnknownMembersDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter']
 
