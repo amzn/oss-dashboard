@@ -172,11 +172,7 @@ class SyncOrgReposMDCommand < BaseCommand
     sync_db=params[1]
     org=@args['org']
 
-    if(context.login?(org))
-      repos=context.client.repositories(org)
-    else
-      repos=context.client.organization_repositories(org)
-    end
+    repos=context.repositories(org)
 
     repos.each do |repo_obj|
       begin # Repository access blocked (Octokit::ClientError)

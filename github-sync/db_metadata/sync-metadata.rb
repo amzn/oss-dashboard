@@ -57,6 +57,7 @@ def store_organization_teams(db, client, org)
       "INSERT INTO team (id, org, name, slug, description) VALUES (?, ?, ?, ?, ?)",
       team_obj.id, org, team_obj.name, team_obj.slug, team_obj.description ].insert
 
+    # TODO: This isn't filtering by the repository configuration
     repos=client.team_repositories(team_obj.id)
     repos.each do |repo_obj|
       db["INSERT INTO team_to_repository (team_id, repository_id) VALUES(?, ?)", team_obj.id, repo_obj.id ].insert
@@ -71,11 +72,7 @@ def store_organization_teams(db, client, org)
 end
 
 def store_organization_repositories(context, db, org)
-  if(context.login?(org))
-    repos=context.client.repositories(org)
-  else
-    repos=context.client.organization_repositories(org)
-  end
+  repos=context.repositories(org)
 
   repos.each do |repo_obj|
    begin # Repository access blocked (Octokit::ClientError)
@@ -118,8 +115,9 @@ def store_organization_members(db, client, org_obj, private, previous_members)
   end
 
   # Get collaborators too - no organization API :(
+  # TODO: Does this work for personal accounts or just organizations?
   if(private)
-    client.organization_repositories(org_obj.id).each do |repo_obj|
+    client.repositories(org_obj.name).each do |repo_obj|
       collaborators=client.collaborators(repo_obj.full_name)
       collaborators.each do |collaborator|
         unless(previous_members[collaborator.id])
@@ -159,49 +157,35 @@ end
 
 def sync_metadata(context, sync_db)
 
-  organizations = context.dashboard_config['organizations']
-  logins = context.dashboard_config['logins']
+  orgs = context.dashboard_config['organizations+logins']
   data_directory = context.dashboard_config['data-directory']
   context.feedback.puts " metadata"
   previous_members=Hash.new
 
-  if(organizations)
-    organizations.each do |org_login|
-     begin
+  orgs.each do |org_login|
+  begin
 
-      # Repository access blocked (Octokit::ClientError)
-      sync_db.transaction do
-        context.feedback.print "  #{org_login} "
-        clear_organization(sync_db, org_login)
-        org=store_organization(context, sync_db, org_login)
-        store_organization_repositories(context, sync_db, org_login)
+    # Repository access blocked (Octokit::ClientError)
+    sync_db.transaction do
+      context.feedback.print "  #{org_login} "
+      clear_organization(sync_db, org_login)
+      org=store_organization(context, sync_db, org_login)
+      store_organization_repositories(context, sync_db, org_login)
+
+      unless(context.login?(org_login))
         store_organization_members(sync_db, context.client, org, context.private_access?(org_login), previous_members)
         if(context.private_access?(org_login))
           store_organization_teams(sync_db, context.client, org_login)
         end
       end
-     rescue => e
-        puts "Error during processing: #{$!}"
-        puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
-     rescue Octokit::ClientError
-        context.feedback.print "!#{$!}!"
-     end
-     context.feedback.print "\n"
     end
-  end
-
-
-
-  if(logins)
-    logins.each do |login|
-      sync_db.transaction do
-        context.feedback.print "  #{login} "
-        clear_organization(sync_db, login)
-        org=store_organization(context, sync_db, login)
-        store_organization_repositories(context, sync_db, login)
-      end
-     context.feedback.print "\n"
-    end
+   rescue => e
+      puts "Error during processing: #{$!}"
+      puts "Backtrace:\n\t#{e.backtrace.join("\n\t")}"
+   rescue Octokit::ClientError
+      context.feedback.print "!#{$!}!"
+   end
+   context.feedback.print "\n"
   end
 
   context.feedback.print "  :filling-in-member-data"

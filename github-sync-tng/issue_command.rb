@@ -32,11 +32,7 @@ class SyncIssuesCommand < BaseCommand
 
     owners.each do |org|
 
-      if(context.login?(org))
-        repos=context.client.repositories(org)
-      else
-        repos=context.client.organization_repositories(org)
-      end
+      repos=context.repositories(org)
 
       repos.each do |repo_obj|
 ## COMMENTING OUT MILESTONES. NO VALUE IN GRABBING DATA CURRENTLY AND LINKING DOESN'T SEEM TO BE WORKING.

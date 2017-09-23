@@ -32,6 +32,19 @@ class DashboardContext < Hash
     if(dashboard_config['logins'])
       owners.concat(dashboard_config['logins'])
     end
+
+    if(dashboard_config['repositories'])
+      # default to empty array
+      @repo_hash=Hash.new { |h, k| h[k] = Array.new }
+      dashboard_config['repositories'].each do |orgrepo|
+        if(orgrepo.count('/') == 1)
+          (org, repo) = orgrepo.split('/')
+          @repo_hash[org] << repo
+        end
+      end
+      owners.concat(@repo_hash.keys)
+    end
+
     dashboard_config['organizations+logins']=owners
   end
 
@@ -78,6 +91,23 @@ class DashboardContext < Hash
 
   def hide_private_repositories?
     return dashboard_config['hide-private-repositories']==true
+  end
+
+  def repositories(account)
+    if(login?(account))
+      return client.repositories(account)
+    elsif(@repo_hash[account])
+      repos = client.organization_repositories(account)
+      filtered_repos=Array.new
+      repos.each do |repo|
+        if(@repo_hash[account].include?(repo.name))
+          filtered_repos << repo
+        end
+      end
+      return filtered_repos
+    else
+      return client.organization_repositories(account)
+    end
   end
 
 end

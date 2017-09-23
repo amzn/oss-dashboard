@@ -55,11 +55,7 @@ def sync_releases(context, sync_db)
       sync_db.transaction do
         context.feedback.print "  #{org} "
 
-        if(context.login?(org))
-          repos=context.client.repositories(org)
-        else
-          repos=context.client.organization_repositories(org)
-        end
+        repos=context.repositories(org)
 
         # There's no @since here, so it's removing current data and replacing with all release info from GitHub
         # Could use this for initial load and use the event data stream for updates

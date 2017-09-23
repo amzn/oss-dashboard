@@ -39,11 +39,7 @@ class SyncTrafficCommand < BaseCommand
         context.feedback.print "  #{org} "
       end
 
-      if(context.login?(org))
-        repos=context.client.repositories(org)
-      else
-        repos=context.client.organization_repositories(org)
-      end
+      repos=context.repositories(org)
 
       repos.each do |repo_obj|
         queue.push(SyncTrafficForRepoCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )

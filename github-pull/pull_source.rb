@@ -42,11 +42,8 @@ def pull_source(context)
       Dir.mkdir("#{scratch_directory}/#{owner}")
     end
       
-    if(context.login?(owner))
-      repos = context.client.repositories(owner)
-    else
-      repos = context.client.organization_repositories(owner)
-    end
+    repos = context.repositories(owner)
+
     repos.each do |repo|
       if repo.private
         next

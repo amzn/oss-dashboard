@@ -31,11 +31,7 @@ class SyncIssueCommentsCommand < BaseCommand
 
     owners.each do |org|
 
-      if(context.login?(org))
-        repos=context.client.repositories(org)
-      else
-        repos=context.client.organization_repositories(org)
-      end
+      repos=context.repositories(org)
 
       repos.each do |repo_obj|
         queue.push(SyncItemCommentsCommand.new( { 'org' => org, 'repo' => repo_obj.name } ) )

@@ -80,11 +80,7 @@ def run_db_reports(context, sync_db)
       Dir.mkdir("#{data_directory}/db-report-xml/#{org}/")
     end
 
-    if(context.login?(org))
-      repos = context.client.repositories(org)
-    else
-      repos = context.client.organization_repositories(org)
-    end
+    repos = context.repositories(org)
 
     context.feedback.print "  #{org} "
 

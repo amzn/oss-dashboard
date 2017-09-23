@@ -70,11 +70,7 @@ def review_source(context)
       Dir.mkdir("#{data_directory}/review-xml/#{owner}/")
     end
 
-    if(context.login?(owner))
-      repos = context.client.repositories(owner)
-    else
-      repos = context.client.organization_repositories(owner)
-    end
+    repos = context.repositories(owner)
 
     repos.each do |repo|
       unless File.exists?("#{scratch_dir}/#{repo.full_name}")

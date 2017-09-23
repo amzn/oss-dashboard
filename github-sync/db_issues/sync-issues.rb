@@ -128,11 +128,7 @@ def sync_issues(context, sync_db)
 
   owners.each do |org|
 
-    if(context.login?(org))
-      repos=context.client.repositories(org)
-    else
-      repos=context.client.organization_repositories(org)
-    end
+    repos=context.repositories(org)
 
     context.feedback.print "  #{org} "
     getLatestForOrgRepos(context, sync_db, org, repos)
@@ -167,11 +163,7 @@ def sync_issue_comments(context, sync_db)
   context.feedback.puts " issue-comments"
 
   owners.each do |org|
-    if(context.login?(org))
-      repos=context.client.repositories(org)
-    else
-      repos=context.client.organization_repositories(org)
-    end
+    repos=context.repositories(org)
 
     context.feedback.print "  #{org} "
     getLatestIssueComments(context, sync_db, org, repos)

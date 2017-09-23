@@ -39,7 +39,7 @@ end
 
 # TODO: If no access to repo, use repository_public_events
 def getAllForOrg(client, event_db, org)
-  client.organization_repositories(org).each do |repo_obj|
+  client.repositories(org).each do |repo_obj|
     repo=repo_obj.full_name
 #    puts "Getting events for #{repo}"
     maxId=db_getMaxIdForRepo(event_db, repo)           # Get the current max id in the db
