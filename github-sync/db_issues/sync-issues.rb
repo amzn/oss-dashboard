@@ -102,9 +102,9 @@ def getLatestForOrgRepos(context, issue_db, org, repos)
         if(maxTimestamp)
           # Increment the timestamp by a second to avoid getting repeats
           ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
-          issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'since' => ts, 'direction', 'asc' } )
+          issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'since' => ts, 'direction' => 'asc' } )
         else
-          issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'direction', 'asc' } )
+          issues=context.client.list_issues(repo_obj.full_name, { 'state' => 'all', 'direction' => 'asc' } )
         end
         db_insert_issues(issue_db, issues, org, repo_obj.name)                   # Insert any new items
         db_link_issues(issue_db, issues, org, repo_obj.name)

@@ -123,9 +123,9 @@ class SyncItemsCommand < BaseCommand
     if(maxTimestamp)
       # Increment the timestamp by a second to avoid getting repeats
       ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
-      issues=context.client.list_issues(orgrepo, { 'state' => 'all', 'since' => ts, 'direction', 'asc' } )
+      issues=context.client.list_issues(orgrepo, { 'state' => 'all', 'since' => ts, 'direction' => 'asc' } )
     else
-      issues=context.client.list_issues(orgrepo, { 'state' => 'all', 'direction', 'asc' } )
+      issues=context.client.list_issues(orgrepo, { 'state' => 'all', 'direction' => 'asc' } )
     end
     unless(issues.empty?)
 
