@@ -31,6 +31,10 @@ def generate_report_metadata(context, metadata, tag)
   db_report_instances.each do |report_obj|
     if(report_obj.report_class() == tag)
       metadata << "    <report key='#{report_obj.class.name}' name='#{report_obj.name}'><description>#{report_obj.describe}</description>"
+
+      # This is an API hack to provide the context to db_column without changing that API
+      report_obj.set_context(context) if report_obj.respond_to? :set_context
+
       report_obj.db_columns.each do |db_column|
         if(db_column.kind_of?(Array))
           metadata << "<column-type type='#{db_column[1]}'>#{escape_for_xml(db_column[0])}</column-type>"
