@@ -11,7 +11,7 @@ class LabelCountDbReporter < DbReporter
   end
 
   def describe()
-    return "This report shows the number of open issues for a configured list of standard labels. "
+    return "This report shows the number of open issues and pull requests for a configured list of standard labels. "
   end
 
   def labels(context=nil)
