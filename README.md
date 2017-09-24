@@ -67,8 +67,10 @@ For an example file, see
 
 ```
   dashboard:
-    organizations: ['amzn', 'amznlabs']
-    logins: ['hyandell']
+    organizations: ['amzn', 'amznlabs']       # One, or more,
+    logins: ['hyandell']                      #   of these 
+    repositories: ['amzn/oss-dashboard']      # are required
+
     data-directory: /full/path/to/directory/to/store/data
     reports: [ 'DocsReporter', 'LicenseReporter', 'BinaryReporter' ]
     db-reports: [ 'UnknownCollaboratorsDbReporter', 'LeftEmploymentDbReporter', 'UnknownMembersDbReporter', 'WikiOnDbReporter', 'EmptyDbReporter', 'UnchangedDbReporter', 'NoIssueCommentsDbReporter', 'NoPrCommentsDbReporter', 'RepoUnownedDbReporter', 'LabelDbReporter', 'AverageIssueCloseDbReporter', 'AveragePrCloseDbReporter' ]
@@ -100,6 +102,10 @@ This lists the organizations that you wish to include in your dashboard.
 ### logins
 
 This lists the user logins that you wish to include in your dashboard. Under the hood the dashboard treats these largely the same, storing the data in the same location.
+
+### repositories
+
+This lists any repositories you wish to include in your dashboard (i.e. pull in a repository rather than every repository in the organization). It currently only supports repositories in organizations.
 
 ### data-directory
 
