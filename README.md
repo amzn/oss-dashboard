@@ -235,6 +235,8 @@ Available phases are:
 
 ### Use Docker
 
+NOTE: Experimental; feedback via GitHub issues much appreciated.
+
 You can run oss-dashboard with Docker.
 
 ```
