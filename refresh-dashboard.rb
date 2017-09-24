@@ -183,6 +183,7 @@ if(context.github_com?)
   context[:RESET_RATE_LIMIT]=client.rate_limit.resets_at
   unless(options[:quiet])
     context.feedback.puts "Remaining GitHub Calls: #{context[:START_RATE_LIMIT]}"
+    context.feedback.puts "User: #{client.user.login}"
     context.feedback.puts "GitHub rate limit reset: #{context[:RESET_RATE_LIMIT]}"
   end
 else
