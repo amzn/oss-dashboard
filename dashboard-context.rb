@@ -96,7 +96,7 @@ class DashboardContext < Hash
   def repositories(account)
     if(login?(account))
       return client.repositories(account)
-    elsif(@repo_hash.key?(account))
+    elsif(defined?(@repo_hash) and @repo_hash.key?(account))
       repos = client.organization_repositories(account)
       filtered_repos=Array.new
       repos.each do |repo|
