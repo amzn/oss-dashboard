@@ -33,6 +33,22 @@ require_relative 'db_report_average_time_close_issue.rb'
 require_relative 'db_report_average_time_close_pr.rb'
 require_relative 'db_report_label_count.rb'
 
+# Remove any control characters that XML dislikes
+#
+# I ADDED \x0 to this
+# [#x1-#x8], [#xB-#xC], [#xE-#x1F], [#x7F-#x84], [#x86-#x9F], [#xFDD0-#xFDDF],
+#
+# Not implemented yet
+# [#x1FFFE-#x1FFFF], [#x2FFFE-#x2FFFF], [#x3FFFE-#x3FFFF],
+# [#x4FFFE-#x4FFFF], [#x5FFFE-#x5FFFF], [#x6FFFE-#x6FFFF],
+# [#x7FFFE-#x7FFFF], [#x8FFFE-#x8FFFF], [#x9FFFE-#x9FFFF],
+# [#xAFFFE-#xAFFFF], [#xBFFFE-#xBFFFF], [#xCFFFE-#xCFFFF],
+# [#xDFFFE-#xDFFFF], [#xEFFFE-#xEFFFF], [#xFFFFE-#xFFFFF],
+# [#x10FFFE-#x10FFFF]
+def stripRestricted(txt)
+  return txt.tr("\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u0084\u0086-\u009f\ufdd0-\ufddf", '')
+end
+
 # TODO: Consider merging this code with the similar review-source function
 def get_db_reporter_instances(dashboard_config)
   reports = dashboard_config['db-reports']
@@ -95,6 +111,7 @@ def run_db_reports(context, sync_db)
         txt = report_obj.db_report(context, repo, sync_db).to_s
         if(txt)
           txt=txt.encode('UTF-8', 'binary', undef: :replace, replace: '')
+          txt=stripRestricted(txt)
         end
         report << txt
         context.feedback.print '.'
