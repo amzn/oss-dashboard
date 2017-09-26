@@ -1072,7 +1072,9 @@ charts["LineChart"] = JSON.parse('{ \
      <td><xsl:value-of select="$value"/></td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='date'">
-     <td><xsl:value-of select="substring-before($value, 'T')"/></td>
+     <!-- TODO: Strip off the timezone? -->
+     <!--<td><xsl:value-of select="substring-before($value, 'T')"/></td>-->
+     <td><xsl:value-of select="$value"/></td>
     </xsl:if>
     <xsl:if test="$columntypes[$index]/@type='labels'">
       <xsl:if test="label">
