@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_DB=oss-dashboard
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+  dashboard:
+    build:
+      context: ./
+      args:
+        - http_proxy
+        - https_proxy
+    environment:
+      - GH_ACCESS_TOKEN=
+      - OCTOKIT_API_ENDPOINT= # if you use oss-dashboard to GitHub Enterprise, specify GHE api endpoint (ex. https://github.mycompany.com/api/v3)
+    command: refresh-dashboard.rb config-dashboard.yaml
+    volumes:
+      - ./config-dashboard.yaml:/oss-dashboard/config-dashboard.yaml
+      # - ./config-github.yaml:/oss-dashboard/config-github.yaml
+      - ./data:/oss-dashboard/data
+      - ./html:/oss-dashboard/html
+    links:
+      - db
