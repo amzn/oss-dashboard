@@ -23,6 +23,22 @@ require_relative 'report_docs.rb'
 require_relative 'report_binary_files.rb'
 require_relative 'report_license.rb'
 
+# Remove any control characters that XML dislikes
+#
+# I ADDED \x0 to this
+# [#x1-#x8], [#xB-#xC], [#xE-#x1F], [#x7F-#x84], [#x86-#x9F], [#xFDD0-#xFDDF],
+#
+# Not implemented yet
+# [#x1FFFE-#x1FFFF], [#x2FFFE-#x2FFFF], [#x3FFFE-#x3FFFF],
+# [#x4FFFE-#x4FFFF], [#x5FFFE-#x5FFFF], [#x6FFFE-#x6FFFF],
+# [#x7FFFE-#x7FFFF], [#x8FFFE-#x8FFFF], [#x9FFFE-#x9FFFF],
+# [#xAFFFE-#xAFFFF], [#xBFFFE-#xBFFFF], [#xCFFFE-#xCFFFF],
+# [#xDFFFE-#xDFFFF], [#xEFFFE-#xEFFFF], [#xFFFFE-#xFFFFF],
+# [#x10FFFE-#x10FFFF]
+def stripRestricted(txt)
+  return txt.tr("\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u0084\u0086-\u009f\ufdd0-\ufddf", '')
+end
+
 def get_reporter_instances(dashboard_config)
   reports = dashboard_config['reports']
   report_path = dashboard_config['report-path']
@@ -85,6 +101,7 @@ def review_source(context)
         txt = report_obj.report(context, repo, "#{scratch_dir}/#{repo.full_name}").to_s
         if(txt)
           txt=txt.encode('UTF-8', 'binary', undef: :replace, replace: '')
+          txt=stripRestricted(txt)
         end
         report << txt
       end
