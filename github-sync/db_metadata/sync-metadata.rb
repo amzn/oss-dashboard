@@ -117,7 +117,7 @@ def store_organization_members(db, client, org_obj, private, previous_members)
   # Get collaborators too - no organization API :(
   # TODO: Does this work for personal accounts or just organizations?
   if(private)
-    client.repositories(org_obj.name).each do |repo_obj|
+    client.repositories(org_obj.login).each do |repo_obj|
       collaborators=client.collaborators(repo_obj.full_name)
       collaborators.each do |collaborator|
         unless(previous_members[collaborator.id])
