@@ -59,6 +59,9 @@ def eval_queue(queue, context, sync_db)
       queue.push(cmd)
       return_code=false
       break
+    rescue Octokit::Conflict => msg
+      context.feedback.puts "!"
+      return false
     rescue Faraday::TimeoutError => msg
       puts "GitHub API timing out, pushing command back on queue: #{msg}"
       queue.push(cmd)
