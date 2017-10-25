@@ -83,6 +83,10 @@ require "date"
           ].insert
         views['views'].each do |view|
             db[
+              "DELETE FROM traffic_views_daily WHERE org=? AND repo=? AND timestamp=?",
+              org, repo, gh_to_db_timestamp(view['timestamp'])
+              ].delete
+            db[
              "INSERT INTO traffic_views_daily (
                 org, repo, count, uniques, timestamp
               )
@@ -113,17 +117,21 @@ require "date"
           clones['uniques']
           ].insert
         clones['clones'].each do |clone|
-            db[
-             "INSERT INTO traffic_clones_daily (
-                org, repo, count, uniques, timestamp
-              )
-              VALUES ( ?, ?, ?, ?, ? )",
-              org,
-              repo,
-              clone['count'],
-              clone['uniques'],
-              gh_to_db_timestamp(clone['timestamp'])
-              ].insert
+          db[
+            "DELETE FROM traffic_clones_daily WHERE org=? AND repo=? AND timestamp=?",
+            org, repo, gh_to_db_timestamp(clone['timestamp'])
+            ].delete
+          db[
+           "INSERT INTO traffic_clones_daily (
+              org, repo, count, uniques, timestamp
+            )
+            VALUES ( ?, ?, ?, ?, ? )",
+            org,
+            repo,
+            clone['count'],
+            clone['uniques'],
+            gh_to_db_timestamp(clone['timestamp'])
+            ].insert
         end
       end
     rescue => e
