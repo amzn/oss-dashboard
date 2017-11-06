@@ -2,9 +2,9 @@
 
 There is a distinct lack of tooling for GitHub admins and Open Source program managers who oversee many GitHub organizations. The oss-dashboard provides a view over many GitHub projects, allowing for custom reporting on the synchronized data. 
 
----
+![Screenshot](../screenshots/BasicDashboardExample.png?raw=true)
 
-![Screenshot](screenshots/BasicDashboardExample.png?raw=true)
+---
 
 ## High level description of the architecture
 
@@ -28,12 +28,12 @@ An HTML dashboard is generated from the PostgreSQL Database (phase 1) and the an
 
 The following documents provided further information
 
- * Installing from source
- * Installing via Docker
- * Configuring
- * Running
- * Customising
- * Contributing
+ * [Installing from source](InstallingFromSource.md)
+ * [Installing via Docker](InstallingViaDocker.md)
+ * [Configuring](Configuring.md)
+ * [Running](Running.md)
+ * [Customising](Customising.md)
+ * [Contributing](Contributing.md)
 
 ## Project Direction
 
