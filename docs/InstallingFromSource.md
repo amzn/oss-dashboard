@@ -6,7 +6,7 @@ Follow these instructions to prepare to run the oss-dashboard.
 
 ### PostgreSQL
 
-The oss-dashboard depends on PostgreSQL to store its data. You can either install a [local version](https://www.postgresql.org/download/), or use a hosted version (for example our own [Amazon RDS for PostgreSQL](https://aws.amazon.com/rds/postgresql/).
+The oss-dashboard depends on PostgreSQL to store its data. You can either install a [local version](https://www.postgresql.org/download/), or use a hosted version (for example our own [Amazon RDS for PostgreSQL](https://aws.amazon.com/rds/postgresql/)).
 
 If a dev package is available to be installed (for example Red Hat RPM/Debian APT based Linuxes), install that as well.
 
