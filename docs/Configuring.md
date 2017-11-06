@@ -2,22 +2,34 @@
 
 ## Configuring the GitHub connection
 
-* Decide how to manage your GitHub personal access token.
-  * You can store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit.
-  * Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600.
+You will need a GitHub personal access token so that the oss-dashboard can pull the data from GitHub. You can create one on your [settings page](https://github.com/settings/tokens). 
 
-To check your token actually works access the following and check the headers:
+For general use, no specific scopes are required. If you wish to see private organization data (such as Teams, all Members and private Repositories), you will need to enable the 'repo' scope when creating your personal access token.
+
+To confirm your token works, you can access the following and check the response:
 https://api.github.com/user?access_token=YOUR_TOKEN_GOES_HERE 
+
+If you see the following, then something went wrong:
+
+```
+{
+  "message": "Bad credentials",
+  "documentation_url": "https://developer.github.com/v3"
+}
+```
+
+Once you have your token, you will need to decide how to make it available to the oss-dashboard. You can:
+
+1. Store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit but is less secure on the environment. 
+2. (Recommended) Create a file (outside of the git clone) to contain your GitHub access token. You should set the permissions to 600 so only the logged in user can read the file.
 
 Example file:
 
 ```
  github:
    access_token: 'your github personal access token'
-   ssl_verify: false    # Optional - useful for GitHub Enterprise deployments with self-signed certificates
+   ssl_verify: false    # Optional - for use with GitHub Enterprise deployments with self-signed certificates
 ```
-
-For general use, no specific scopes are required. If you wish to see private organization data (such as Teams, all Members and private Repositories), you will need to enable the 'repo' scope.
 
 ## Configuring the Dashboard
 
