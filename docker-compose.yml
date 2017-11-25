@@ -18,8 +18,8 @@ services:
         - http_proxy
         - https_proxy
     environment:
-      - GH_ACCESS_TOKEN=
-      - OCTOKIT_API_ENDPOINT= # if you use oss-dashboard to GitHub Enterprise, specify GHE api endpoint (ex. https://github.mycompany.com/api/v3)
+      - GH_ACCESS_TOKEN
+      - OCTOKIT_API_ENDPOINT # if you use oss-dashboard to GitHub Enterprise, specify GHE api endpoint (ex. https://github.mycompany.com/api/v3)
     entrypoint: /wait-for db:5432 -t 10 -- bundle exec ruby
     command: refresh-dashboard.rb config-dashboard.yaml
     volumes:
