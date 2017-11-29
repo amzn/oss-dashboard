@@ -12,10 +12,6 @@ RUN apt update && apt install --no-install-recommends -y \
   pkg-config \
   postgresql \
   netcat \
-  curl \
-  && curl -o /wait-for https://raw.githubusercontent.com/Eficode/wait-for/master/wait-for \
-  && chmod +x /wait-for \
-  && apt-get remove -y curl \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
