@@ -49,7 +49,7 @@
 # 			Add the repository XML to a larger dashboard XML
 # 	Run XSLT for the Dashboard
 
-require_relative './generate-dashboard-xml'
+require_relative './generate-dashboard-lib'
 require 'rexml/document'
 include REXML
 
