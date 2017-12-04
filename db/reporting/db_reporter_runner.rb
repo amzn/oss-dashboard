@@ -32,6 +32,7 @@ require_relative 'db_report_labels.rb'
 require_relative 'db_report_average_time_close_issue.rb'
 require_relative 'db_report_average_time_close_pr.rb'
 require_relative 'db_report_label_count.rb'
+require_relative 'db_report_average_time_close_this_year.rb'
 
 # Remove any control characters that XML dislikes
 #
