@@ -323,6 +323,7 @@ def generate_tng_dashboards(context)
     organizations.each do |org|
       generate_organization_dashboard(context, sync_db, org, metadata)
       generate_json_for_dashboard(context, org, repos_for_org(context, sync_db, org))
+      context.feedback.print "."
     end
 
     context.feedback.print "\n"
@@ -337,6 +338,7 @@ def generate_tng_dashboards(context)
     slugs.each do |slug|
       generate_team_dashboard(context, sync_db, slug, metadata)
       generate_json_for_dashboard(context, "team-#{slug}", repos_for_slug(context, sync_db, slug))
+      context.feedback.print "."
     end
     context.feedback.print "\n"
 #  end
@@ -347,6 +349,27 @@ def generate_tng_dashboards(context)
     context.feedback.print "\n"
   end
 
+  # Standard customizations
+  STANDARD_CUSTOM.each do |dashboardData|
+    generate_custom_dashboard(context, sync_db, dashboardData)
+    generate_json_for_dashboard(context, dashboardData[:file], repos_for_standard(context, sync_db, dashboardData[:id]))
+  end
+
+end
+
+def repos_for_standard(context, sync_db, standard)
+  organizations = context.dashboard_config[standard]
+  unless(organizations)
+    return
+  end
+
+  # get each repo in each organizations
+  repos=[]
+  organizations.each do |org|
+    repos.concat(context.repositories(org))
+  end
+
+  return repos.map { |repo| repo.full_name }
 end
 
 def generate_organization_dashboard(context, sync_db, org, metadata)
@@ -378,7 +401,6 @@ def generate_organization_dashboard(context, sync_db, org, metadata)
 
   dashboard_file.puts "</github-dashdata>"
   dashboard_file.close
-  context.feedback.print "."
 end
 
 def generate_team_dashboard(context, sync_db, slug, metadata)
@@ -415,48 +437,51 @@ def generate_team_dashboard(context, sync_db, slug, metadata)
   context.feedback.print "."
 end
 
-def merge_dashboard_xml_to(context, attribute, xmlfile, title)
+# custom avatarUrl?
+STANDARD_CUSTOM=[
+                  { :id => 'logins', :file => 'AllLogins', :title => 'All Logins' },
+                  { :id => 'organizations', :file => 'AllOrgs', :title => 'All Organizations' },
+                  { :id => 'organizations+logins', :file => 'AllAccounts', :title => 'All Accounts' },
+                ]
 
-  organizations = context.dashboard_config[attribute]
+# TODO: This currently is written only for organizations; needs to adjust to allow for dashboards of specific repositories
+def generate_custom_dashboard(context, sync_db, dashboardData)
+
+  dashId = dashboardData[:id]
+  dashFile = dashboardData[:file]
+  dashTitle = dashboardData[:title]
+
+  # For now this only supports the hardcoded 3 customizations
+  organizations = context.dashboard_config[dashId]
   unless(organizations)
     return
   end
 
   data_directory = context.dashboard_config['data-directory']
 
-  dashboard_file=File.open("#{data_directory}/dash-xml/#{xmlfile}", 'w')
+  dashboard_file=File.open("#{data_directory}/dash-xml/#{dashFile}.xml", 'w')
   # TODO: Don't hard code includes_private
-  dashboard_file.puts "<github-dashdata dashboard='#{title}' includes_private='true' github_url='#{context.github_url}'>"
+  dashboard_file.puts "<github-dashdata dashboard='#{dashFile}' includes_private='true' github_url='#{context.github_url}'>"
 
   dashboard_file.puts(generate_metadata_header(context))
 
-  context.feedback.puts " merge: #{title}"
+  context.feedback.puts "  custom: #{dashTitle}"
 
+  # Generate the custom XML
   organizations.each do |org|
+    add_org_xml(context, sync_db, org, dashboard_file)
 
-    filename="#{data_directory}/dash-xml/#{org}.xml"
-    unless(File.exist?(filename))
-      next
-    end
-    xmlfile=File.new(filename)
-    begin
-      dashboardXml = Document.new(xmlfile)
+    teams=teams_for_org(context, sync_db, org)
+    teams.each do |org_slug|
+      add_team_xml(context, sync_db, org_slug, dashboard_file)
     end
 
-    dashboardXml.root.each_element("organization") do |child|
-      dashboard_file.puts " #{child}"
-    end
-    # TODO: Need to filter out duplicates if this is used to merge custom dashboards
-    dashboardXml.root.each_element("repo") do |child|
-      dashboard_file.puts " #{child}"
-    end
-
-    xmlfile.close
-    context.feedback.puts "  #{org}"
+    repos=repos_for_org(context, sync_db, org)
+    add_repo_xml(context, sync_db, repos, dashboard_file)
   end
 
   dashboard_file.puts "</github-dashdata>"
-
   dashboard_file.close
 
 end
+

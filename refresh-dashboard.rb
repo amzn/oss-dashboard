@@ -250,9 +250,6 @@ run_list.each do |phase|
     if(phase=='generate-dashboard' or phase=='generate-dashboard/dashboards')
       # merges both repository xml into dashboard xml AND repository json data into dashboard json data
       generate_tng_dashboards(context)
-      merge_dashboard_xml_to(context, 'logins', 'AllLogins.xml', 'All Logins')
-      merge_dashboard_xml_to(context, 'organizations', 'AllOrgs.xml', 'All Organizations')
-      merge_dashboard_xml_to(context, 'organizations+logins', 'AllAccounts.xml', 'All Accounts')
     end
 
     if(phase=='generate-dashboard' or phase=='generate-dashboard/xslt')
