@@ -8,7 +8,9 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./postgres:/var/lib/postgresql/data
+      - oss-dashboard-postgres:/var/lib/postgresql/data
+    networks:
+      - db
   dashboard:
     build:
       context: ./
@@ -16,13 +18,20 @@ services:
         - http_proxy
         - https_proxy
     environment:
-      - GH_ACCESS_TOKEN=
-      - OCTOKIT_API_ENDPOINT= # if you use oss-dashboard to GitHub Enterprise, specify GHE api endpoint (ex. https://github.mycompany.com/api/v3)
+      - GH_ACCESS_TOKEN
+      - OCTOKIT_API_ENDPOINT # if you use oss-dashboard to GitHub Enterprise, specify GHE api endpoint (ex. https://github.mycompany.com/api/v3)
+    entrypoint: /oss-dashboard/wait-for.sh db:5432 -t 10 -- bundle exec ruby
     command: refresh-dashboard.rb config-dashboard.yaml
     volumes:
       - ./config-dashboard.yaml:/oss-dashboard/config-dashboard.yaml
       # - ./config-github.yaml:/oss-dashboard/config-github.yaml
       - ./data:/oss-dashboard/data
       - ./html:/oss-dashboard/html
-    links:
+    networks:
       - db
+
+networks:
+  db:
+
+volumes:
+  oss-dashboard-postgres:
