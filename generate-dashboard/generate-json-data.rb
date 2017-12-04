@@ -230,14 +230,12 @@ def generate_json_data(context)
 
 end
 
+CHARTS=[ 'repoCount', 'issueCount', 'pullRequestCount', 'issueTimeToClose', 'prTimeToClose', 'issueCommunityPie', 'prCommunityPie' ]
+
 def generate_json_for_dashboard(context, dashboard_name, repos)
-  chart_add(context, dashboard_name, repos, 'repoCount')
-  chart_add(context, dashboard_name, repos, 'issueCount')
-  chart_add(context, dashboard_name, repos, 'pullRequestCount')
-  chart_add(context, dashboard_name, repos, 'issueTimeToClose')
-  chart_add(context, dashboard_name, repos, 'prTimeToClose')
-  chart_add(context, dashboard_name, repos, 'issueCommunityPie')
-  chart_add(context, dashboard_name, repos, 'prCommunityPie')
+  CHARTS.each do |chart|
+    chart_add(context, dashboard_name, repos, chart)
+  end
 end
 
 # Merge json data for a set of repos
