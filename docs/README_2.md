@@ -31,6 +31,7 @@ The following documents provided further information
  * [Installing from source](InstallingFromSource.md)
  * [Installing via Docker](InstallingViaDocker.md)
  * [Configuring](Configuring.md)
+ * [Reports](Reports.md)
  * [Running](Running.md)
  * [Customising](Customising.md)
  * [Contributing](CONTRIBUTING.md)

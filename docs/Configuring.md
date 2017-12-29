@@ -85,11 +85,11 @@ This is where the scripts will store the database and checked out code.
 
 ### reports
 
-Which reports you wish to be executed on the code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file. 
+Which reports you wish to be executed on the source code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file. See the Reports documentation to choose which source reports you wish to run. 
 
 ### db-reports
 
-Which reports you wish to be executed on the database. 
+Which reports you wish to be executed on the database. See the Reports documentation to choose which db reports you wish to run. 
 
 ### www-directory
 
