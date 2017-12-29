@@ -33,7 +33,7 @@ The following documents provided further information
  * [Configuring](Configuring.md)
  * [Running](Running.md)
  * [Customising](Customising.md)
- * [Contributing](Contributing.md)
+ * [Contributing](CONTRIBUTING.md)
 
 ## Project Direction
 
