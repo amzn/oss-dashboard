@@ -1,6 +1,6 @@
 # Installing oss-dashboard
 
-Follow these instructions to prepare to run the oss-dashboard.
+Thank you for considering oss-dashboard. Please follow these instructions to get ready to generate a dashboard.
 
 ## Firstly, you'll need to install the tools the oss-dashboard requires
 
