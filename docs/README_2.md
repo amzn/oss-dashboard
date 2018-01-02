@@ -51,7 +51,7 @@ The high level plan is to work on the following items:
 
 ## Contributing
 
-Contributions are much appreciated, be they bug reports, ideas or patches. See the Contributing(../CONTRIBUTING.md) file for more information. 
+Contributions are much appreciated, be they bug reports, ideas or patches. See the [Contributing](../CONTRIBUTING.md) file for more information. 
 
 ## Other Projects of Interest
 
