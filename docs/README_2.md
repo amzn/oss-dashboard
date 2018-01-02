@@ -22,7 +22,7 @@ There are three parts to the oss-dashboard.
 
 ### Phase 3 - Generate the dashboard
 
-An HTML dashboard is generated from the PostgreSQL Database (phase 1) and the analysis of the data (phase 2). 
+An HTML dashboard is generated from the data and reviews. 
 
 ## Further Instructions
 
@@ -34,10 +34,28 @@ The following documents provided further information
  * [Reports](Reports.md)
  * [Running](Running.md)
  * [Customising](Customising.md)
- * [Contributing](CONTRIBUTING.md)
 
 ## Project Direction
 
+The high level plan is to work on the following items:
+
+* Custom dashboards. This is mostly implemented and needs the configuration approach implemented.
+* Move away from XSLT to ERB (or another Ruby based HTML generator). Reality is that XSLT seems to scare people.
+* Move away from a single HTML page to many HTML pages. It was useful to wrap up a report into a single HTML and mail around, but now the lack of deep linking is a pain.
+* Add a Repository dashboard. Currently repositories are only viewed in the multiple (ie: each dashboard displays multiple repositories at once). Having a dashboard for each repository will allow for more data.
+* Merge the reporting. Currently there are Database and Source code report structures. The plan is to merge them together.
+* Run a live demo, possibly using Apache MXNet and its dependencies as the data. 
+* Consider using GHTorrent as the source of data; though the SQL database is still very attractive and simplifies the reporting step.
+* Add more reports!
+* Pull the source apart. Currently it's all driven from one high level ruby file. Splitting into independent pieces (syncing, reports, dashboard generation) will allow each section to have more focus. 
+
 ## Contributing
-	
+
+Contributions are much appreciated, be they bug reports, ideas or patches. See the Contributing(../CONTRIBUTING.md) file for more information. 
+
 ## Other Projects of Interest
+
+Or rather, some useful lists of Other Projects of Interest:
+
+* https://chaoss.community/
+* https://github.com/todogroup/awesome-oss-mgmt
