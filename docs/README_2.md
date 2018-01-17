@@ -48,6 +48,7 @@ The high level plan is to work on the following items:
 * Consider using GHTorrent as the source of data; though the SQL database is still very attractive and simplifies the reporting step.
 * Add more reports!
 * Pull the source apart. Currently it's all driven from one high level ruby file. Splitting into independent pieces (syncing, reports, dashboard generation) will allow each section to have more focus. 
+* Custom charting + custom visualization in general so that a custom-viz plugin can pair with a custom-report plugin, without the engine in the middle having to understand their format.
 
 ## Contributing
 
