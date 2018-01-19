@@ -19,6 +19,15 @@ require "date"
     begin
       db.transaction do
         commits.each do |commit|
+          committer=commit['commit']['committer']['name']
+          if(commit['committer'])
+            committer=commit['committer']['login']
+          end
+          author=commit['commit']['author']['name']
+          if(commit['author'])
+            author=commit['author']['login']
+          end
+
             db[
              "INSERT INTO commits (
                 sha, message, tree, org, repo, author, authored_at, committer, committed_at, comment_count
@@ -29,9 +38,9 @@ require "date"
               commit['commit']['tree']['sha'],
               org,
               repo,
-              commit['commit']['author']['name'],
+              author,
               gh_to_db_timestamp(commit['commit']['author']['date']),
-              commit['commit']['committer']['name'],
+              committer,
               gh_to_db_timestamp(commit['commit']['committer']['date']),
               commit['commit']['comment_count']
               ].insert
