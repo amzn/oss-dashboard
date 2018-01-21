@@ -49,7 +49,12 @@ result.each do |row|
   repo=row[:repo]
 
   # get the commits for that repo
-  commits=client.commits("#{org}/#{repo}")
+  begin
+    commits=client.commits("#{org}/#{repo}")
+  rescue Octokit::NotFound => onf
+    puts "Skipping #{org}/#{repo} as not found"
+    next
+  end
 
   # loop over each commit
   commits.each do |commit|
