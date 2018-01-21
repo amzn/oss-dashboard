@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This converts GitHub commit data to use, whenever possible, 
+# This converts GitHub commit data to use, whenever possible,
 # the GitHub login instead of the Git user.name field
-# oss-dashboard changed to do this in a7d4a0b28f5742623a928f106811eac8c0f99c53 
+# oss-dashboard changed to do this in a7d4a0b28f5742623a928f106811eac8c0f99c53
 # but old data needs fixing if you don't want to simply reload all the github data
 #
-# It takes a dashboard file (for db credentials), a gitconfig file, and the org to run 
-# it on. 
+# It takes a dashboard file (for db credentials), a gitconfig file, and the org to run
+# it on.
 
 require 'yaml'
 require 'octokit'
@@ -45,28 +45,31 @@ Octokit.auto_paginate = true
 client = Octokit::Client.new :access_token => access_token
 
 result=db["SELECT distinct(repo) FROM commits WHERE org=?", org]
-result.each do |row|
-  repo=row[:repo]
 
-  # get the commits for that repo
-  begin
-    commits=client.commits("#{org}/#{repo}")
-  rescue Octokit::NotFound => onf
-    puts "Skipping #{org}/#{repo} as not found"
-    next
-  end
+db.transaction do
+  result.each do |row|
+    repo=row[:repo]
 
-  # loop over each commit
-  commits.each do |commit|
-    
-    if(commit['committer'])
-      db["UPDATE commits SET committer=? WHERE sha=?", commit['committer']['login'], commit[:sha]].update
+    # get the commits for that repo
+    begin
+      commits=client.commits("#{org}/#{repo}")
+    rescue Octokit::NotFound => onf
+      puts "Skipping #{org}/#{repo} as not found"
+      next
     end
 
-    if(commit['author'])
-      db["UPDATE commits SET author=? WHERE sha=?", commit['author']['login'], commit[:sha]].update
+    # loop over each commit
+    commits.each do |commit|
+
+      if(commit['committer'])
+        db["UPDATE commits SET committer=? WHERE sha=?", commit['committer']['login'], commit[:sha]].update
+      end
+
+      if(commit['author'])
+        db["UPDATE commits SET author=? WHERE sha=?", commit['author']['login'], commit[:sha]].update
+      end
+
     end
 
   end
-
 end
