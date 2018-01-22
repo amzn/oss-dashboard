@@ -46,18 +46,18 @@ client = Octokit::Client.new :access_token => access_token
 
 result=db["SELECT distinct(repo) FROM commits WHERE org=?", org]
 
-db.transaction do
-  result.each do |row|
-    repo=row[:repo]
+result.each do |row|
+  repo=row[:repo]
 
-    # get the commits for that repo
-    begin
-      commits=client.commits("#{org}/#{repo}")
-    rescue Octokit::NotFound => onf
-      puts "Skipping #{org}/#{repo} as not found"
-      next
-    end
+  # get the commits for that repo
+  begin
+    commits=client.commits("#{org}/#{repo}")
+  rescue Octokit::NotFound => onf
+    puts "Skipping #{org}/#{repo} as not found"
+    next
+  end
 
+  db.transaction do
     # loop over each commit
     commits.each do |commit|
 
