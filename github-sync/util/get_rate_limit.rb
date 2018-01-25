@@ -24,7 +24,7 @@ options = {}
 
 optparse = OptionParser.new do |opts|
   options[:ghconfig] = nil
-  opts.on( '-g', '--ghconfig FILE', 'Provide GitHub Access Token Configuation File' ) do |file|
+  opts.on( '-g', '--ghconfig FILE', 'Provide GitHub Access Token Configuration File' ) do |file|
     options[:ghconfig] = file
   end
 end
@@ -45,6 +45,6 @@ end
 
 
 Octokit.auto_paginate = true
-client = Octokit::Client.new :access_token => access_token, :accept => 'application/vnd.github.moondragon+json' 
+client = Octokit::Client.new :access_token => access_token, :accept => 'application/vnd.github.moondragon+json'
 
 p client.rate_limit
