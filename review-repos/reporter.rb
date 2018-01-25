@@ -25,7 +25,7 @@ class Reporter
         if(exclude and file.match(exclude))
           next
         end
-  
+
         unless(File.directory?(file))
           file=file.chomp.gsub(/&/, "&amp;").gsub(/</, "&lt;").gsub(/>/, "&gt;")
           txt << "      <reporting class='repo-report' repo='#{repo.full_name}' type='#{name}'><file>#{file.to_s[sliceIdx..-1]}</file></reporting>\n"
@@ -33,8 +33,8 @@ class Reporter
       end
       return txt
   end
-  
-  
+
+
   def file_search(repo, dir, pattern, name)
       txt=""
       Dir.glob("#{dir}/**/*").each do |file|
@@ -64,22 +64,22 @@ class Reporter
     raise "No report(context, repo, dir) function defined by report subclass"
   end
 
-  # intended to be overriden
+  # intended to be overridden
   # returns string
   def name()
     raise "No name() function defined by report subclass"
   end
-  
-  # intended to be overriden
+
+  # intended to be overridden
   # returns string
   def report_class()
     raise "No report_class() function defined by report subclass"
   end
-  
-  # intended to be overriden
+
+  # intended to be overridden
   # returns string
   def describe()
     raise "No describe() function defined by report subclass"
   end
-  
+
 end

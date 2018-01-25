@@ -1,5 +1,5 @@
 # Amazon Open Source Program GitHub Dashboard
-A dashboard for viewing many GitHub organizations, and/or users, at once. 
+A dashboard for viewing many GitHub organizations, and/or users, at once.
 
 The current version of this code depends on PostgreSQL. If you're looking for the older SQLite dependent version, look at the sqlite_legacy branch.
 
@@ -11,7 +11,7 @@ There are three phases to generating the dashboard.
 
 ## Phase 1
 
-Sync data from GitHub. 
+Sync data from GitHub.
 
 Ruby is used to connect to GitHub, pull down the latest data, and update a PostgreSQL Database.
 
@@ -21,7 +21,7 @@ The latest code is checked out, and review scripts run on the code. Analysis is 
 
 ## Phase 3
 
-An HTML dashboard is generated from the PostgreSQL Database (phase 1) and the analysis of the code (phase 2). 
+An HTML dashboard is generated from the PostgreSQL Database (phase 1) and the analysis of the code (phase 2).
 
 ## Dependencies
 
@@ -49,7 +49,7 @@ The dashboard assumes the following are installed:
   * Or you can create a file (outside of the git clone) to contain your GitHub access token. Set the permissions to 600.
 
 To check your token actually works access the following and check the headers:
-https://api.github.com/user?access_token=YOUR_TOKEN_GOES_HERE 
+https://api.github.com/user?access_token=YOUR_TOKEN_GOES_HERE
 
 Example file:
 
@@ -63,12 +63,12 @@ For general use, no specific scopes are required. If you wish to see private org
 
 * Create a dashboard configuration file (outside of the git clone).
 
-For an example file, see 
+For an example file, see
 
 ```
   dashboard:
     organizations: ['amzn', 'amznlabs']       # One, or more,
-    logins: ['hyandell']                      #   of these 
+    logins: ['hyandell']                      #   of these
     repositories: ['amzn/oss-dashboard']      # are required
 
     data-directory: /full/path/to/directory/to/store/data
@@ -97,7 +97,7 @@ Configure the database section above by setting the username, password, server, 
 
 ### organizations
 
-This lists the organizations that you wish to include in your dashboard. 
+This lists the organizations that you wish to include in your dashboard.
 
 ### logins
 
@@ -109,15 +109,15 @@ This lists any repositories you wish to include in your dashboard (i.e. pull in 
 
 ### data-directory
 
-This is where the scripts will store the database and checked out code. 
+This is where the scripts will store the database and checked out code.
 
 ### reports
 
-Which reports you wish to be executed on the code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file. 
+Which reports you wish to be executed on the code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file.
 
 ### db-reports
 
-Which reports you wish to be executed on the database. 
+Which reports you wish to be executed on the database.
 
 ### www-directory
 
@@ -125,24 +125,24 @@ Where you want the dashboard output to go.
 
 ### Optional: private-access
 
-If your access token is configured so it can see the private side of an organization, adding to this list will enable those features. 
+If your access token is configured so it can see the private side of an organization, adding to this list will enable those features.
 
 ### Optional: report-path
 
-This is a list of paths to look for custom Reporters. 
+This is a list of paths to look for custom Reporters.
 
 ### Optional: db-report-path
 
-This is a list of paths to look for custom Database Reporters. 
+This is a list of paths to look for custom Database Reporters.
 
 ### Optional: map-user-script
 
-Interaction between GitHub's user schema and your own user schema is a common use case for a dashboard. This script is executed to load in your customized data. 
+Interaction between GitHub's user schema and your own user schema is a common use case for a dashboard. This script is executed to load in your customized data.
 
-The user db schema contains an email address field, to represent your internal login, and an is_employee field (0=not employed), to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase. 
+The user db schema contains an email address field, to represent your internal login, and an is_employee field (0=not employed), to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase.
 
 (Warning - clunky system)
-The script provides a USER_EMAILS hash of GitHub login to internal email address. It can also provide an updateUserData function to, for example, update the is_employee column. 
+The script provides a USER_EMAILS hash of GitHub login to internal email address. It can also provide an updateUserData function to, for example, update the is_employee column.
 
 For example:
 
@@ -175,7 +175,7 @@ Then creates that license-hashes.yml file with content similar to:
      hash: '84b3be39b2d06ca7b5afe43b461544f7dd7c2f1a'
 ```
 
-These hashes are found on the Repository -> Reports -> License Report, which saves you having to write code against Licensee to identify the hash. 
+These hashes are found on the Repository -> Reports -> License Report, which saves you having to write code against Licensee to identify the hash.
 
 ### Optional: Hiding private repositories
 
@@ -190,23 +190,23 @@ If you don't want to download private repositories, you can add that as a config
 With the configuration file created, you should execute the following:
 
 ```
-  # Instead of providing the --ghconfig file, you can set the 
+  # Instead of providing the --ghconfig file, you can set the
   # GH_ACCESS_TOKEN environment variable with your access token.
-  ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml} 
+  ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml}
 ```
 
-For large repositories, or for a quick review, you can use the --light flag. This creates a database of only the metadata and generates a dashboard. 
+For large repositories, or for a quick review, you can use the --light flag. This creates a database of only the metadata and generates a dashboard.
 
 ```
-  # Instead of providing the --ghconfig file, you can set the 
+  # Instead of providing the --ghconfig file, you can set the
   # GH_ACCESS_TOKEN environment variable with your access token.
-  ruby refresh-dashboard.rb --light --ghconfig {path to config-github.yml} {path to config-dashboard.yml} 
+  ruby refresh-dashboard.rb --light --ghconfig {path to config-github.yml} {path to config-dashboard.yml}
 ```
 
 To run only part of the system, you can add an additional argument for the phase desired. This can be useful to fill in data after running the light flag.
 
 ```
-  # Instead of providing the --ghconfig file, you can set the 
+  # Instead of providing the --ghconfig file, you can set the
   # GH_ACCESS_TOKEN environment variable with your access token.
   ruby refresh-dashboard.rb --ghconfig {path to config-github.yml} {path to config-dashboard.yml} {phase}
 ```
@@ -227,7 +227,7 @@ Available phases are:
 |  github-sync/reporting | Runs the configured DB Reports |
 |  pull-source | Pulls down the source code from GitHub |
 |  review-source | Runs your source Reports on the pulled source code |
-|  generate-dashboard | Generates a dashboard (runs all of the generate-edashboard/ phases below)|
+|  generate-dashboard | Generates a dashboard (runs all of the generate-dashboard/ phases below)|
 |  generate-dashboard/xml | Outputs the XML for organizations |
 |  generate-dashboard/merge | Merges the organization XML into a single XML file |
 |  generate-dashboard/teams-xml | Splits the organizations up into separate Team XML files |
@@ -299,10 +299,10 @@ If you need to use `config-github.yaml` (see [Setup section](https://github.com/
 
 ## Helper Tools
 
-You only get 5000 requests an hour to GitHub, so keeping an eye on your current request count can be important. 
+You only get 5000 requests an hour to GitHub, so keeping an eye on your current request count can be important.
 
 ```
-  # Instead of providing the file, you can set the 
+  # Instead of providing the file, you can set the
   # GH_ACCESS_TOKEN environment variable with your access token.
   ruby github-sync/util/get_rate_limit.rb --ghconfig {path to config-github.yml}
 ```
@@ -315,18 +315,18 @@ The following query shows you the size of each of your tables. It needs porting 
 
 ## Large Organizations
 
-Because of that 5000 request limit, loading the data for large organizations can be difficult. While in principle you should be able to repeat run the dashboard until your database is full (at least until you hit a repository that would take greater than 5000 requests), this hasn't been tested and the dashboard does not yet fail gracefully. 
+Because of that 5000 request limit, loading the data for large organizations can be difficult. While in principle you should be able to repeat run the dashboard until your database is full (at least until you hit a repository that would take greater than 5000 requests), this hasn't been tested and the dashboard does not yet fail gracefully.
 
-Running each phase at a time is advised; chances are you will need to run github-sync/issues repeatedly until full. You can edit the configuration so it only runs on the org you are adding during that manual import, then put the full list back again. 
+Running each phase at a time is advised; chances are you will need to run github-sync/issues repeatedly until full. You can edit the configuration so it only runs on the org you are adding during that manual import, then put the full list back again.
 
-Another approach is to turn on the --xsync flag for issues/commits/releases/events. This uses a queue to synchronize the data rather than trying to do it all in one go. It's not recommended that you use the --xsync flag for metadata as it doesn't cleanly delete old data that has gone from GitHub. 
+Another approach is to turn on the --xsync flag for issues/commits/releases/events. This uses a queue to synchronize the data rather than trying to do it all in one go. It's not recommended that you use the --xsync flag for metadata as it doesn't cleanly delete old data that has gone from GitHub.
 
 ## Notes on Output Warnings
 
 By default the refresh_dashboard.rb script outputs '.' characters to show it's taken care of a repository (or whatever the 'atom' being operated on is in that phase). Sometimes it outputs a '!'. Here's why:
 
-* github-sync/commits - An '!' here means it skipped an empty repository to avoid an Octokit error. 
+* github-sync/commits - An '!' here means it skipped an empty repository to avoid an Octokit error.
 
 ## Bootstrap Themes
 
-The HTML generated relies, amongst other libraries, on Bootstrap. The HTML files look for a file named bootstrap-theme.css in the same directory, allowing you to customize the look and feel of the dashboard (typically by finding a theme you like and using that). 
+The HTML generated relies, amongst other libraries, on Bootstrap. The HTML files look for a file named bootstrap-theme.css in the same directory, allowing you to customize the look and feel of the dashboard (typically by finding a theme you like and using that).

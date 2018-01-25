@@ -29,25 +29,25 @@ class DbReporter
     raise "No db_report(repo, db) function defined by report subclass"
   end
 
-  # intended to be overriden
+  # intended to be overridden
   # returns string
   def name()
     raise "No name() function defined by report subclass"
   end
-  
-  # intended to be overriden
+
+  # intended to be overridden
   # returns string
   def report_class()
     raise "No report_class() function defined by report subclass"
   end
-  
-  # intended to be overriden
+
+  # intended to be overridden
   # returns string
   def describe()
     raise "No describe() function defined by report subclass"
   end
-  
-  # intended to be overriden
+
+  # intended to be overridden
   # returns array of text or array of array [name, {type}, {type-specific-data, ...} ]
   # Supported types are
   #  text, org/repo, url, member
