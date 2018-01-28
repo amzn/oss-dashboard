@@ -4,7 +4,7 @@ There are currently two types of reports available, though the plan is to merge 
 
 ## DB Reports
 
-These are reports that run against the database. See (link) for instructions on how to implement a custom DB Report.
+These are reports that run against the database. See [Customising](Customising.md) for instructions on how to implement a custom DB Report.
 
 ### UnknownCollaboratorsDbReporter
 ### LeftEmploymentDbReporter
@@ -21,7 +21,7 @@ These are reports that run against the database. See (link) for instructions on 
 
 ## Source Reports
 
-These are reports which are executed on the source code. See (link) for instructions on how to implement a custom Source Report.
+These are reports which are executed on the source code. See [Customising](Customising.md) for instructions on how to implement a custom Source Report.
 
 ### DocsReporter
 ### LicenseReporter
