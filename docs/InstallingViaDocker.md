@@ -1,4 +1,4 @@
-### Use Docker
+# Using Docker
 
 NOTE: Experimental; feedback via GitHub issues much appreciated.
 
@@ -8,7 +8,7 @@ If you have already set up postgres server for `oss-dashboard`, you should run `
 If you don't have any postgres server, you should run `oss-dashboard` by docker-compose.
 docker-compose run `oss-dashboard` and postgres container at the same time.
 
-#### Docker
+## Docker
 
 ```
   docker build -t oss-dashboard .
@@ -42,7 +42,7 @@ If you connect to your organization's GitHub Enterprise, you must specify your G
     oss-dashboard refresh-dashboard.rb --ghconfig config-github.yaml config-dashboard.yaml
 ```
 
-#### Docker Compose
+## Docker Compose
 
 Before running `oss-dashboard` by docker-compose, you need to prepare `config-dashboard.yaml` (and `config-github.yaml` if you need) in root dir.  
 Then you run the following command.
