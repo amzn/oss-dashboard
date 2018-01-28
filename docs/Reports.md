@@ -1,6 +1,6 @@
 # Reports
 
-There are currently two types of reports available, though the plan is to merge them into the same type. 
+There are currently two types of reports available, though the plan is to merge them into the same type.
 
 ## DB Reports
 
@@ -8,17 +8,17 @@ These are reports that run against the database. See [Customising](Customising.m
 
 ### UnknownCollaboratorsDbReporter
 
-This report shows which of the outside collaborators are not in your user_mapping of GitHub login to Internal Employee login. Maintaining that user mapping is a custom task left to th user. 
+This report shows which of the outside collaborators are not in your user_mapping of GitHub login to Internal Employee login. Maintaining that user mapping is a custom task left to th user.
 
 ### LeftEmploymentDbReporter
 
-This report shows which of the organization members/collaborators are flagging as having left the company. 
+This report shows which of the organization members/collaborators are flagging as having left the company.
 
-It requires you to perform a custom task and update the users.is_employee column to indicate if people are employees. The idea is that you integrate it into your account removal processes, or you have a nightly LDAP check. 
+It requires you to perform a custom task and update the users.is_employee column to indicate if people are employees. The idea is that you integrate it into your account removal processes, or you have a nightly LDAP check.
 
 ### UnknownMembersDbReporter
 
-This report shows which of the organization members are not in your user_mapping of GitHub login to Internal Employee login. Maintaining that user mapping is a custom task left to th user. 
+This report shows which of the organization members are not in your user_mapping of GitHub login to Internal Employee login. Maintaining that user mapping is a custom task left to th user.
 
 ### WikiOnDbReporter
 
@@ -42,7 +42,7 @@ This report shows open pull requests from the community with no comments.
 
 ### RepoUnownedDbReporter
 
-This report shows repositories that have no team committers. 
+This report shows repositories that have no team committers.
 
 They may have collaborators, or oss-dashboard may not have had the permissions to see team data.
 
@@ -52,7 +52,7 @@ This report shows the labels in use, and how many issues + prs, open or closed, 
 
 ### LabelCountDbReporter
 
-This report shows the number of open issues and pull requests for a configured list of standard labels. It defaults to the standard list of GitHub labels. 
+This report shows the number of open issues and pull requests for a configured list of standard labels. It defaults to the standard list of GitHub labels.
 
 Configuration:
 
@@ -60,15 +60,15 @@ Configuration:
 
 ### AverageIssueCloseDbReporter
 
-This report shows the average time each repo takes to close issues. 
+This report shows the average time each repo takes to close issues.
 
 ### AveragePrCloseDbReporter
 
-This report shows the average time each repo takes to close pull requests. 
+This report shows the average time each repo takes to close pull requests.
 
 ### AverageCloseThisYearDbReporter
 
-This report shows the average time each repo takes to close issues and PRs in the current calendar year. You can filter out specific labels. By default it filters out enhancements. 
+This report shows the average time each repo takes to close issues and PRs in the current calendar year. You can filter out specific labels. By default it filters out enhancements.
 
 Configuration:
 

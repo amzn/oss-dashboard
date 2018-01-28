@@ -5,7 +5,7 @@ There are three areas of customisation possible with oss-dashboard. The first tw
 
 ## Writing a DB or Source Report
 
-Note that the plan is to merge DB and Source reports into the same API. As the process/API is very similar, we'll cover them both in this section. 
+Note that the plan is to merge DB and Source reports into the same API. As the process/API is very similar, we'll cover them both in this section.
 
 ### Configurating
 
@@ -14,7 +14,7 @@ Custom DB Reports are configured via the optional report path configurations in 
     db-report-path: ['/full/path/to/directory/of/custom/db-reports']
     report-path: ['/full/path/to/directory/of/custom/reports']
 
-Any report dropped into one of the report path directories will become available. 
+Any report dropped into one of the report path directories will become available.
 
 ### Implementing
 
@@ -45,7 +45,7 @@ In both cases a Report needs to implement the following metadata methods:
     return "A longer description of the report"
   end
 
-  # A type of the report; can be repo-report, issue-report or user-report. 
+  # A type of the report; can be repo-report, issue-report or user-report.
   # This determines which tab in the dashboard it appears in.
   def report_class()
     return 'repo-report'
@@ -64,9 +64,9 @@ If you are implementing a Source report, you then implement this method:
   def report(context, repo, repodir)
 ```
 
-Two simple examples of reports are [Empty DB Report](../db/reporting/db_report_empty.rb) and [Document Source Report](../review-repos/report_docs.rb). 
+Two simple examples of reports are [Empty DB Report](../db/reporting/db_report_empty.rb) and [Document Source Report](../review-repos/report_docs.rb).
 
 
 ## Setting a Custom Theme
 
-OSS Dashboard relies on Bootstrap, and thus Bootstrap Themes are available. The generated HTML pages include a __bootstrap-theme.css__ file if one is there (if not your browser will quietly give you a warning). Drop this file into your generated web directory and your theme will be applied. See the [Bootstrap Theme page](https://themes.getbootstrap.com/) for more information on finding/implementing themes. 
+OSS Dashboard relies on Bootstrap, and thus Bootstrap Themes are available. The generated HTML pages include a __bootstrap-theme.css__ file if one is there (if not your browser will quietly give you a warning). Drop this file into your generated web directory and your theme will be applied. See the [Bootstrap Theme page](https://themes.getbootstrap.com/) for more information on finding/implementing themes.

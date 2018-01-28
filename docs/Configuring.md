@@ -2,12 +2,12 @@
 
 ## Configuring the GitHub connection
 
-You will need a GitHub personal access token so that the oss-dashboard can pull the data from GitHub. You can create one on your [settings page](https://github.com/settings/tokens). 
+You will need a GitHub personal access token so that the oss-dashboard can pull the data from GitHub. You can create one on your [settings page](https://github.com/settings/tokens).
 
 For general use, no specific scopes are required. If you wish to see private organization data (such as Teams, all Members and private Repositories), you will need to enable the 'repo' scope when creating your personal access token.
 
 To confirm your token works, you can access the following and check the response:
-https://api.github.com/user?access_token=YOUR_TOKEN_GOES_HERE 
+https://api.github.com/user?access_token=YOUR_TOKEN_GOES_HERE
 
 If you see the following, then something went wrong:
 
@@ -20,7 +20,7 @@ If you see the following, then something went wrong:
 
 Once you have your token, you will need to decide how to make it available to the oss-dashboard. You can:
 
-1. Store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit but is less secure on the environment. 
+1. Store it in an environment variable named GH_ACCESS_TOKEN; this has the advantage of being harder to accidentally commit but is less secure on the environment.
 2. (Recommended) Create a file (outside of the git clone) to contain your GitHub access token. You should set the permissions to 600 so only the logged in user can read the file.
 
 Example file:
@@ -35,12 +35,12 @@ Example file:
 
 * Create a dashboard configuration file (outside of the git clone).
 
-For an example file, see 
+For an example file, see
 
 ```
   dashboard:
     organizations: ['amzn', 'amznlabs']       # One, or more,
-    logins: ['hyandell']                      #   of these 
+    logins: ['hyandell']                      #   of these
     repositories: ['amzn/oss-dashboard']      # are required
 
     data-directory: /full/path/to/directory/to/store/data
@@ -69,7 +69,7 @@ Configure the database section above by setting the username, password, server, 
 
 ### organizations
 
-This lists the organizations that you wish to include in your dashboard. 
+This lists the organizations that you wish to include in your dashboard.
 
 ### logins
 
@@ -81,15 +81,15 @@ This lists any repositories you wish to include in your dashboard (i.e. pull in 
 
 ### data-directory
 
-This is where the scripts will store the database and checked out code. 
+This is where the scripts will store the database and checked out code.
 
 ### reports
 
-Which reports you wish to be executed on the source code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file. See the Reports documentation to choose which source reports you wish to run. 
+Which reports you wish to be executed on the source code. Note that LicenseReporter both provides a report and uses the Licensee project to identify the basic top level license file. See the Reports documentation to choose which source reports you wish to run.
 
 ### db-reports
 
-Which reports you wish to be executed on the database. See the Reports documentation to choose which db reports you wish to run. 
+Which reports you wish to be executed on the database. See the Reports documentation to choose which db reports you wish to run.
 
 ### www-directory
 
@@ -97,24 +97,24 @@ Where you want the dashboard output to go.
 
 ### Optional: private-access
 
-If your access token is configured so it can see the private side of an organization, adding to this list will enable those features. 
+If your access token is configured so it can see the private side of an organization, adding to this list will enable those features.
 
 ### Optional: report-path
 
-This is a list of paths to look for custom Reporters. 
+This is a list of paths to look for custom Reporters.
 
 ### Optional: db-report-path
 
-This is a list of paths to look for custom Database Reporters. 
+This is a list of paths to look for custom Database Reporters.
 
 ### Optional: map-user-script
 
-Interaction between GitHub's user schema and your own user schema is a common use case for a dashboard. This script is executed to load in your customized data. 
+Interaction between GitHub's user schema and your own user schema is a common use case for a dashboard. This script is executed to load in your customized data.
 
-The user db schema contains an email address field, to represent your internal login, and an is_employee field (0=not employed), to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase. 
+The user db schema contains an email address field, to represent your internal login, and an is_employee field (0=not employed), to represent whether they are currently employed. Executing this script is the responsibility of the github-sync/user-mapping subphase.
 
 (Warning - clunky system)
-The script provides a USER_EMAILS hash of GitHub login to internal email address. It can also provide an updateUserData function to, for example, update the is_employee column. 
+The script provides a USER_EMAILS hash of GitHub login to internal email address. It can also provide an updateUserData function to, for example, update the is_employee column.
 
 For example:
 
@@ -147,7 +147,7 @@ Then creates that license-hashes.yml file with content similar to:
      hash: '84b3be39b2d06ca7b5afe43b461544f7dd7c2f1a'
 ```
 
-These hashes are found on the Repository -> Reports -> License Report, which saves you having to write code against Licensee to identify the hash. 
+These hashes are found on the Repository -> Reports -> License Report, which saves you having to write code against Licensee to identify the hash.
 
 ### Optional: Hiding private repositories
 

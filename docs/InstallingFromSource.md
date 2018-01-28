@@ -12,7 +12,7 @@ If a dev package is available to be installed (for example Red Hat RPM/Debian AP
 
 ### git
 
-The oss-dashboard pulls the latest code via git on the command line, so git needs to be installed. See the [git install instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). 
+The oss-dashboard pulls the latest code via git on the command line, so git needs to be installed. See the [git install instructions](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
 ### ruby
 
