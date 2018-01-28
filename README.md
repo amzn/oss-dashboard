@@ -2,7 +2,7 @@
 
 There is a distinct lack of tooling for GitHub admins and Open Source program managers who oversee many GitHub organizations. The oss-dashboard provides a view over many GitHub projects, allowing for custom reporting on the synchronized data.
 
-![Screenshot](../screenshots/BasicDashboardExample.png?raw=true)
+![Screenshot](docs/screenshots/BasicDashboardExample.png?raw=true)
 
 ---
 
