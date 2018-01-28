@@ -59,3 +59,19 @@ Another approach is to turn on the --xsync flag for issues/commits/releases/even
 By default the refresh_dashboard.rb script outputs '.' characters to show it's taken care of a repository (or whatever the 'atom' being operated on is in that phase). Sometimes it outputs a '!'. Here's why:
 
 * github-sync/commits - An '!' here means it skipped an empty repository to avoid an Octokit error.
+
+## Helper Tools
+
+You only get 5000 requests an hour to GitHub, so keeping an eye on your current request count can be important. This script lets you know how many tokens you have left. 
+
+```
+  # Instead of providing the file, you can set the
+  # GH_ACCESS_TOKEN environment variable with your access token.
+  ruby github-sync/util/get_rate_limit.rb --ghconfig {path to config-github.yml}
+```
+
+The following query shows you the size of each of your tables. It needs porting to Ruby so it can take advantage of the config. It can be run for everything, or just for a single organization. 
+
+```
+  ruby db/queries/db-summary.rb {path to config-dashboard.yml} [optional organization login]
+```
