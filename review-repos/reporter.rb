@@ -21,7 +21,7 @@ class Reporter
   def filename_check(repo, dir, pattern, name, exclude=nil)
       txt=""
       sliceIdx=dir.length + 1
-      Dir.glob("#{dir}/**/*").grep(pattern).each do |file|
+      Dir.glob("#{dir}/**/*", File::FNM_DOTMATCH).grep(pattern).each do |file|
         if(exclude and file.match(exclude))
           next
         end
