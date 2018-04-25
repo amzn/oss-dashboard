@@ -28,8 +28,24 @@ def get_db_handle(config)
     server   = ENV['DB_SERVER'] ? ENV['DB_SERVER'] : db_config[:server.to_s]
     port     = ENV['DB_PORT'] ? ENV['DB_PORT'] : db_config[:port.to_s]
     database = ENV['DB_DATABSE'] ? ENV['DB_DATABSE'] : db_config[:database.to_s]
-    completeDBUrl = ENV['DATABASE_URL'] ? ENV['DATABASE_URL'] : sprintf('postgres://%s:%s@%s:%s/%s', user, password, server, port, database)
-    return Sequel.connect(completeDBUrl)
+
+    # Specific Postgresql options
+    sslmode = ENV['DB_SSLMODE'] ? ENV['DB_SSLMODE'] : db_config[:sslmode.to_s]
+    sslrootcert = ENV['DB_SSLROOTCERT'] ? ENV['DB_SSLROOTCERT'] : db_config[:sslrootcert.to_s]
+
+    #completeDBUrl = ENV['DATABASE_URL'] ? ENV['DATABASE_URL'] : sprintf('postgres://%s:%s@%s:%s/%s', user, password, server, port, database)
+    return Sequel.connect(
+      adapter: 'postgres',
+      host: server,
+      database: database,
+      user: user,
+      password: password,
+      port: port,
+      sslmode: sslmode,
+      sslrootcert: sslrootcert
+    )
+
+    #return Sequel.connect(completeDBUrl)
   else
     raise StandardError.new(sprintf('unsupported database engine[%s]', config[:engine]))
   end
