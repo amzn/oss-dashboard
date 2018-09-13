@@ -80,14 +80,16 @@ class SyncReleaseCommand < BaseCommand
               end
           end
 
-
-          db[
-           "INSERT INTO releases (
-              org, repo, id, html_url, tarball_url, zipball_url, tag_name, name, body, created_at, published_at, author
-            )
-            VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
-            org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s,
-            release.published_at.to_s, author].insert
+	  # only include releases that were published
+	  if(release.published_at)
+	          db[
+        	   "INSERT INTO releases (
+	              org, repo, id, html_url, tarball_url, zipball_url, tag_name, name, body, created_at, published_at, author
+	            )
+	            VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
+	            org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s,
+	            release.published_at.to_s, author].insert
+	  end
       end
     end
   end
