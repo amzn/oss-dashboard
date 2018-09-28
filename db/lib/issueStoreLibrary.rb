@@ -61,7 +61,24 @@ require "date"
     end
   end
 
-  def db_getMaxCommentTimestampForRepo(db, org, repo)
+  # Inserts new comments. If any exist already, it replaces them.
+  def db_insert_pr_reviews(db, comments, org, repo)
+    comments.each do |comment|
+        db["DELETE FROM item_comments WHERE id=?", comment.id].delete
+        # eg: https://github.com/amzn/oss-dashboard/pull/1#discussion_r207199796
+        itemNumber=comment.html_url.sub(/^.*\/([0-9]*)#discussion_r[0-9]*$/, '\1')
+        user=comment.user ? comment.user.login : nil
+        db[
+         "INSERT INTO item_comments (
+               id, org, repo, item_number, user_login, body, created_at, updated_at
+          )
+          VALUES ( ?, ?, ?, ?, ?, ?, ?, ? )",
+          comment.id, org, repo, itemNumber, user, comment.body, gh_to_db_timestamp(comment.created_at),
+          gh_to_db_timestamp(comment.updated_at)].insert
+    end
+ end
+
+ def db_getMaxCommentTimestampForRepo(db, org, repo)
     # Normally '2015-04-18 14:17:02 UTC'
     # Need '2015-04-18T14:17:02Z'
     db["select max(updated_at) from item_comments where org='#{org}' and repo='#{repo}'"].each do |row|

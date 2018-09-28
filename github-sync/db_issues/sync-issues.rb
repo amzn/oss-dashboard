@@ -147,10 +147,13 @@ def getLatestIssueComments(context, issue_db, org, repos)
           # Increment the timestamp by a second to avoid getting repeats
           ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
           comments=context.client.issues_comments(repo_obj.full_name, { 'since' => ts } )
+	  pr_reviews=context.client.pull_requests_comments(repo_obj.full_name, { 'since' => ts } )
         else
           comments=context.client.issues_comments(repo_obj.full_name)
+	  pr_reviews=context.client.pull_requests_comments(repo_obj.full_name)
         end
         db_insert_comments(issue_db, comments, org, repo_obj.name)
+        db_insert_pr_reviews(issue_db, pr_reviews, org, repo_obj.name)
       end
       context.feedback.print '.'
     end
@@ -171,3 +174,4 @@ def sync_issue_comments(context, sync_db)
   end
 
 end
+

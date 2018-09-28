@@ -60,10 +60,13 @@ class SyncItemCommentsCommand < BaseCommand
         # Increment the timestamp by a second to avoid getting repeats
         ts=DateTime.strptime(maxTimestamp, '%Y-%m-%dT%H:%M:%S') + Rational(1, 60 * 60 * 24)
         comments=context.client.issues_comments(orgrepo, { 'since' => ts } )
+	pr_reviews=context.client.pull_requests_comments(orgrepo, { 'since' => ts } )
       else
         comments=context.client.issues_comments(orgrepo)
+	pr_reviews=context.client.pull_requests_comments(orgrepo)
       end
       db_insert_comments(issue_db, comments, org, repo)
+      db_insert_pr_reviews(issue_db, pr_reviews, org, repo)
     end
   end
 
