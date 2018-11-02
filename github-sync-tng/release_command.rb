@@ -79,6 +79,10 @@ class SyncReleaseCommand < BaseCommand
   #                puts "Unable to find an author or uploader for #{release.html_url}"
               end
           end
+          release_published_date=release.published_at.to_s
+          if(release_published_date.empty?)
+            release_published_date=nil
+          end
 
 	  # only include releases that were published
 	  if(release.published_at)
@@ -88,7 +92,7 @@ class SyncReleaseCommand < BaseCommand
 	            )
 	            VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )",
 	            org, repo, release.id, release.html_url, release.tarball_url, release.zipball_url, release.tag_name, release.name, release.body, release.created_at.to_s,
-	            release.published_at.to_s, author].insert
+	    	    release_published_date, author].insert
 	  end
       end
     end
