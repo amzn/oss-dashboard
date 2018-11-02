@@ -81,6 +81,16 @@ def eval_queue(queue, context, sync_db)
       else
         fail=fail+1
       end
+    rescue Sequel::DatabaseError => msg
+      # Repository access blocked (Octokit::ClientError)
+      puts "Database error, pushing command back on queue: #{msg}"
+      queue.push(cmd)
+      if(fail > limit)
+        return_code=false
+        break
+      else
+        fail=fail+1
+      end
     end
 
   end
