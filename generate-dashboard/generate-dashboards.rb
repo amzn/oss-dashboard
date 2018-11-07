@@ -135,7 +135,8 @@ def generate_tng_repo_xml(context)
     repo_xml_file.puts "  <release-data>"
     releases=sync_db["SELECT DISTINCT(id), html_url, name, published_at, author FROM releases WHERE org='#{org}' AND repo='#{repoName}' ORDER BY published_at DESC"]
     releases.each do |release|
-      repo_xml_file.puts "    <release id='#{release[:id]}' url='#{release[:html_url]}' published_at='#{release[:published_at]}' author='#{release[:author]}'>#{escape_for_xml(release[:name])}</release>"
+      releaseUrl=release[:html_url].gsub(/'/, '&apos;')
+      repo_xml_file.puts "    <release id='#{release[:id]}' url='#{releaseUrl}' published_at='#{release[:published_at]}' author='#{release[:author]}'>#{escape_for_xml(release[:name])}</release>"
     end
     repo_xml_file.puts "  </release-data>"
 
