@@ -17,6 +17,7 @@ require 'octokit'
 require 'date'
 require 'yaml'
 
+# BUG: This relies on the configuration naming of the org and not the real one. i.e. using 'foo' in config when the org login is really 'Foo'
 def clear_organization(db, org_login)
   queries = [
     "DELETE FROM team_to_member WHERE team_id IN (SELECT id FROM team WHERE org=?)",
