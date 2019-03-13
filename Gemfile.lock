@@ -1,26 +1,26 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.5.0)
-      public_suffix (~> 2.0, >= 2.0.2)
-    faraday (0.11.0)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    faraday (0.13.1)
       multipart-post (>= 1.2, < 3)
     libxml-ruby (2.9.0)
     libxslt-ruby (1.1.1)
       libxml-ruby (>= 2.4.0)
-    licensee (8.7.0)
+    licensee (8.8.5)
       rugged (~> 0.24)
     multipart-post (2.0.0)
-    octokit (4.6.2)
+    octokit (4.8.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     pg (0.19.0)
-    public_suffix (2.0.5)
-    rack (1.6.5)
-    rugged (0.25.1.1)
+    public_suffix (3.0.1)
+    rack (2.0.3)
+    rugged (0.26.0)
     sawyer (0.8.1)
       addressable (>= 2.3.5, < 2.6)
       faraday (~> 0.8, < 1.0)
-    sequel (4.42.1)
+    sequel (5.18.0)
 
 PLATFORMS
   ruby
@@ -32,10 +32,10 @@ DEPENDENCIES
   octokit (~> 4.6)
   pg
   rack
-  sequel (~> 4.6)
+  sequel (~> 5.7)
 
 RUBY VERSION
    ruby 2.2.6p396
 
 BUNDLED WITH
-   1.14.6
+   1.15.3
