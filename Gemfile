@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 ruby '2.2.6'
 
-gem 'rack'
+gem 'rack', '>= 2.0.6'
 gem 'octokit', '~> 4.6'
 gem 'libxslt-ruby', '> 0'
 gem 'libxml-ruby', '> 0'
