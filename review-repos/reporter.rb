@@ -18,6 +18,7 @@ require 'yaml'
 class Reporter
 
   # exclude and pattern are regexps
+  # This function matches files against their full filename
   def filename_check(repo, dir, pattern, name, exclude=nil)
       txt=""
       sliceIdx=dir.length + 1
