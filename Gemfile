@@ -1,7 +1,6 @@
-#ruby '2.0.0' # any ruby version 1.9+ should be fine
 
 source 'https://rubygems.org'
-ruby '2.2.6'
+ruby '2.4.5'
 
 gem 'rack', '>= 2.0.6'
 gem 'octokit', '~> 4.6'
