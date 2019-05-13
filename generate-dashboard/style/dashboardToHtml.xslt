@@ -859,7 +859,7 @@ charts["LineChart"] = JSON.parse('{ \
               <xsl:variable name="report" select="@key"/>
               <xsl:variable name="columntypes" select="column-type"/>
             <div class="tab-pane" id="{$report}">
-             <h3>User Report: <xsl:value-of select="@name"/>
+             <h3>Issue Report: <xsl:value-of select="@name"/>
              (<xsl:value-of select="count(//reporting[@type=$report and not(text()=preceding::reporting[@type=$report]/text())])"/>)</h3> <!-- bug: unable to show summary count within a team mode -->
              <pre><xsl:value-of select="description"/></pre>
              <div class="data-grid-sortable tablesorter">
