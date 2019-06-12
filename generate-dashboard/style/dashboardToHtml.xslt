@@ -613,7 +613,7 @@ charts["LineChart"] = JSON.parse('{ \
                 </thead>
                 <tbody>
                 <xsl:for-each select="repo">
-                  <xsl:variable name="orgname2" select="../@name"/>
+                  <xsl:variable name="orgname2" select="@org"/>
                   <xsl:variable name="reponame" select="@name"/>
                   <xsl:for-each select="issues/issue[@pull_request='false']">
                     <xsl:variable name="issuekey" select="@number"/>
@@ -659,7 +659,7 @@ charts["LineChart"] = JSON.parse('{ \
                 </thead>
                 <tbody>
                 <xsl:for-each select="repo">
-                  <xsl:variable name="orgname2" select="../@name"/>
+                  <xsl:variable name="orgname2" select="@org"/>
                   <xsl:variable name="reponame" select="@name"/>
                   <xsl:for-each select="issues/issue[@pull_request='true']">
                     <xsl:variable name="issuekey" select="@number"/>
