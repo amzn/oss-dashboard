@@ -129,8 +129,8 @@ class SyncItemsCommand < BaseCommand
     end
     unless(issues.empty?)
 
-      while(issues.length>0)
-        begin
+      begin
+        while(issues.length>0)
           # Issue lists can be large when first importing, so handle in blocks
           issue_block=issues.take(BLOCK_SIZE)
           issue_db.transaction do
@@ -141,9 +141,9 @@ class SyncItemsCommand < BaseCommand
           end
           # remove the block just loaded
           issues=issues.drop(BLOCK_SIZE)
-        rescue => e
-          puts "Error during processing: #{$!}"
         end
+      rescue => e
+        puts "Error during processing block of isssues: #{$!}"
       end
     end
   end
