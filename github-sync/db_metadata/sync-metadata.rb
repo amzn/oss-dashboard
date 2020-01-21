@@ -84,11 +84,12 @@ def store_organization_repositories(context, db, org)
     end
 
     db["INSERT INTO repository
-      (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, size, description)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      (id, org, name, homepage, fork, private, has_wiki, language, stars, watchers, forks, created_at, updated_at, pushed_at, archived, disabled, size, description)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       repo_obj.id, org, repo_obj.name, repo_obj.homepage, repo_obj.fork ? true : false, repo_obj.private ? true : false,
       repo_obj.has_wiki ? true : false, repo_obj.language, repo_obj.watchers,
       watchers, repo_obj.forks, repo_obj.created_at.to_s, repo_obj.updated_at.to_s, repo_obj.pushed_at.to_s,
+      repo_obj.archived ? true : false, repo_obj.disabled ? true : false,
       repo_obj.size, repo_obj.description].insert
    rescue Octokit::ClientError
       context.feedback.print "!#{$!}!"

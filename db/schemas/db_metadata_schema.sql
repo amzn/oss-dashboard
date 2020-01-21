@@ -38,6 +38,8 @@ CREATE TABLE repository (
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
   pushed_at TIMESTAMP,
+  archived BOOLEAN,
+  disabled BOOLEAN,
   size INTEGER,
   description VARCHAR
 );
